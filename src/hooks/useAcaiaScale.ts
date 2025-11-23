@@ -91,6 +91,18 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     try {
       console.log("Starting connection to Acaia scale...");
 
+      // Enable Bluetooth (this also handles permissions on Android)
+      console.log("Enabling Bluetooth and requesting permissions...");
+      try {
+        await BleClient.initialize({ androidNeverForLocation: true });
+        console.log("BLE initialized with permissions");
+      } catch (initError) {
+        console.error("BLE initialization error:", initError);
+        toast.error("Please enable Bluetooth and grant location permission in your device settings.");
+        setConnectionStatus("disconnected");
+        return;
+      }
+
       // Request device - Pearl S uses "PEARLS-" prefix
       console.log("Requesting device...");
       const device = await BleClient.requestDevice({
