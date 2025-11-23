@@ -97,13 +97,14 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
       console.log("Got service");
       
-      console.log("Getting notify characteristic:", ACAIA_CHAR_NOTIFY_UUID);
-      const notifyChar = await service.getCharacteristic(ACAIA_CHAR_NOTIFY_UUID);
-      console.log("Got notify characteristic");
-      
+      // Try to get the write characteristic (this one we know works from error)
       console.log("Getting write characteristic:", ACAIA_CHAR_WRITE_UUID);
       const writeChar = await service.getCharacteristic(ACAIA_CHAR_WRITE_UUID);
-      console.log("Got write characteristic");
+      console.log("Got write characteristic:", writeChar.uuid);
+      
+      // Use the same characteristic for both write and notify
+      // Acaia scales use a single characteristic for bidirectional communication
+      const notifyChar = writeChar;
 
       // Start notifications
       console.log("Starting notifications...");
