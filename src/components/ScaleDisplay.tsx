@@ -120,66 +120,60 @@ export const ScaleDisplay = ({
           </div>
         </div>
 
-        {/* Price Display - Digital Receipt/Ticket Style */}
-        <div className="mb-8 glass-effect rounded-2xl shadow-soft border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[380px]">
-          {/* Perforated top edge - 2D minimal */}
-          <div className="absolute top-0 left-0 right-0 h-4 border-b border-dotted border-foreground/40 flex items-center justify-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
-            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
-            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
-            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
-            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
+        {/* Price Display - Receipt Style */}
+        <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]">
+          {/* Perforated top edge */}
+          <div className="absolute top-0 left-0 right-0 h-3 border-b border-dotted border-foreground/40 flex items-center justify-center gap-3">
+            {Array.from({length: 8}).map((_, i) => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-foreground/40" />
+            ))}
           </div>
           
-          <div className="px-6 py-4 pt-6">
-            {/* Header Section */}
-            <div className="text-center mb-3">
-              <h2 className="text-brand text-2xl tracking-tighter mb-1">MUMS</h2>
-              <div className="font-mono text-[10px] text-foreground/60">
-                <div>#{new Date().getTime().toString().slice(-8)}</div>
-                <div>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
+          <div className="px-8 py-5 pt-6">
+            {/* Top Section - Left and Right */}
+            <div className="flex justify-between items-start mb-4">
+              {/* Left: MUMS, Receipt #, Date/Time */}
+              <div>
+                <h2 className="text-brand text-3xl tracking-tighter mb-1">MUMS</h2>
+                <div className="font-mono text-xs text-foreground/70 space-y-0.5">
+                  <div>Receipt #{new Date().getTime().toString().slice(-6)}</div>
+                  <div>{new Date().toLocaleDateString()}</div>
+                  <div>{new Date().toLocaleTimeString()}</div>
+                </div>
               </div>
-            </div>
-            
-            {/* Dotted separator */}
-            <div className="border-t border-dotted border-foreground/30 my-3" />
-            
-            {/* Item Details Section */}
-            <div className="space-y-2 font-mono text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-foreground/70">Weight</span>
-                <span className="font-bold">{weight.toFixed(1)}g</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-foreground/70">Per 100g</span>
-                <span className="font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</span>
-              </div>
-            </div>
-            
-            {/* Dotted separator */}
-            <div className="border-t border-dotted border-foreground/30 my-3" />
-            
-            {/* Total Section */}
-            <div className="mb-3">
-              <div className="text-center">
-                <div className="text-xs font-bold text-foreground/70 tracking-wider mb-1">TOTAL</div>
-                <div className="text-display text-[80px] leading-none text-foreground">
-                  {getCurrencyByCode(currency).symbol}{calculatePrice()}
+              
+              {/* Right: Weight, Per 100g */}
+              <div className="text-right font-mono">
+                <div className="mb-2">
+                  <div className="text-xs text-foreground/70 mb-0.5">Weight</div>
+                  <div className="text-2xl font-bold">{weight.toFixed(1)}g</div>
+                </div>
+                <div>
+                  <div className="text-xs text-foreground/70 mb-0.5">Per 100g</div>
+                  <div className="text-lg font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</div>
                 </div>
               </div>
             </div>
             
             {/* Dotted separator */}
-            <div className="border-t border-dotted border-foreground/30 my-3" />
+            <div className="border-t-2 border-dotted border-foreground/40 my-4" />
             
-            {/* Footer Section */}
-            <div className="text-center font-mono text-[10px] text-foreground/50 mb-1">
-              <div>Thank you</div>
-              <div className="mt-1 flex justify-center gap-0.5">
-                {Array.from({length: 30}).map((_, i) => (
-                  <div key={i} className="w-0.5 h-2.5 bg-foreground/30" />
-                ))}
+            {/* Total Section - Centered, Large */}
+            <div className="text-center mb-3">
+              <div className="text-sm font-bold text-foreground/70 tracking-widest mb-1">TOTAL</div>
+              <div className="text-display text-[100px] leading-none text-foreground">
+                {getCurrencyByCode(currency).symbol}{calculatePrice()}
               </div>
+            </div>
+            
+            {/* Dotted separator */}
+            <div className="border-t border-dotted border-foreground/40 my-3" />
+            
+            {/* Footer - Barcode */}
+            <div className="flex justify-center gap-0.5 mb-1">
+              {Array.from({length: 40}).map((_, i) => (
+                <div key={i} className="w-0.5 h-3 bg-foreground/40" />
+              ))}
             </div>
           </div>
         </div>
