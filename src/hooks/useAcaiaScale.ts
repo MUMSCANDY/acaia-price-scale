@@ -272,26 +272,15 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION CHECK: v8.0 ===
-      console.log("🚀 V8.0 - IMMEDIATE + 3S HEARTBEAT");
+      // === VERSION 9.0: MINIMAL INIT - NO HEARTBEAT ===
+      console.log("🚀 V9.0 - NO HEARTBEAT, SCALE DATA FLOW MAINTAINS CONNECTION");
       
-      const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33]);
-      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(identCommand)));
-      console.log("✅ ID");
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const eventCommand = new Uint8Array([0xef, 0xdd, 0x0c, 0x09, 0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04, 0x08]);
-      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(eventCommand)));
-      console.log("✅ Events");
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      // Just send timer start - the simplest working configuration
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
-      console.log("✅ Timer");
+      console.log("✅ Timer started - relying on data flow to maintain connection");
       
-      console.log("✅ Ready");
+      console.log("✅ Connected - monitoring for natural connection stability");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -350,36 +339,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [deviceId, writeCharUuid]);
 
-  // Heartbeat every 3 seconds (send first one immediately)
-  useEffect(() => {
-    if (!isConnected || !deviceId || !writeCharUuid) {
-      return;
-    }
-
-    console.log("🔧 Starting immediate + 3s heartbeat");
-    
-    // Send first heartbeat immediately
-    const sendHeartbeat = async () => {
-      try {
-        const heartbeat = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
-        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
-        console.log("💓");
-      } catch (error) {
-        console.error("❌ HB failed:", error);
-      }
-    };
-    
-    // Send immediately
-    sendHeartbeat();
-    
-    // Then every 3 seconds
-    const intervalId = setInterval(sendHeartbeat, 3000);
-
-    return () => {
-      console.log("🧹 Stopping heartbeat");
-      clearInterval(intervalId);
-    };
-  }, [isConnected, deviceId, writeCharUuid]);
+  // V9.0: NO HEARTBEAT - let scale's data flow maintain connection naturally
   
   // Cleanup on unmount
   useEffect(() => {
