@@ -286,8 +286,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION 10.1: AUTO-RECONNECT WITH REF FIX ===
-      console.log("🚀 V10.1 - AUTO-RECONNECT (REF FIX)");
+      // === VERSION 11.0: REF-BASED HEARTBEAT ===
+      console.log("🚀 V11.0 - REF-BASED HEARTBEAT (CLOSURE FIX)");
       
       // Just send timer start
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
@@ -299,9 +299,9 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setConnectionStatus("connected");
       setWeight(0);
       setBattery(85);
-      autoReconnectEnabledRef.current = true; // Enable auto-reconnect using ref
+      autoReconnectEnabledRef.current = true; // Keep auto-reconnect as backup
       
-      toast.success("Connected - auto-reconnect enabled");
+      toast.success("Connected - heartbeat enabled");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
       toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -367,6 +367,36 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [deviceId, writeCharUuid]);
 
+  // Ref-based heartbeat every 4 seconds (avoids closure issues!)
+  useEffect(() => {
+    if (!isConnected || !deviceId || !writeCharUuid) {
+      return;
+    }
+
+    console.log("🔧 Starting ref-based 4s heartbeat");
+    
+    const sendHeartbeat = async () => {
+      try {
+        const heartbeat = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
+        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
+        console.log("💓");
+      } catch (error) {
+        console.error("❌ HB failed:", error);
+      }
+    };
+    
+    // Send immediately
+    sendHeartbeat();
+    
+    // Then every 4 seconds
+    const intervalId = setInterval(sendHeartbeat, 4000);
+
+    return () => {
+      console.log("🧹 Stopping heartbeat");
+      clearInterval(intervalId);
+    };
+  }, [isConnected, deviceId, writeCharUuid]); // Dependencies ensure we get latest values
+  
   // V9.0: NO HEARTBEAT - let scale's data flow maintain connection naturally
   
   // Cleanup on unmount
