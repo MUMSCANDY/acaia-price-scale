@@ -189,12 +189,9 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   // Simulate weight changes for demo purposes only when disconnected
   useEffect(() => {
     if (!isConnected) {
-      // Start with random weight between 0-249g for demo
-      setWeight(Math.random() * 249);
-      
-      // Simulate some weight variation for demo when not connected
+      // Simulate some weight for demo when not connected
       const interval = setInterval(() => {
-        setWeight((prev) => Math.max(0, Math.min(249, prev + (Math.random() - 0.5) * 20)));
+        setWeight((prev) => Math.max(0, prev + (Math.random() - 0.5) * 10));
       }, 500);
       return () => clearInterval(interval);
     } else {
