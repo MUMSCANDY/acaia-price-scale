@@ -136,7 +136,7 @@ export const ScaleDisplay = ({
             
             {/* Per 100g info */}
             <div className="text-center font-mono text-base text-foreground/70 mb-3">
-              Per 100g {getCurrencyByCode(currency).symbol}{pricePerHundred}
+              (Price per 100 g: {getCurrencyByCode(currency).symbol}{pricePerHundred})
             </div>
             
             {/* Footer - Barcode */}
