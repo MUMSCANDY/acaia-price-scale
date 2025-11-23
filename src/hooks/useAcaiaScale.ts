@@ -109,65 +109,34 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         throw new Error("GATT not available");
       }
 
-      // Connect to GATT server - try simple connection first
+      // Connect to GATT server
       console.log("Connecting to GATT server...");
       if (!device.gatt) {
         throw new Error("GATT not available on device");
       }
 
-      // Add disconnect listener
-      const handleDisconnect = () => {
-        console.log("Device disconnected unexpectedly");
-        setIsConnected(false);
-        setConnectionStatus("disconnected");
-        toast.info("Scale disconnected");
-      };
-      
-      (device as any).addEventListener?.('gattserverdisconnected', handleDisconnect);
-
       let server: BluetoothRemoteGATTServer;
       try {
-        // Simple direct connection - let browser handle the timeout
         server = await device.gatt.connect();
-        console.log("Connected to GATT server successfully");
+        console.log("GATT server connected successfully");
       } catch (err) {
         console.error("GATT connection failed:", err);
-        throw new Error(`Cannot connect to scale. Please ensure: 1) Scale is powered on, 2) Scale is not connected to another device (phone/tablet), 3) Bluetooth is enabled on your device. Error: ${err instanceof Error ? err.message : 'Unknown'}`);
+        throw new Error(`Cannot connect to scale. Error: ${err instanceof Error ? err.message : 'Unknown'}`);
       }
       
-      console.log("Getting service:", ACAIA_SERVICE_UUID);
-      const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
-      console.log("Got service, getting all characteristics...");
+      // MINIMAL CONNECTION TEST - just save device and set state
+      // Don't get services, don't get characteristics, don't do ANYTHING
+      console.log("Minimal connection established - testing if it stays alive...");
       
-      // Get all available characteristics
-      const characteristics = await service.getCharacteristics();
-      console.log("Found", characteristics.length, "characteristics:");
-      characteristics.forEach(c => {
-        console.log("  -", c.uuid);
-      });
-      
-      // Use first characteristic for both write and notify
-      const writeChar = characteristics[0];
-      const notifyChar = characteristics[0];
-      
-      console.log("Using characteristic:", writeChar.uuid);
-
-      // Just add event listener WITHOUT calling startNotifications to see if connection stays alive
-      console.log("Adding notification listener (without explicit start)...");
-      notifyChar.addEventListener("characteristicvaluechanged", handleNotification);
-      console.log("Listener added - connection should stay alive now");
-
       setDevice(device);
-      setCharacteristic(writeChar);
+      setCharacteristic(null); // No characteristic yet
       setIsConnected(true);
       setConnectionStatus("connected");
       setWeight(0);
       setBattery(85);
       
-      console.log("Connection complete! Scale is connected and listening for weight data.");
-      console.log("Note: The scale should automatically send weight updates when you place items on it.");
-      
-      toast.success("Connected to Acaia scale!");
+      console.log("Connection test complete. If this stays connected, we can proceed to get characteristics.");
+      toast.success("Connected! Testing connection stability...");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
       toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
