@@ -3,15 +3,19 @@ import { X, Download, FileDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import { currencies, getCurrencyByCode } from "@/lib/currencies";
 
 interface SettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
   pricePerHundred: number;
   onPriceChange: (price: number) => void;
+  currency: string;
+  onCurrencyChange: (currency: string) => void;
 }
 
 export const SettingsPanel = ({
@@ -19,11 +23,15 @@ export const SettingsPanel = ({
   onClose,
   pricePerHundred,
   onPriceChange,
+  currency,
+  onCurrencyChange,
 }: SettingsPanelProps) => {
   const [tempPrice, setTempPrice] = useState(pricePerHundred.toString());
   const [currentPin, setCurrentPin] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
+  
+  const selectedCurrency = getCurrencyByCode(currency);
 
   const handleSave = () => {
     const newPrice = parseFloat(tempPrice);
@@ -212,17 +220,30 @@ export const SettingsPanel = ({
                   min="0"
                 />
                 <div className="flex items-center justify-center w-14 h-14 bg-muted rounded-xl text-2xl font-bold">
-                  ฿
+                  {selectedCurrency.symbol}
                 </div>
               </div>
             </div>
 
-            {/* Currency Display */}
+            {/* Currency Selector */}
             <div className="space-y-3">
-              <Label className="text-xl font-semibold text-foreground">Currency</Label>
-              <div className="h-14 px-4 bg-muted rounded-xl flex items-center text-xl font-semibold text-muted-foreground">
-                Thai Baht (฿)
-              </div>
+              <Label htmlFor="currency" className="text-xl font-semibold text-foreground">Currency</Label>
+              <Select value={currency} onValueChange={onCurrencyChange}>
+                <SelectTrigger className="h-14 text-xl font-semibold rounded-xl bg-card">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-2 border-border z-[100]">
+                  {currencies.map((curr) => (
+                    <SelectItem 
+                      key={curr.code} 
+                      value={curr.code}
+                      className="text-lg font-semibold cursor-pointer hover:bg-muted"
+                    >
+                      {curr.symbol} {curr.name} ({curr.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Unit Display */}
@@ -237,7 +258,7 @@ export const SettingsPanel = ({
             <div className="space-y-3">
               <Label className="text-xl font-semibold text-foreground">Price Rounding</Label>
               <div className="h-14 px-4 bg-muted rounded-xl flex items-center text-xl font-semibold text-muted-foreground">
-                Round up to nearest 1 ฿
+                Round up to nearest 1 {selectedCurrency.symbol}
               </div>
             </div>
 
