@@ -114,9 +114,15 @@ export const ScaleDisplay = ({
       <main className="relative z-10 flex flex-col items-center justify-center flex-1 px-12 py-20">
         {/* Weight Display */}
         <div className="mb-12 text-center animate-scale-in">
-          <div className="text-digital text-[200px] leading-none mb-4 drop-shadow-2xl">
+          <div className={cn(
+            "text-digital leading-none mb-4 drop-shadow-2xl",
+            weight >= 100 ? "text-[140px]" : "text-[200px]"
+          )}>
             {weight.toFixed(1)}
-            <span className="text-[140px] ml-6 font-bold">g</span>
+            <span className={cn(
+              "ml-6 font-bold",
+              weight >= 100 ? "text-[100px]" : "text-[140px]"
+            )}>g</span>
           </div>
         </div>
 
