@@ -8,45 +8,45 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* MUMS Brand Colors - Pink & Black Minimal Theme */
-    --background: 328 100% 97%;
-    --foreground: 0 0% 0%;
+    /* MUMS Brand Colors - Pink #E86A9E & Black Only */
+    --background: 340 76% 65%; /* #E86A9E */
+    --foreground: 0 0% 0%; /* Black text only */
 
-    --card: 328 100% 99%;
+    --card: 340 76% 70%;
     --card-foreground: 0 0% 0%;
 
-    --popover: 328 100% 99%;
+    --popover: 340 76% 70%;
     --popover-foreground: 0 0% 0%;
 
-    /* MUMS Brand Pink #FF2BAC */
-    --primary: 328 100% 57%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary brand pink #E86A9E */
+    --primary: 340 76% 65%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 328 100% 95%;
+    --secondary: 340 76% 75%;
     --secondary-foreground: 0 0% 0%;
 
-    --muted: 328 50% 95%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 340 50% 80%;
+    --muted-foreground: 0 0% 20%;
 
-    --accent: 328 100% 57%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 340 76% 65%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 0 0% 0%;
 
-    --border: 328 100% 90%;
-    --input: 328 100% 90%;
-    --ring: 328 100% 57%;
+    --border: 0 0% 20%;
+    --input: 340 76% 75%;
+    --ring: 0 0% 0%;
 
     --radius: 1rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(328 100% 57%), hsl(328 100% 70%));
-    --gradient-background: linear-gradient(180deg, hsl(328 100% 97%), hsl(328 100% 95%));
+    --gradient-primary: linear-gradient(135deg, hsl(340 76% 65%), hsl(340 76% 75%));
+    --gradient-background: linear-gradient(180deg, hsl(340 76% 65%), hsl(340 76% 70%));
     
     /* Shadows */
-    --shadow-soft: 0 4px 20px hsla(328 100% 57% / 0.1);
-    --shadow-bold: 0 8px 30px hsla(328 100% 57% / 0.2);
+    --shadow-soft: 0 4px 20px hsla(0 0% 0% / 0.15);
+    --shadow-bold: 0 8px 30px hsla(0 0% 0% / 0.25);
     
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
