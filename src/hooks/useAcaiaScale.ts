@@ -23,9 +23,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
   
-  // Use ref for buffer to avoid async state issues
+  // Use refs for buffer and heartbeat interval
   const dataBufferRef = useRef<number[]>([]);
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parse weight data from Acaia scale with proper buffering
   const parseWeightData = useCallback((dataView: DataView) => {
@@ -234,7 +236,17 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         return;
       }
       
+      // Find the write characteristic (should have 'write' or 'writeWithoutResponse' property)
+      const writeChar = acaiaService.characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+      if (!writeChar) {
+        toast.error("No write characteristic found");
+        setConnectionStatus("disconnected");
+        return;
+      }
+      
       console.log("Using notify characteristic:", notifyChar.uuid);
+      console.log("Using write characteristic:", writeChar.uuid);
+      setWriteCharUuid(writeChar.uuid);
 
       // Start notifications for weight data
       console.log("Starting notifications...");
@@ -248,6 +260,23 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       );
       
       console.log("Notifications started");
+      
+      // Send initial identification command
+      const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33]);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(identCommand)));
+      console.log("Sent identification command");
+      
+      // Start heartbeat to keep connection alive
+      heartbeatIntervalRef.current = setInterval(async () => {
+        try {
+          // Acaia heartbeat message: 0xef 0xdd 0x00 0x00
+          const heartbeat = new Uint8Array([0xef, 0xdd, 0x00, 0x00]);
+          await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(heartbeat)));
+          console.log("Heartbeat sent");
+        } catch (error) {
+          console.error("Heartbeat error:", error);
+        }
+      }, 3000); // Send heartbeat every 3 seconds
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -267,6 +296,12 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
 
   // Disconnect from scale
   const disconnect = useCallback(async () => {
+    // Clear heartbeat interval
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+    
     if (deviceId) {
       try {
         await BleClient.disconnect(deviceId);
@@ -283,33 +318,29 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
 
   // Send tare command to scale
   const tare = useCallback(async () => {
-    if (!deviceId || !isConnected) {
-      toast.error("Not connected to scale");
+    if (!deviceId || !writeCharUuid) {
+      toast.error("Scale not connected");
       return;
     }
-
+    
     try {
-      // Acaia tare command (simplified - actual command from protocol doc)
-      const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00, 0x00, 0x00, 0x00]);
-      const dataView = numbersToDataView(Array.from(tareCommand));
-      
-      await BleClient.write(
-        deviceId,
-        ACAIA_SERVICE_UUID,
-        ACAIA_CHAR_WRITE_UUID,
-        dataView
-      );
-      
+      // Acaia tare command: 0xef 0xdd 0x04 0x00
+      const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00]);
+      await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(tareCommand)));
       toast.success("Scale tared");
+      setWeight(0);
     } catch (error) {
       console.error("Tare error:", error);
       toast.error("Failed to tare scale");
     }
-  }, [deviceId, isConnected]);
+  }, [deviceId, writeCharUuid]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+      }
       if (deviceId) {
         BleClient.disconnect(deviceId).catch(console.error);
       }
