@@ -83,6 +83,16 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         throw new Error("GATT not available on device");
       }
 
+      // Add disconnect listener
+      const handleDisconnect = () => {
+        console.log("Device disconnected unexpectedly");
+        setIsConnected(false);
+        setConnectionStatus("disconnected");
+        toast.info("Scale disconnected");
+      };
+      
+      (device as any).addEventListener?.('gattserverdisconnected', handleDisconnect);
+
       let server: BluetoothRemoteGATTServer;
       try {
         // Simple direct connection - let browser handle the timeout
@@ -133,6 +143,17 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setBattery(85); // Would be read from actual device
 
       console.log("Connection complete!");
+      
+      // Send identification command to keep connection alive
+      try {
+        console.log("Sending identification command...");
+        const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30]);
+        await writeChar.writeValue(identCommand);
+        console.log("Identification sent");
+      } catch (err) {
+        console.warn("Failed to send identification:", err);
+      }
+      
       toast.success("Connected to Acaia scale!");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
