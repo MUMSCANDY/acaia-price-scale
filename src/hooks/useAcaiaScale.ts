@@ -164,51 +164,19 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       // Start notifications on the notify characteristic (or write if no notify exists)
       const charForNotify = notifyChar || writeChar;
       console.log("Starting notifications...");
-      
-      // Don't await - start notifications in background
-      charForNotify.startNotifications().then(() => {
-        console.log("Notifications started successfully");
-      }).catch(err => {
-        console.error("Failed to start notifications:", err);
-      });
-      
+      await charForNotify.startNotifications();
       charForNotify.addEventListener("characteristicvaluechanged", handleNotification);
+      console.log("Notifications started");
 
       setDevice(device);
       setCharacteristic(writeChar);
-      
-      // Set connection status first
       setIsConnected(true);
       setConnectionStatus("connected");
       setWeight(0);
       setBattery(85);
       
-      console.log("Connection complete - sending initialization commands");
-      
-      // Send commands after a short delay to let notifications start
-      setTimeout(async () => {
-        if (!device.gatt?.connected) {
-          console.log("Device disconnected before initialization");
-          return;
-        }
-        
-        try {
-          // Send identification
-          console.log("Sending identification...");
-          const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30]);
-          await writeChar.writeValue(identCommand);
-          
-          // Request weight notifications
-          await new Promise(resolve => setTimeout(resolve, 100));
-          console.log("Requesting weight notifications...");
-          const notifyCommand = new Uint8Array([0xef, 0xdd, 0x0c, 0x09, 0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04]);
-          await writeChar.writeValue(notifyCommand);
-          
-          console.log("Scale initialized successfully");
-        } catch (err) {
-          console.error("Initialization error:", err);
-        }
-      }, 500);
+      console.log("Connection complete! Scale is connected and listening for weight data.");
+      console.log("Note: The scale should automatically send weight updates when you place items on it.");
       
       toast.success("Connected to Acaia scale!");
     } catch (error) {
