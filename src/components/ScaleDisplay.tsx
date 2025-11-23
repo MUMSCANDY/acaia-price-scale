@@ -4,6 +4,7 @@ import { Settings, Wifi, WifiOff, Battery } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
+import { getCurrencyByCode } from "@/lib/currencies";
 
 interface ScaleDisplayProps {
   weight: number;
@@ -21,8 +22,14 @@ export const ScaleDisplay = ({
   onToggleConnection,
 }: ScaleDisplayProps) => {
   const [pricePerHundred, setPricePerHundred] = useState(89);
+  const [currency, setCurrency] = useState(() => localStorage.getItem("currency") || "THB");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
+
+  // Save currency to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("currency", currency);
+  }, [currency]);
 
   // Save transaction history
   useEffect(() => {
@@ -128,10 +135,10 @@ export const ScaleDisplay = ({
         {/* Price Display */}
         <div className="mb-12 text-center bg-foreground/10 backdrop-blur-md rounded-3xl px-16 py-10 shadow-bold">
           <div className="text-display text-[180px] leading-none text-foreground">
-            ฿ {calculatePrice()}
+            {getCurrencyByCode(currency).symbol} {calculatePrice()}
           </div>
           <p className="text-2xl text-foreground/70 mt-4 font-semibold">
-            Price per 100 g: {pricePerHundred} ฿
+            Price per 100 g: {pricePerHundred} {getCurrencyByCode(currency).symbol}
           </p>
         </div>
 
@@ -170,6 +177,8 @@ export const ScaleDisplay = ({
         onClose={() => setIsSettingsOpen(false)}
         pricePerHundred={pricePerHundred}
         onPriceChange={setPricePerHundred}
+        currency={currency}
+        onCurrencyChange={setCurrency}
       />
     </div>
   );
