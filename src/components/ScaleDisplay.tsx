@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Settings, Wifi, WifiOff, Battery } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
+import { PinDialog } from "./PinDialog";
 
 interface ScaleDisplayProps {
   weight: number;
@@ -21,23 +22,44 @@ export const ScaleDisplay = ({
 }: ScaleDisplayProps) => {
   const [pricePerHundred, setPricePerHundred] = useState(89);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isPriceLocked, setIsPriceLocked] = useState(false);
-  const [lockedPrice, setLockedPrice] = useState(0);
+  const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
+
+  // Save transaction history
+  useEffect(() => {
+    if (weight > 0 && isConnected) {
+      const transaction = {
+        timestamp: new Date().toISOString(),
+        weight,
+        pricePerHundred,
+        totalPrice: calculatePrice(),
+      };
+      
+      const history = JSON.parse(localStorage.getItem("transactionHistory") || "[]");
+      history.push(transaction);
+      
+      // Keep only last 1000 transactions
+      if (history.length > 1000) {
+        history.shift();
+      }
+      
+      localStorage.setItem("transactionHistory", JSON.stringify(history));
+    }
+  }, [weight, isConnected]);
+
+  const handleSettingsClick = () => {
+    setIsPinDialogOpen(true);
+  };
+
+  const handlePinSuccess = () => {
+    setIsPinDialogOpen(false);
+    setIsSettingsOpen(true);
+  };
 
   // Calculate total price
   const calculatePrice = () => {
     const pricePerGram = pricePerHundred / 100;
     const total = Math.ceil(weight * pricePerGram);
     return total;
-  };
-
-  const currentPrice = isPriceLocked ? lockedPrice : calculatePrice();
-
-  const handleLockPrice = () => {
-    if (!isPriceLocked) {
-      setLockedPrice(calculatePrice());
-    }
-    setIsPriceLocked(!isPriceLocked);
   };
 
   return (
@@ -85,8 +107,8 @@ export const ScaleDisplay = ({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setIsSettingsOpen(true)}
-            className="rounded-full w-12 h-12 border-2 border-foreground/20 hover:border-primary hover:bg-primary/10"
+            onClick={handleSettingsClick}
+            className="rounded-full w-12 h-12 border-2 border-foreground/20 hover:border-foreground hover:bg-foreground/10"
           >
             <Settings className="w-6 h-6" />
           </Button>
@@ -104,14 +126,11 @@ export const ScaleDisplay = ({
         </div>
 
         {/* Price Display */}
-        <div className="mb-12 text-center bg-white/40 backdrop-blur-md rounded-3xl px-16 py-10 shadow-bold">
-          <div className="text-display text-[180px] leading-none text-primary">
-            ฿ {currentPrice}
-            {isPriceLocked && (
-              <span className="text-6xl ml-4 text-muted-foreground">🔒</span>
-            )}
+        <div className="mb-12 text-center bg-foreground/10 backdrop-blur-md rounded-3xl px-16 py-10 shadow-bold">
+          <div className="text-display text-[180px] leading-none text-foreground">
+            ฿ {calculatePrice()}
           </div>
-          <p className="text-2xl text-muted-foreground mt-4 font-semibold">
+          <p className="text-2xl text-foreground/70 mt-4 font-semibold">
             Price per 100 g: {pricePerHundred} ฿
           </p>
         </div>
@@ -126,15 +145,6 @@ export const ScaleDisplay = ({
           >
             TARE
           </Button>
-          
-          <Button
-            size="lg"
-            variant={isPriceLocked ? "destructive" : "secondary"}
-            onClick={handleLockPrice}
-            className="px-12 py-8 text-2xl font-bold rounded-2xl shadow-soft hover:shadow-bold transition-all"
-          >
-            {isPriceLocked ? "UNLOCK PRICE" : "LOCK PRICE"}
-          </Button>
 
           <Button
             size="lg"
@@ -146,6 +156,13 @@ export const ScaleDisplay = ({
           </Button>
         </div>
       </main>
+
+      {/* PIN Dialog */}
+      <PinDialog
+        isOpen={isPinDialogOpen}
+        onClose={() => setIsPinDialogOpen(false)}
+        onSuccess={handlePinSuccess}
+      />
 
       {/* Settings Panel */}
       <SettingsPanel

@@ -19,6 +19,9 @@ export const SettingsPanel = ({
   onPriceChange,
 }: SettingsPanelProps) => {
   const [tempPrice, setTempPrice] = useState(pricePerHundred.toString());
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
 
   const handleSave = () => {
     const newPrice = parseFloat(tempPrice);
@@ -26,6 +29,31 @@ export const SettingsPanel = ({
       onPriceChange(newPrice);
       onClose();
     }
+  };
+
+  const handleChangePIN = () => {
+    const storedPin = localStorage.getItem("settingsPin") || "1616";
+    
+    if (currentPin !== storedPin) {
+      alert("Current PIN is incorrect");
+      return;
+    }
+    
+    if (newPin.length !== 4 || confirmPin.length !== 4) {
+      alert("PIN must be 4 digits");
+      return;
+    }
+    
+    if (newPin !== confirmPin) {
+      alert("New PIN and confirmation do not match");
+      return;
+    }
+    
+    localStorage.setItem("settingsPin", newPin);
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmPin("");
+    alert("PIN changed successfully");
   };
 
   return (
@@ -108,12 +136,73 @@ export const SettingsPanel = ({
               </div>
             </div>
 
+            {/* Change PIN Section */}
+            <div className="space-y-4 pt-8 border-t-2 border-border">
+              <h3 className="text-xl font-bold text-foreground">Change PIN Code</h3>
+              
+              <div className="space-y-3">
+                <Label htmlFor="currentPin" className="text-base font-semibold text-foreground">
+                  Current PIN
+                </Label>
+                <Input
+                  id="currentPin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={currentPin}
+                  onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ""))}
+                  className="text-xl font-bold h-12 px-4 rounded-xl"
+                  placeholder="••••"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="newPin" className="text-base font-semibold text-foreground">
+                  New PIN
+                </Label>
+                <Input
+                  id="newPin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                  className="text-xl font-bold h-12 px-4 rounded-xl"
+                  placeholder="••••"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="confirmPin" className="text-base font-semibold text-foreground">
+                  Confirm New PIN
+                </Label>
+                <Input
+                  id="confirmPin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                  className="text-xl font-bold h-12 px-4 rounded-xl"
+                  placeholder="••••"
+                />
+              </div>
+
+              <Button
+                onClick={handleChangePIN}
+                variant="secondary"
+                className="w-full h-12 text-lg font-bold rounded-xl"
+              >
+                UPDATE PIN
+              </Button>
+            </div>
+
             {/* Info Box */}
-            <div className="mt-8 p-6 bg-primary/10 rounded-2xl border-2 border-primary/20">
+            <div className="mt-8 p-6 bg-foreground/10 rounded-2xl border-2 border-foreground/20">
               <h3 className="font-bold text-lg text-foreground mb-2">
                 Calculation Formula
               </h3>
-              <code className="text-sm text-muted-foreground block font-mono">
+              <code className="text-sm text-foreground/70 block font-mono">
                 Total Price = Weight (g) × (Price per 100g ÷ 100)
                 <br />
                 Rounded up to nearest 1 ฿
