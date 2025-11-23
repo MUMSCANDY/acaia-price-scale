@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { BleClient, numbersToDataView, numberToUUID } from '@capacitor-community/bluetooth-le';
 
@@ -23,75 +23,77 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [dataBuffer, setDataBuffer] = useState<number[]>([]);
+  
+  // Use ref for buffer to avoid async state issues
+  const dataBufferRef = useRef<number[]>([]);
 
-  // Parse weight data from Acaia scale
+  // Parse weight data from Acaia scale with proper buffering
   const parseWeightData = useCallback((dataView: DataView) => {
     try {
       // Convert to byte array and add to buffer
       const newBytes = Array.from(new Uint8Array(dataView.buffer));
+      dataBufferRef.current = [...dataBufferRef.current, ...newBytes];
       
-      setDataBuffer(prevBuffer => {
-        const buffer = [...prevBuffer, ...newBytes];
+      // Process complete messages from buffer
+      while (dataBufferRef.current.length >= 4) {
+        // Look for message header (0xef 0xdd)
+        const headerIndex = dataBufferRef.current.findIndex((byte, i) => 
+          byte === 0xef && dataBufferRef.current[i + 1] === 0xdd
+        );
         
-        // Process complete messages from buffer
-        let processedBytes = 0;
-        
-        while (buffer.length - processedBytes >= 4) {
-          const offset = processedBytes;
-          
-          // Look for message header (0xef 0xdd)
-          if (buffer[offset] !== 0xef || buffer[offset + 1] !== 0xdd) {
-            // Invalid header, skip this byte and continue searching
-            processedBytes++;
-            continue;
-          }
-          
-          const msgType = buffer[offset + 2];
-          const msgLength = buffer[offset + 3];
-          const totalLength = 4 + msgLength; // header(2) + type(1) + length(1) + payload(msgLength)
-          
-          // Check if we have complete message
-          if (buffer.length - offset < totalLength) {
-            // Incomplete message, keep remaining bytes in buffer
-            break;
-          }
-          
-          // Process complete message
-          const message = buffer.slice(offset, offset + totalLength);
-          
-          // Type 0x07 = weight data (Pearl S)
-          // Type 0x05 = weight data (older models)
-          // Type 0x08 = battery
-          if ((msgType === 0x07 || msgType === 0x05) && message.length >= 8) {
-            // For type 0x07 (Pearl S): weight appears to be in bytes 4-7
-            // For type 0x05: weight is in bytes 4-7 as well
-            // Format: big-endian integer representing grams * 10
-            const weightRaw = (message[4] << 24) | 
-                             (message[5] << 16) | 
-                             (message[6] << 8) | 
-                             message[7];
-            const weightGrams = weightRaw / 10.0;
-            
-            if (weightGrams >= 0 && weightGrams < 10000) { // Sanity check
-              console.log("Weight:", weightGrams, "g");
-              setWeight(weightGrams);
-            }
-          } else if (msgType === 0x08 && message.length >= 5) {
-            // Battery level in byte 4
-            const batteryLevel = message[4];
-            console.log("Battery:", batteryLevel, "%");
-            setBattery(batteryLevel);
-          }
-          
-          processedBytes = offset + totalLength;
+        if (headerIndex === -1) {
+          // No valid header found, clear buffer
+          dataBufferRef.current = [];
+          break;
         }
         
-        // Keep unprocessed bytes in buffer
-        return buffer.slice(processedBytes);
-      });
+        // Remove any bytes before the header
+        if (headerIndex > 0) {
+          dataBufferRef.current = dataBufferRef.current.slice(headerIndex);
+        }
+        
+        // Check if we have enough bytes for header
+        if (dataBufferRef.current.length < 4) {
+          break;
+        }
+        
+        const msgType = dataBufferRef.current[2];
+        const msgLength = dataBufferRef.current[3];
+        const totalLength = 4 + msgLength;
+        
+        // Check if we have complete message
+        if (dataBufferRef.current.length < totalLength) {
+          // Wait for more data
+          break;
+        }
+        
+        // Extract complete message
+        const message = dataBufferRef.current.slice(0, totalLength);
+        
+        // Process the message
+        if ((msgType === 0x07 || msgType === 0x05) && message.length >= 8) {
+          // Weight data - bytes 4-7 contain weight as big-endian integer (grams * 10)
+          const weightRaw = (message[4] << 24) | 
+                           (message[5] << 16) | 
+                           (message[6] << 8) | 
+                           message[7];
+          const weightGrams = weightRaw / 10.0;
+          
+          if (weightGrams >= 0 && weightGrams < 10000) {
+            setWeight(weightGrams);
+          }
+        } else if (msgType === 0x08 && message.length >= 5) {
+          // Battery data
+          const batteryLevel = message[4];
+          setBattery(batteryLevel);
+        }
+        
+        // Remove processed message from buffer
+        dataBufferRef.current = dataBufferRef.current.slice(totalLength);
+      }
     } catch (error) {
       console.error("Error parsing data:", error);
+      dataBufferRef.current = []; // Clear buffer on error
     }
   }, []);
 
