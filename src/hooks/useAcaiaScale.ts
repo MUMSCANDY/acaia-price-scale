@@ -77,32 +77,20 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         throw new Error("GATT not available");
       }
 
-      // Connect to GATT server with retry logic and timeout per attempt
+      // Connect to GATT server - try simple connection first
       console.log("Connecting to GATT server...");
-      let server: BluetoothRemoteGATTServer | null = null;
-      let retries = 3;
-      
-      while (retries > 0 && !server) {
-        try {
-          server = await Promise.race([
-            device.gatt!.connect(),
-            new Promise<never>((_, reject) => 
-              setTimeout(() => reject(new Error('Connection timeout')), 5000)
-            )
-          ]);
-          console.log("Connected to GATT server");
-        } catch (err) {
-          retries--;
-          if (retries === 0) {
-            throw new Error('Failed to connect after multiple attempts. Make sure the scale is on and not connected to another device.');
-          }
-          console.log(`Connection attempt failed, retrying... (${retries} attempts left)`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+      if (!device.gatt) {
+        throw new Error("GATT not available on device");
       }
-      
-      if (!server) {
-        throw new Error('Failed to establish GATT connection');
+
+      let server: BluetoothRemoteGATTServer;
+      try {
+        // Simple direct connection - let browser handle the timeout
+        server = await device.gatt.connect();
+        console.log("Connected to GATT server successfully");
+      } catch (err) {
+        console.error("GATT connection failed:", err);
+        throw new Error(`Cannot connect to scale. Please ensure: 1) Scale is powered on, 2) Scale is not connected to another device (phone/tablet), 3) Bluetooth is enabled on your device. Error: ${err instanceof Error ? err.message : 'Unknown'}`);
       }
       
       console.log("Getting service:", ACAIA_SERVICE_UUID);
