@@ -71,12 +71,12 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         const message = dataBufferRef.current.slice(0, totalLength);
         
         // Process the message
-        if ((msgType === 0x07 || msgType === 0x05) && message.length >= 8) {
-          // Weight data - bytes 4-7 contain weight as big-endian integer (grams * 10)
-          const weightRaw = (message[4] << 24) | 
-                           (message[5] << 16) | 
-                           (message[6] << 8) | 
-                           message[7];
+        if ((msgType === 0x07 || msgType === 0x05) && message.length >= 11) {
+          // For Acaia Pearl S (type 0x07), weight is encoded in payload
+          // Message format: ef dd 07 07 03 5c 01 00 05 01 64 09
+          // Payload starts at byte 4: 03 5c 01 00 05 01 64
+          // Weight appears to be in bytes 4-5 (0x03 0x5c) as 16-bit value
+          const weightRaw = (message[4] << 8) | message[5];
           const weightGrams = weightRaw / 10.0;
           
           if (weightGrams >= 0 && weightGrams < 10000) {
@@ -86,6 +86,9 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
           // Battery data
           const batteryLevel = message[4];
           setBattery(batteryLevel);
+        } else if (msgType === 0x0c) {
+          // Heartbeat/status message - send acknowledgment
+          console.log("Received heartbeat");
         }
         
         // Remove processed message from buffer
