@@ -24,9 +24,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
+  const [autoReconnectEnabled, setAutoReconnectEnabled] = useState(false);
   
-  // Use refs for buffer and heartbeat interval
+  // Use refs for buffer and reconnect
   const dataBufferRef = useRef<number[]>([]);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parse weight data from Acaia scale with proper buffering
@@ -201,14 +203,24 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       const device = devices[0].device;
       console.log("Connecting to Acaia scale:", device.deviceId, device.name);
 
-      // Connect to device
+      // Connect to device with auto-reconnect handler
       console.log("Connecting to device...");
       await BleClient.connect(device.deviceId, (disconnectedDeviceId) => {
-        console.log(`Disconnected from ${disconnectedDeviceId}`);
+        console.log(`⚠️ Disconnected from ${disconnectedDeviceId}`);
         setIsConnected(false);
         setConnectionStatus("disconnected");
         setDeviceId(null);
-        toast.info("Scale disconnected");
+        
+        // Auto-reconnect if enabled
+        if (autoReconnectEnabled) {
+          console.log("🔄 Auto-reconnect enabled - will reconnect in 2s");
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log("🔄 Auto-reconnecting...");
+            connect();
+          }, 2000);
+        } else {
+          toast.info("Scale disconnected");
+        }
       });
       
       console.log("Connected successfully");
@@ -272,15 +284,22 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION 9.0: MINIMAL INIT - NO HEARTBEAT ===
-      console.log("🚀 V9.0 - NO HEARTBEAT, SCALE DATA FLOW MAINTAINS CONNECTION");
+      // === VERSION 10.0: AUTO-RECONNECT ===
+      console.log("🚀 V10.0 - AUTO-RECONNECT");
       
-      // Just send timer start - the simplest working configuration
+      // Just send timer start
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
-      console.log("✅ Timer started - relying on data flow to maintain connection");
+      console.log("✅ Timer started");
+
+      setDeviceId(device.deviceId);
+      setIsConnected(true);
+      setConnectionStatus("connected");
+      setWeight(0);
+      setBattery(85);
+      setAutoReconnectEnabled(true); // Enable auto-reconnect after first successful connection
       
-      console.log("✅ Connected - monitoring for natural connection stability");
+      toast.success("Connected to scale");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -295,11 +314,21 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setIsConnected(false);
       setConnectionStatus("disconnected");
       setDeviceId(null);
+      setAutoReconnectEnabled(false); // Disable auto-reconnect on manual connection failure
     }
-  }, [parseWeightData]);
+  }, [parseWeightData, autoReconnectEnabled]);
 
   // Disconnect from scale
   const disconnect = useCallback(async () => {
+    // Disable auto-reconnect
+    setAutoReconnectEnabled(false);
+    
+    // Clear any pending reconnect
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
     // Clear heartbeat interval
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
