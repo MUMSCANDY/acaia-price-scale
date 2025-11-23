@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
@@ -140,14 +140,31 @@ export const ScaleDisplay = ({
           </div>
         </div>
 
-        {/* Price Display */}
-        <div className="mb-16 text-center glass-effect rounded-[2rem] px-20 py-12 shadow-lifted border-2 border-foreground/10 hover-lift animate-slide-up">
-          <div className="text-display text-[120px] leading-none text-foreground mb-3">
-            {getCurrencyByCode(currency).symbol}{calculatePrice()}
+        {/* Price Display - Credit Card Style */}
+        <div className="mb-16 text-left glass-effect rounded-3xl px-12 py-10 shadow-lifted border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[520px] aspect-[1.586/1]">
+          {/* Credit card decorative elements */}
+          <div className="absolute top-8 left-12 w-14 h-10 rounded-md border-2 border-foreground/30 bg-foreground/5" />
+          <div className="absolute top-6 right-12 opacity-40">
+            <CreditCard className="w-12 h-12" />
           </div>
-          <p className="text-xl text-foreground/60 font-semibold tracking-wide">
-            {pricePerHundred} {getCurrencyByCode(currency).symbol} per 100g
-          </p>
+          
+          {/* Card number placeholder */}
+          <div className="absolute bottom-20 left-12 flex gap-4 opacity-20 font-mono text-sm">
+            <span>••••</span>
+            <span>••••</span>
+            <span>••••</span>
+            <span>{weight.toFixed(0).padStart(4, '0')}</span>
+          </div>
+          
+          {/* Main price */}
+          <div className="relative z-10 mt-16">
+            <div className="text-display text-[100px] leading-none text-foreground mb-2">
+              {getCurrencyByCode(currency).symbol}{calculatePrice()}
+            </div>
+            <p className="text-base text-foreground/60 font-semibold tracking-wide">
+              {pricePerHundred} {getCurrencyByCode(currency).symbol} per 100g
+            </p>
+          </div>
         </div>
 
         {/* Control Buttons */}
