@@ -119,12 +119,9 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Location and Bluetooth are enabled, proceeding with BLE scan...");
 
-      // Request device - Try without name filter first to see all devices
-      console.log("Calling BleClient.requestDevice...");
-      const device = await BleClient.requestDevice({
-        // Temporarily remove namePrefix to see all devices
-        optionalServices: [ACAIA_SERVICE_UUID],
-      });
+      // Request device - Remove ALL filters to see every BLE device nearby
+      console.log("Calling BleClient.requestDevice with NO filters...");
+      const device = await BleClient.requestDevice();
       console.log("Device selected:", device);
       
       console.log("Device selected:", device.deviceId);
