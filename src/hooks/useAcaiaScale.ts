@@ -138,21 +138,24 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
 
       setDevice(device);
       setCharacteristic(writeChar);
-      setIsConnected(true);
-      setConnectionStatus("connected");
-      setBattery(85); // Would be read from actual device
-
+      
       console.log("Connection complete!");
       
-      // Send identification command to keep connection alive
+      // Send identification command to initialize the scale
       try {
         console.log("Sending identification command...");
         const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30]);
         await writeChar.writeValue(identCommand);
-        console.log("Identification sent");
+        console.log("Identification sent successfully");
       } catch (err) {
-        console.warn("Failed to send identification:", err);
+        console.warn("Failed to send identification (non-fatal):", err);
       }
+      
+      // Set connection status AFTER all initialization
+      setIsConnected(true);
+      setConnectionStatus("connected");
+      setWeight(0); // Reset weight on connection
+      setBattery(85); // Would be read from actual device
       
       toast.success("Connected to Acaia scale!");
     } catch (error) {
@@ -204,14 +207,17 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     };
   }, [disconnect]);
 
-  // Simulate weight changes for demo purposes (remove in production)
+  // Simulate weight changes for demo purposes only when disconnected
   useEffect(() => {
     if (!isConnected) {
-      // Simulate some weight for demo
+      // Simulate some weight for demo when not connected
       const interval = setInterval(() => {
         setWeight((prev) => Math.max(0, prev + (Math.random() - 0.5) * 10));
       }, 500);
       return () => clearInterval(interval);
+    } else {
+      // When connected, stop simulation - real data will come from notifications
+      console.log("Connected - waiting for real weight data from scale");
     }
   }, [isConnected]);
 
