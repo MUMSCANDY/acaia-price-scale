@@ -122,36 +122,22 @@ export const ScaleDisplay = ({
 
         {/* Price Display - Receipt Style */}
         <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]">
-          {/* Perforated top edge */}
-          <div className="absolute top-0 left-0 right-0 h-3 border-b border-dotted border-foreground/40 flex items-center justify-center gap-3">
-            {Array.from({length: 8}).map((_, i) => (
-              <div key={i} className="w-1.5 h-1.5 rounded-full bg-foreground/40" />
-            ))}
-          </div>
-          
-          <div className="px-8 py-5 pt-6">
+          <div className="px-8 py-5">
             {/* Top Section - Left and Right */}
             <div className="flex justify-between items-start mb-4">
-              {/* Left: MUMS, Receipt #, Date/Time */}
+              {/* Left: MUMS, Date/Time */}
               <div>
-                <h2 className="text-brand text-3xl tracking-tighter mb-1">MUMS</h2>
+                <h2 className="text-brand text-xl tracking-tighter mb-2">MUMS</h2>
                 <div className="font-mono text-xs text-foreground/70 space-y-0.5">
-                  <div>Receipt #{new Date().getTime().toString().slice(-6)}</div>
                   <div>{new Date().toLocaleDateString()}</div>
                   <div>{new Date().toLocaleTimeString()}</div>
                 </div>
               </div>
               
-              {/* Right: Weight, Per 100g */}
+              {/* Right: Per 100g */}
               <div className="text-right font-mono">
-                <div className="mb-2">
-                  <div className="text-xs text-foreground/70 mb-0.5">Weight</div>
-                  <div className="text-2xl font-bold">{weight.toFixed(1)}g</div>
-                </div>
-                <div>
-                  <div className="text-xs text-foreground/70 mb-0.5">Per 100g</div>
-                  <div className="text-lg font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</div>
-                </div>
+                <div className="text-xs text-foreground/70 mb-0.5">Per 100g</div>
+                <div className="text-xl font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</div>
               </div>
             </div>
             
