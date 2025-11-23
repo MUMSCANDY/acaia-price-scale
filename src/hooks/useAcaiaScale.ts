@@ -132,10 +132,33 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       console.log("All checks passed, starting BLE scan...");
       console.log("This should show ALL nearby BLE devices...");
 
-      // Request device - Remove ALL filters to see every BLE device nearby
-      console.log("Calling BleClient.requestDevice with NO filters...");
-      const device = await BleClient.requestDevice();
-      console.log("Device selected:", device);
+      // Try using requestLEScan instead
+      console.log("Starting LE scan for 10 seconds...");
+      const devices: any[] = [];
+      
+      await BleClient.requestLEScan({}, (result) => {
+        console.log('Scan result:', result);
+        if (!devices.find(d => d.device.deviceId === result.device.deviceId)) {
+          devices.push(result);
+          console.log('Found device:', result.device.name || result.device.deviceId);
+        }
+      });
+      
+      // Scan for 10 seconds
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      await BleClient.stopLEScan();
+      
+      console.log(`Scan complete. Found ${devices.length} devices:`, devices.map(d => d.device.name || d.device.deviceId));
+      
+      if (devices.length === 0) {
+        toast.error("No BLE devices found. Make sure your scale is on and nearby.");
+        setConnectionStatus("disconnected");
+        return;
+      }
+      
+      // For now, just show the first device found (we'll add proper selection later)
+      const device = devices[0].device;
+      console.log("Using first device:", device);
       
       console.log("Device selected:", device.deviceId);
 
