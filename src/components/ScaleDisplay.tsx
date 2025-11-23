@@ -156,12 +156,12 @@ export const ScaleDisplay = ({
             onClick={isConnected ? onTare : undefined}
             disabled={!isConnected}
             className={cn(
-              "flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300",
-              isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "opacity-40 cursor-not-allowed"
+              "flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300 font-bold text-base",
+              isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "cursor-not-allowed"
             )}
           >
             <Scale className="w-5 h-5" />
-            <span className="font-bold text-base">TARE</span>
+            <span>TARE</span>
           </button>
 
           <Button
