@@ -146,26 +146,18 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         console.log("  -", c.uuid, "- notify:", c.properties.notify, "write:", c.properties.write || c.properties.writeWithoutResponse);
       });
       
-      // Find write and notify characteristics
-      const writeChar = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
-      const notifyChar = characteristics.find(c => c.properties.notify);
-      
-      if (!writeChar) {
-        throw new Error("No writable characteristic found");
-      }
-      
-      if (!notifyChar) {
-        console.log("No notify characteristic found, using write characteristic for both");
-      }
+      // Try using the SECOND characteristic for notifications (49535343-4c8a-39b3-2f49-511cff073b7e)
+      // and keep using the first for writing
+      const writeChar = characteristics[0];
+      const notifyChar = characteristics[1]; // Try second characteristic
       
       console.log("Using write characteristic:", writeChar.uuid);
-      console.log("Using notify characteristic:", notifyChar?.uuid || writeChar.uuid);
+      console.log("Using notify characteristic:", notifyChar.uuid);
 
-      // Start notifications on the notify characteristic (or write if no notify exists)
-      const charForNotify = notifyChar || writeChar;
+      // Start notifications on the second characteristic
       console.log("Starting notifications...");
-      await charForNotify.startNotifications();
-      charForNotify.addEventListener("characteristicvaluechanged", handleNotification);
+      await notifyChar.startNotifications();
+      notifyChar.addEventListener("characteristicvaluechanged", handleNotification);
       console.log("Notifications started");
 
       setDevice(device);
