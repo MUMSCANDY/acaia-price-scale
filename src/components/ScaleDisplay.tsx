@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery, HelpCircle } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
@@ -153,13 +153,14 @@ export const ScaleDisplay = ({
         </div>
 
         {/* Control Buttons */}
-        <div className="flex gap-6 items-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="flex gap-5 items-center justify-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <Button
             size="lg"
             onClick={onTare}
             disabled={!isConnected}
-            className="px-16 py-8 text-2xl font-black rounded-3xl"
+            className="px-8 py-6 text-base font-bold rounded-full glass-effect border-2 border-foreground/20 hover:border-foreground/40"
           >
+            <Scale className="w-5 h-5" />
             TARE
           </Button>
 
@@ -167,22 +168,26 @@ export const ScaleDisplay = ({
             size="lg"
             variant={isConnected ? "outline" : "default"}
             onClick={onToggleConnection}
-            className="px-16 py-8 text-2xl font-black rounded-3xl"
+            className="px-8 py-6 text-base font-bold rounded-full"
           >
+            <Power className="w-5 h-5" />
             {isConnected ? "DISCONNECT" : "CONNECT"}
-          </Button>
-
-          <Button
-            size="lg"
-            variant="ghost"
-            onClick={() => setIsHelpDialogOpen(true)}
-            className="px-8 py-8 text-xl rounded-3xl"
-            title="Need Help?"
-          >
-            <HelpCircle className="w-9 h-9" />
           </Button>
         </div>
       </main>
+
+      {/* Help Button - Fixed to bottom right */}
+      <div className="fixed bottom-8 right-8 z-20 animate-scale-in" style={{ animationDelay: '0.2s' }}>
+        <Button
+          size="lg"
+          variant="ghost"
+          onClick={() => setIsHelpDialogOpen(true)}
+          className="w-16 h-16 rounded-full glass-effect border-2 border-foreground/20 hover:border-foreground/40 hover:scale-110"
+          title="Need Help?"
+        >
+          <HelpCircle className="w-8 h-8" />
+        </Button>
+      </div>
 
       {/* PIN Dialog */}
       <PinDialog
