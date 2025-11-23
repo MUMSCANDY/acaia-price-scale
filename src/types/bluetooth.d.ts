@@ -17,11 +17,25 @@ interface BluetoothRemoteGATTService {
   device: BluetoothDevice;
   uuid: string;
   getCharacteristic(characteristic: string): Promise<BluetoothRemoteGATTCharacteristic>;
+  getCharacteristics(characteristic?: string): Promise<BluetoothRemoteGATTCharacteristic[]>;
+}
+
+interface BluetoothCharacteristicProperties {
+  broadcast: boolean;
+  read: boolean;
+  writeWithoutResponse: boolean;
+  write: boolean;
+  notify: boolean;
+  indicate: boolean;
+  authenticatedSignedWrites: boolean;
+  reliableWrite: boolean;
+  writableAuxiliaries: boolean;
 }
 
 interface BluetoothRemoteGATTCharacteristic extends EventTarget {
   service: BluetoothRemoteGATTService;
   uuid: string;
+  properties: BluetoothCharacteristicProperties;
   value?: DataView;
   startNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   stopNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;

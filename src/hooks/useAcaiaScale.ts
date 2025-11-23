@@ -95,21 +95,35 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Getting service:", ACAIA_SERVICE_UUID);
       const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
-      console.log("Got service");
+      console.log("Got service, getting all characteristics...");
       
-      // Try to get the write characteristic (this one we know works from error)
-      console.log("Getting write characteristic:", ACAIA_CHAR_WRITE_UUID);
-      const writeChar = await service.getCharacteristic(ACAIA_CHAR_WRITE_UUID);
-      console.log("Got write characteristic:", writeChar.uuid);
+      // Get all available characteristics
+      const characteristics = await service.getCharacteristics();
+      console.log("Found", characteristics.length, "characteristics:");
+      characteristics.forEach(c => {
+        console.log("  -", c.uuid, "- notify:", c.properties.notify, "write:", c.properties.write || c.properties.writeWithoutResponse);
+      });
       
-      // Use the same characteristic for both write and notify
-      // Acaia scales use a single characteristic for bidirectional communication
-      const notifyChar = writeChar;
+      // Find write and notify characteristics
+      const writeChar = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+      const notifyChar = characteristics.find(c => c.properties.notify);
+      
+      if (!writeChar) {
+        throw new Error("No writable characteristic found");
+      }
+      
+      if (!notifyChar) {
+        console.log("No notify characteristic found, using write characteristic for both");
+      }
+      
+      console.log("Using write characteristic:", writeChar.uuid);
+      console.log("Using notify characteristic:", notifyChar?.uuid || writeChar.uuid);
 
-      // Start notifications
+      // Start notifications on the notify characteristic (or write if no notify exists)
+      const charForNotify = notifyChar || writeChar;
       console.log("Starting notifications...");
-      await notifyChar.startNotifications();
-      notifyChar.addEventListener("characteristicvaluechanged", handleNotification);
+      await charForNotify.startNotifications();
+      charForNotify.addEventListener("characteristicvaluechanged", handleNotification);
       console.log("Notifications started");
 
       setDevice(device);
