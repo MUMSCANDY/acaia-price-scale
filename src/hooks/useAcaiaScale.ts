@@ -269,28 +269,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(identCommand)));
       console.log("Sent identification command");
       
-      // === VERSION CHECK: v2.0 ===
-      console.log("🚀 ACAIA CONNECT VERSION 2.0 - LATEST CODE LOADED");
+      // === VERSION CHECK: v3.0 ===
+      console.log("🚀 ACAIA CONNECT VERSION 3.0 - HEARTBEAT VIA EFFECT");
       
-      // Start heartbeat to keep connection alive
-      const writeCharUuid = writeChar.uuid; // Capture in closure
-      const deviceIdForHeartbeat = device.deviceId; // Capture deviceId
-      console.log("Setting up heartbeat with write char:", writeCharUuid);
-      console.log("Device ID for heartbeat:", deviceIdForHeartbeat);
-      
-      const intervalId = setInterval(async () => {
-        try {
-          console.log("🔄 HEARTBEAT TICK - Sending to device:", deviceIdForHeartbeat);
-          const heartbeat = new Uint8Array([0xef, 0xdd, 0x00, 0x00]);
-          await BleClient.write(deviceIdForHeartbeat, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
-          console.log("✅ HEARTBEAT SENT SUCCESSFULLY");
-        } catch (error) {
-          console.error("❌ HEARTBEAT ERROR:", error);
-        }
-      }, 3000);
-      
-      heartbeatIntervalRef.current = intervalId;
-      console.log("✅ Heartbeat interval started with ID:", intervalId);
+      // Don't start interval here - let the useEffect handle it
+      console.log("✅ Connection complete - heartbeat will be managed by effect");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -349,12 +332,36 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [deviceId, writeCharUuid]);
 
+  // Manage heartbeat in a separate effect
+  useEffect(() => {
+    if (!isConnected || !deviceId || !writeCharUuid) {
+      return;
+    }
+
+    console.log("🔧 Setting up heartbeat effect for device:", deviceId);
+    
+    const intervalId = setInterval(async () => {
+      console.log("🔄 HEARTBEAT TICK - Attempting to send");
+      try {
+        const heartbeat = new Uint8Array([0xef, 0xdd, 0x00, 0x00]);
+        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
+        console.log("✅ HEARTBEAT SENT");
+      } catch (error) {
+        console.error("❌ HEARTBEAT ERROR:", error);
+      }
+    }, 3000);
+
+    console.log("✅ Heartbeat effect interval created:", intervalId);
+
+    return () => {
+      console.log("🧹 Cleaning up heartbeat interval:", intervalId);
+      clearInterval(intervalId);
+    };
+  }, [isConnected, deviceId, writeCharUuid]);
+  
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-      }
       if (deviceId) {
         BleClient.disconnect(deviceId).catch(console.error);
       }
