@@ -236,8 +236,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         return;
       }
       
-      // Find the write characteristic (should have 'write' or 'writeWithoutResponse' property)
-      const writeChar = acaiaService.characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+      // Find the write characteristic - must be different from notify characteristic
+      // Look for one with writeWithoutResponse or write that is NOT the notify characteristic
+      const writeChar = acaiaService.characteristics.find(c => 
+        c.uuid !== notifyChar.uuid && (c.properties.write || c.properties.writeWithoutResponse)
+      );
       if (!writeChar) {
         toast.error("No write characteristic found");
         setConnectionStatus("disconnected");
