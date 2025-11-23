@@ -123,27 +123,6 @@ export const ScaleDisplay = ({
         {/* Price Display - Receipt Style */}
         <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]">
           <div className="px-8 py-5">
-            {/* Top Section - Left and Right */}
-            <div className="flex justify-between items-start mb-4">
-              {/* Left: MUMS, Date/Time */}
-              <div>
-                <h2 className="text-brand text-xl tracking-tighter mb-2">MUMS</h2>
-                <div className="font-mono text-xs text-foreground/70 space-y-0.5">
-                  <div>{new Date().toLocaleDateString()}</div>
-                  <div>{new Date().toLocaleTimeString()}</div>
-                </div>
-              </div>
-              
-              {/* Right: Per 100g */}
-              <div className="text-right font-mono">
-                <div className="text-xs text-foreground/70 mb-0.5">Per 100g</div>
-                <div className="text-xl font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</div>
-              </div>
-            </div>
-            
-            {/* Dotted separator */}
-            <div className="border-t-2 border-dotted border-foreground/40 my-4" />
-            
             {/* Total Section - Centered, Large */}
             <div className="text-center mb-3">
               <div className="text-sm font-bold text-foreground/70 tracking-widest mb-1">TOTAL</div>
@@ -154,6 +133,11 @@ export const ScaleDisplay = ({
             
             {/* Dotted separator */}
             <div className="border-t border-dotted border-foreground/40 my-3" />
+            
+            {/* Per 100g info */}
+            <div className="text-center font-mono text-base text-foreground/70 mb-3">
+              Per 100g {getCurrencyByCode(currency).symbol}{pricePerHundred}
+            </div>
             
             {/* Footer - Barcode */}
             <div className="flex justify-center gap-0.5 mb-1">
