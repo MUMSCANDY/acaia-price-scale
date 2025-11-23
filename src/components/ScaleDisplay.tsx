@@ -91,10 +91,8 @@ export const ScaleDisplay = ({
         <div className="flex items-center gap-4">
           {/* Connection Status */}
           <div className={cn(
-            "flex items-center gap-3 px-5 py-3 rounded-full glass-effect transition-all duration-300 border-2",
-            connectionStatus === "connected"
-              ? "border-foreground/20 shadow-glow" 
-              : "border-foreground/10"
+            "flex items-center gap-3 px-5 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300",
+            connectionStatus === "connected" && "shadow-glow"
           )}>
             {connectionStatus === "connected" ? (
               <>
@@ -115,7 +113,7 @@ export const ScaleDisplay = ({
           </div>
 
           {/* Battery */}
-          <div className="flex items-center gap-3 px-5 py-3 glass-effect rounded-full border-2 border-foreground/10">
+          <div className="flex items-center gap-3 px-5 py-3 glass-effect rounded-full border-2 border-foreground">
             <Battery className="w-5 h-5 text-foreground" />
             <span className="font-bold text-sm text-foreground">{battery}%</span>
           </div>
@@ -125,7 +123,7 @@ export const ScaleDisplay = ({
             variant="ghost"
             size="icon"
             onClick={handleSettingsClick}
-            className="rounded-full w-14 h-14 hover:bg-foreground/10 hover:scale-110"
+            className="rounded-full w-14 h-14 glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110"
           >
             <Settings className="w-7 h-7" />
           </Button>
@@ -182,7 +180,7 @@ export const ScaleDisplay = ({
           size="lg"
           variant="ghost"
           onClick={() => setIsHelpDialogOpen(true)}
-          className="w-16 h-16 rounded-full glass-effect border-2 border-foreground/20 hover:border-foreground/40 hover:scale-110"
+          className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110"
           title="Need Help?"
         >
           <HelpCircle className="w-8 h-8" />
