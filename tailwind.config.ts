@@ -54,6 +54,7 @@ export default {
       fontFamily: {
         sans: ['Outfit', 'system-ui', 'sans-serif'],
         display: ['Space Grotesk', 'Outfit', 'sans-serif'],
+        digital: ['Orbitron', 'monospace'],
       },
       boxShadow: {
         'soft': 'var(--shadow-soft)',

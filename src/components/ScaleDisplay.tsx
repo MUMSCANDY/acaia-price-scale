@@ -114,7 +114,7 @@ export const ScaleDisplay = ({
       <main className="relative z-10 flex flex-col items-center justify-center flex-1 px-12 py-20">
         {/* Weight Display */}
         <div className="mb-12 text-center animate-scale-in">
-          <div className="text-display text-[200px] leading-none mb-4 drop-shadow-2xl">
+          <div className="text-digital text-[200px] leading-none mb-4 drop-shadow-2xl">
             {weight.toFixed(1)}
             <span className="text-[140px] ml-6 font-bold">g</span>
           </div>
@@ -132,7 +132,7 @@ export const ScaleDisplay = ({
             {/* Total Section - Centered, Large */}
             <div className="text-center mb-3" key={`${calculatePrice()}-${currency}`}>
               <div className="text-sm font-bold text-foreground/70 tracking-widest mb-1">TOTAL</div>
-              <div className="text-display text-[100px] leading-none text-foreground animate-fade-in">
+              <div className="text-digital text-[100px] leading-none text-foreground animate-fade-in">
                 {getCurrencyByCode(currency).symbol}{calculatePrice()}
               </div>
             </div>
