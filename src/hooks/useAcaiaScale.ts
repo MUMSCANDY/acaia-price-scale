@@ -83,11 +83,15 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         
         // Process the message
         if ((msgType === 0x07 || msgType === 0x05) && message.length >= 11) {
-          // For Acaia Pearl S (type 0x07), weight is encoded in payload
-          const weightRaw = (message[4] << 8) | message[5];
+          // For Acaia Pearl S (type 0x07), weight is in bytes 6-7 (little-endian)
+          // Message structure: ef dd 07 07 [4] [5] [6] [7] [8] [9] [10]
+          // Example: ef dd 07 07 03 5c 01 00 05 01 64 -> weight at bytes 6-7
+          const weightLow = message[6];
+          const weightHigh = message[7];
+          const weightRaw = (weightHigh << 8) | weightLow;
           const weightGrams = weightRaw / 10.0;
           
-          console.log(`⚖️ Weight parsed: ${weightGrams}g (raw: ${weightRaw})`);
+          console.log(`⚖️ Weight parsed: ${weightGrams}g (raw: ${weightRaw}, bytes: ${weightLow.toString(16)} ${weightHigh.toString(16)})`);
           
           if (weightGrams >= 0 && weightGrams < 10000) {
             setWeight(weightGrams);
