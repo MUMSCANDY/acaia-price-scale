@@ -152,15 +152,15 @@ export const ScaleDisplay = ({
 
         {/* Control Buttons */}
         <div className="flex gap-5 items-center justify-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <Button
-            size="lg"
-            onClick={onTare}
-            disabled={!isConnected}
-            className="px-8 py-6 text-base font-bold rounded-full glass-effect border-2 border-foreground text-foreground hover:bg-foreground/10 hover:scale-110 disabled:opacity-40"
+          <div className={cn(
+            "flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300",
+            isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "opacity-40 cursor-not-allowed"
+          )}
+          onClick={isConnected ? onTare : undefined}
           >
             <Scale className="w-5 h-5" />
-            TARE
-          </Button>
+            <span className="font-bold text-base">TARE</span>
+          </div>
 
           <Button
             size="lg"
