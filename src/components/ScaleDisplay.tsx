@@ -91,9 +91,7 @@ export const ScaleDisplay = ({
             "flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all",
             connectionStatus === "connected"
               ? "bg-primary/10 text-foreground" 
-              : connectionStatus === "connecting"
-              ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-              : "bg-muted/50 text-muted-foreground"
+              : "bg-muted/50 text-foreground"
           )}>
             {connectionStatus === "connected" ? (
               <>

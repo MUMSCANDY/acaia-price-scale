@@ -62,12 +62,12 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         return;
       }
 
-      // Request device - don't filter by service as Acaia doesn't advertise it
+      // Request device - Pearl S uses "PEARLS-" prefix
       console.log("Requesting device...");
       const device = await navigator.bluetooth.requestDevice({
         filters: [
+          { namePrefix: "PEARLS-" },
           { namePrefix: "ACAIA" },
-          { namePrefix: "PEARL" },
         ],
         optionalServices: [ACAIA_SERVICE_UUID],
       });
