@@ -121,63 +121,63 @@ export const ScaleDisplay = ({
         </div>
 
         {/* Price Display - Digital Receipt/Ticket Style */}
-        <div className="mb-16 glass-effect rounded-2xl shadow-lifted border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[420px]">
-          {/* Perforated top edge */}
-          <div className="absolute top-0 left-0 right-0 h-8 border-b-2 border-dotted border-foreground/30 bg-foreground/5 flex items-center justify-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-foreground/20" />
-            <div className="w-3 h-3 rounded-full bg-foreground/20" />
-            <div className="w-3 h-3 rounded-full bg-foreground/20" />
-            <div className="w-3 h-3 rounded-full bg-foreground/20" />
-            <div className="w-3 h-3 rounded-full bg-foreground/20" />
+        <div className="mb-8 glass-effect rounded-2xl shadow-soft border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[380px]">
+          {/* Perforated top edge - 2D minimal */}
+          <div className="absolute top-0 left-0 right-0 h-4 border-b border-dotted border-foreground/40 flex items-center justify-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
+            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
+            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
+            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
+            <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
           </div>
           
-          <div className="px-8 py-6 pt-12">
+          <div className="px-6 py-4 pt-6">
             {/* Header Section */}
-            <div className="text-center mb-6">
-              <h2 className="text-brand text-3xl tracking-tighter mb-2">MUMS</h2>
-              <div className="font-mono text-xs text-foreground/60">
-                <div>RECEIPT #{new Date().getTime().toString().slice(-8)}</div>
+            <div className="text-center mb-3">
+              <h2 className="text-brand text-2xl tracking-tighter mb-1">MUMS</h2>
+              <div className="font-mono text-[10px] text-foreground/60">
+                <div>#{new Date().getTime().toString().slice(-8)}</div>
                 <div>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
               </div>
             </div>
             
             {/* Dotted separator */}
-            <div className="border-t-2 border-dotted border-foreground/30 my-5" />
+            <div className="border-t border-dotted border-foreground/30 my-3" />
             
             {/* Item Details Section */}
-            <div className="space-y-3 font-mono text-base">
+            <div className="space-y-2 font-mono text-sm">
               <div className="flex justify-between items-center">
-                <span className="text-foreground/70">Product Weight</span>
+                <span className="text-foreground/70">Weight</span>
                 <span className="font-bold">{weight.toFixed(1)}g</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-foreground/70">Price per 100g</span>
+                <span className="text-foreground/70">Per 100g</span>
                 <span className="font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</span>
               </div>
             </div>
             
             {/* Dotted separator */}
-            <div className="border-t-2 border-dotted border-foreground/30 my-5" />
+            <div className="border-t border-dotted border-foreground/30 my-3" />
             
             {/* Total Section */}
-            <div className="mb-6">
-              <div className="text-center mb-3">
-                <div className="text-sm font-bold text-foreground/70 tracking-wider mb-2">TOTAL</div>
-                <div className="text-display text-[120px] leading-none text-foreground">
+            <div className="mb-3">
+              <div className="text-center">
+                <div className="text-xs font-bold text-foreground/70 tracking-wider mb-1">TOTAL</div>
+                <div className="text-display text-[80px] leading-none text-foreground">
                   {getCurrencyByCode(currency).symbol}{calculatePrice()}
                 </div>
               </div>
             </div>
             
             {/* Dotted separator */}
-            <div className="border-t-2 border-dotted border-foreground/30 my-5" />
+            <div className="border-t border-dotted border-foreground/30 my-3" />
             
             {/* Footer Section */}
-            <div className="text-center font-mono text-xs text-foreground/50 mb-2">
-              <div>Thank you for your purchase</div>
-              <div className="mt-2 flex justify-center gap-1">
+            <div className="text-center font-mono text-[10px] text-foreground/50 mb-1">
+              <div>Thank you</div>
+              <div className="mt-1 flex justify-center gap-0.5">
                 {Array.from({length: 30}).map((_, i) => (
-                  <div key={i} className="w-0.5 h-3 bg-foreground/30" />
+                  <div key={i} className="w-0.5 h-2.5 bg-foreground/30" />
                 ))}
               </div>
             </div>
