@@ -317,7 +317,7 @@ export const SettingsPanel = ({
               <Button
                 onClick={handleChangePIN}
                 variant="secondary"
-                className="w-full h-12 text-lg text-digital rounded-xl"
+                className="w-full h-12 text-lg font-bold rounded-xl"
               >
                 UPDATE PIN
               </Button>
@@ -334,7 +334,7 @@ export const SettingsPanel = ({
                 <Button
                   onClick={exportToCSV}
                   variant="outline"
-                  className="h-12 text-base text-digital rounded-xl"
+                  className="h-12 text-base font-bold rounded-xl"
                 >
                   <Download className="w-5 h-5 mr-2" />
                   Export CSV
@@ -343,7 +343,7 @@ export const SettingsPanel = ({
                 <Button
                   onClick={exportToExcel}
                   variant="outline"
-                  className="h-12 text-base text-digital rounded-xl"
+                  className="h-12 text-base font-bold rounded-xl"
                 >
                   <FileDown className="w-5 h-5 mr-2" />
                   Export Excel
@@ -353,7 +353,7 @@ export const SettingsPanel = ({
               <Button
                 onClick={clearHistory}
                 variant="destructive"
-                className="w-full h-12 text-base text-digital rounded-xl"
+                className="w-full h-12 text-base font-bold rounded-xl"
               >
                 <Trash2 className="w-5 h-5 mr-2" />
                 Clear All History
@@ -377,7 +377,7 @@ export const SettingsPanel = ({
           <div className="p-8 border-t border-border">
             <Button
               onClick={handleSave}
-              className="w-full h-14 text-xl text-digital rounded-xl shadow-soft hover:shadow-bold"
+              className="w-full h-14 text-xl font-bold rounded-xl shadow-soft hover:shadow-bold"
               size="lg"
             >
               SAVE SETTINGS

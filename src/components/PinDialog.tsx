@@ -81,13 +81,13 @@ export const PinDialog = ({ isOpen, onClose, onSuccess }: PinDialogProps) => {
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1 h-14 text-xl text-digital rounded-xl"
+              className="flex-1 h-14 text-xl font-bold rounded-xl"
             >
               CANCEL
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1 h-14 text-xl text-digital rounded-xl"
+              className="flex-1 h-14 text-xl font-bold rounded-xl"
               disabled={pin.length !== 4}
             >
               UNLOCK
