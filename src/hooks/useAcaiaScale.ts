@@ -105,10 +105,10 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Location is enabled, proceeding with BLE scan...");
 
-      // Request device - Pearl S uses "PEARLS-" prefix
-      console.log("Requesting device...");
+      // Request device - Try without name filter first to see all devices
+      console.log("Requesting device (scanning for all BLE devices)...");
       const device = await BleClient.requestDevice({
-        namePrefix: 'PEARLS-',
+        // Temporarily remove namePrefix to see all devices
         optionalServices: [ACAIA_SERVICE_UUID],
       });
       
