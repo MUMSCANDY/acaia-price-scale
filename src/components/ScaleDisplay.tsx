@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
+import { ConnectionHelpDialog } from "./ConnectionHelpDialog";
 import { getCurrencyByCode } from "@/lib/currencies";
 
 interface ScaleDisplayProps {
@@ -27,6 +28,7 @@ export const ScaleDisplay = ({
   const [currency, setCurrency] = useState(() => localStorage.getItem("currency") || "THB");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
+  const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
 
   // Save currency to localStorage when it changes
   useEffect(() => {
@@ -150,7 +152,7 @@ export const ScaleDisplay = ({
         </div>
 
         {/* Control Buttons */}
-        <div className="flex gap-6">
+        <div className="flex gap-6 items-center">
           <Button
             size="lg"
             onClick={onTare}
@@ -168,6 +170,16 @@ export const ScaleDisplay = ({
           >
             {isConnected ? "DISCONNECT" : "CONNECT"}
           </Button>
+
+          <Button
+            size="lg"
+            variant="ghost"
+            onClick={() => setIsHelpDialogOpen(true)}
+            className="px-6 py-8 text-xl rounded-2xl hover:bg-muted/50 transition-all"
+            title="Connection Help"
+          >
+            <HelpCircle className="w-8 h-8" />
+          </Button>
         </div>
       </main>
 
@@ -176,6 +188,12 @@ export const ScaleDisplay = ({
         isOpen={isPinDialogOpen}
         onClose={() => setIsPinDialogOpen(false)}
         onSuccess={handlePinSuccess}
+      />
+
+      {/* Connection Help Dialog */}
+      <ConnectionHelpDialog
+        open={isHelpDialogOpen}
+        onOpenChange={setIsHelpDialogOpen}
       />
 
       {/* Settings Panel */}
