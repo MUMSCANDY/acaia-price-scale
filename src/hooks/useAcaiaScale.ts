@@ -150,17 +150,45 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Connected successfully");
 
-      // Get services to verify connection
+      // Get services to verify connection and discover characteristics
       console.log("Getting services...");
       const services = await BleClient.getServices(device.deviceId);
       console.log("Services discovered:", services.length);
+      
+      // Log all services and characteristics
+      services.forEach((service, idx) => {
+        console.log(`Service ${idx}:`, service.uuid);
+        service.characteristics.forEach((char, charIdx) => {
+          console.log(`  Characteristic ${charIdx}:`, char.uuid, 'Properties:', char.properties);
+        });
+      });
+      
+      // Find the Acaia service
+      const acaiaService = services.find(s => s.uuid === ACAIA_SERVICE_UUID);
+      if (!acaiaService) {
+        toast.error("Acaia service not found on this device");
+        setConnectionStatus("disconnected");
+        return;
+      }
+      
+      console.log("Acaia service found with", acaiaService.characteristics.length, "characteristics");
+      
+      // Find the notify characteristic (should have 'notify' property)
+      const notifyChar = acaiaService.characteristics.find(c => c.properties.notify);
+      if (!notifyChar) {
+        toast.error("No notify characteristic found");
+        setConnectionStatus("disconnected");
+        return;
+      }
+      
+      console.log("Using notify characteristic:", notifyChar.uuid);
 
       // Start notifications for weight data
       console.log("Starting notifications...");
       await BleClient.startNotifications(
         device.deviceId,
         ACAIA_SERVICE_UUID,
-        ACAIA_CHAR_NOTIFY_UUID,
+        notifyChar.uuid,
         (value) => {
           parseWeightData(value);
         }
