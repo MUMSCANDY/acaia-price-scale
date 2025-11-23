@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Download, FileDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -54,6 +56,109 @@ export const SettingsPanel = ({
     setNewPin("");
     setConfirmPin("");
     alert("PIN changed successfully");
+  };
+
+  const getTransactionHistory = () => {
+    return JSON.parse(localStorage.getItem("transactionHistory") || "[]");
+  };
+
+  const exportToCSV = () => {
+    const history = getTransactionHistory();
+    
+    if (history.length === 0) {
+      toast.error("No transaction history to export");
+      return;
+    }
+
+    // Create CSV header
+    const headers = ["Date", "Time", "Weight (g)", "Price per 100g (฿)", "Total Price (฿)"];
+    
+    // Create CSV rows
+    const rows = history.map((transaction: any) => {
+      const date = new Date(transaction.timestamp);
+      return [
+        date.toLocaleDateString('th-TH'),
+        date.toLocaleTimeString('th-TH'),
+        transaction.weight.toFixed(1),
+        transaction.pricePerHundred.toFixed(2),
+        transaction.totalPrice
+      ];
+    });
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    // Create blob and download
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `transaction_history_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success(`Exported ${history.length} transactions to CSV`);
+  };
+
+  const exportToExcel = () => {
+    const history = getTransactionHistory();
+    
+    if (history.length === 0) {
+      toast.error("No transaction history to export");
+      return;
+    }
+
+    // Prepare data for Excel
+    const excelData = history.map((transaction: any) => {
+      const date = new Date(transaction.timestamp);
+      return {
+        "Date": date.toLocaleDateString('th-TH'),
+        "Time": date.toLocaleTimeString('th-TH'),
+        "Weight (g)": transaction.weight.toFixed(1),
+        "Price per 100g (฿)": transaction.pricePerHundred.toFixed(2),
+        "Total Price (฿)": transaction.totalPrice
+      };
+    });
+
+    // Create workbook and worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 12 },
+      { wch: 18 },
+      { wch: 18 }
+    ];
+
+    // Download Excel file
+    XLSX.writeFile(workbook, `transaction_history_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast.success(`Exported ${history.length} transactions to Excel`);
+  };
+
+  const clearHistory = () => {
+    const history = getTransactionHistory();
+    
+    if (history.length === 0) {
+      toast.error("No transaction history to clear");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete all ${history.length} transaction records? This cannot be undone.`)) {
+      localStorage.setItem("transactionHistory", "[]");
+      toast.success("Transaction history cleared");
+    }
   };
 
   return (
@@ -194,6 +299,43 @@ export const SettingsPanel = ({
                 className="w-full h-12 text-lg font-bold rounded-xl"
               >
                 UPDATE PIN
+              </Button>
+            </div>
+
+            {/* Data Export Section */}
+            <div className="space-y-4 pt-8 border-t-2 border-border">
+              <h3 className="text-xl font-bold text-foreground">Transaction History</h3>
+              <p className="text-sm text-foreground/70">
+                {getTransactionHistory().length} transactions saved
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={exportToCSV}
+                  variant="outline"
+                  className="h-12 text-base font-bold rounded-xl"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  Export CSV
+                </Button>
+                
+                <Button
+                  onClick={exportToExcel}
+                  variant="outline"
+                  className="h-12 text-base font-bold rounded-xl"
+                >
+                  <FileDown className="w-5 h-5 mr-2" />
+                  Export Excel
+                </Button>
+              </div>
+
+              <Button
+                onClick={clearHistory}
+                variant="destructive"
+                className="w-full h-12 text-base font-bold rounded-xl"
+              >
+                <Trash2 className="w-5 h-5 mr-2" />
+                Clear All History
               </Button>
             </div>
 
