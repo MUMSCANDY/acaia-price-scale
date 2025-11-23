@@ -74,90 +74,91 @@ export const ScaleDisplay = ({
   };
 
   return (
-    <div className="min-h-screen gradient-bg relative overflow-hidden">
+    <div className="min-h-screen gradient-mesh-bg relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -right-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-20 -right-20 w-[500px] h-[500px] bg-foreground/5 rounded-full blur-3xl animate-float" />
+        <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-foreground/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-foreground/3 rounded-full blur-3xl animate-glow-pulse" />
       </div>
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-12 pt-8">
-        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
-          MUMS SCALE
+      <header className="relative z-10 flex items-center justify-between px-12 pt-10 animate-slide-up">
+        <h1 className="text-brand text-5xl tracking-tighter">
+          MUMS
         </h1>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           {/* Connection Status */}
           <div className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all",
+            "flex items-center gap-3 px-5 py-3 rounded-full glass-effect transition-all duration-300 border-2",
             connectionStatus === "connected"
-              ? "bg-primary/10 text-foreground" 
-              : "bg-muted/50 text-foreground"
+              ? "border-foreground/20 shadow-glow" 
+              : "border-foreground/10"
           )}>
             {connectionStatus === "connected" ? (
               <>
                 <Wifi className="w-5 h-5" />
-                <span className="font-semibold text-sm">Acaia Pearl S</span>
+                <span className="font-bold text-sm">Connected</span>
               </>
             ) : connectionStatus === "connecting" ? (
               <>
                 <Wifi className="w-5 h-5 animate-pulse" />
-                <span className="font-semibold text-sm">Connecting...</span>
+                <span className="font-bold text-sm">Connecting...</span>
               </>
             ) : (
               <>
                 <WifiOff className="w-5 h-5" />
-                <span className="font-semibold text-sm">Disconnected</span>
+                <span className="font-bold text-sm">Offline</span>
               </>
             )}
           </div>
 
           {/* Battery */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-card/50 backdrop-blur-sm rounded-full">
+          <div className="flex items-center gap-3 px-5 py-3 glass-effect rounded-full border-2 border-foreground/10">
             <Battery className="w-5 h-5 text-foreground" />
-            <span className="font-semibold text-sm text-foreground">{battery}%</span>
+            <span className="font-bold text-sm text-foreground">{battery}%</span>
           </div>
 
           {/* Settings Button */}
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={handleSettingsClick}
-            className="rounded-full w-12 h-12 border-2 border-foreground/20 hover:border-foreground hover:bg-foreground/10"
+            className="rounded-full w-14 h-14 hover:bg-foreground/10 hover:scale-110"
           >
-            <Settings className="w-6 h-6" />
+            <Settings className="w-7 h-7" />
           </Button>
         </div>
       </header>
 
       {/* Main Display */}
-      <main className="relative z-10 flex flex-col items-center justify-center flex-1 px-12 py-16">
+      <main className="relative z-10 flex flex-col items-center justify-center flex-1 px-12 py-20">
         {/* Weight Display */}
-        <div className="mb-8 text-center">
-          <div className="text-display text-[160px] leading-none mb-2 drop-shadow-lg">
+        <div className="mb-12 text-center animate-scale-in">
+          <div className="text-display text-[200px] leading-none mb-4 drop-shadow-2xl">
             {weight.toFixed(1)}
-            <span className="text-[120px] ml-4 text-muted-foreground">g</span>
+            <span className="text-[140px] ml-6 font-light opacity-60">g</span>
           </div>
         </div>
 
         {/* Price Display */}
-        <div className="mb-12 text-center bg-foreground/10 backdrop-blur-md rounded-3xl px-16 py-10 shadow-bold">
-          <div className="text-display text-[180px] leading-none text-foreground">
-            {getCurrencyByCode(currency).symbol} {calculatePrice()}
+        <div className="mb-16 text-center glass-effect rounded-[2rem] px-20 py-12 shadow-lifted border-2 border-foreground/10 hover-lift animate-slide-up">
+          <div className="text-display text-[120px] leading-none text-foreground mb-3">
+            {getCurrencyByCode(currency).symbol}{calculatePrice()}
           </div>
-          <p className="text-2xl text-foreground/70 mt-4 font-semibold">
-            Price per 100 g: {pricePerHundred} {getCurrencyByCode(currency).symbol}
+          <p className="text-xl text-foreground/60 font-semibold tracking-wide">
+            {pricePerHundred} {getCurrencyByCode(currency).symbol} per 100g
           </p>
         </div>
 
         {/* Control Buttons */}
-        <div className="flex gap-6 items-center">
+        <div className="flex gap-6 items-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <Button
             size="lg"
             onClick={onTare}
             disabled={!isConnected}
-            className="px-12 py-8 text-2xl font-bold rounded-2xl shadow-soft hover:shadow-bold transition-all disabled:opacity-50"
+            className="px-16 py-8 text-2xl font-black rounded-3xl"
           >
             TARE
           </Button>
@@ -166,7 +167,7 @@ export const ScaleDisplay = ({
             size="lg"
             variant={isConnected ? "outline" : "default"}
             onClick={onToggleConnection}
-            className="px-12 py-8 text-2xl font-bold rounded-2xl shadow-soft hover:shadow-bold transition-all"
+            className="px-16 py-8 text-2xl font-black rounded-3xl"
           >
             {isConnected ? "DISCONNECT" : "CONNECT"}
           </Button>
@@ -175,10 +176,10 @@ export const ScaleDisplay = ({
             size="lg"
             variant="ghost"
             onClick={() => setIsHelpDialogOpen(true)}
-            className="px-6 py-8 text-xl rounded-2xl hover:bg-muted/50 transition-all"
-            title="Connection Help"
+            className="px-8 py-8 text-xl rounded-3xl"
+            title="Need Help?"
           >
-            <HelpCircle className="w-8 h-8" />
+            <HelpCircle className="w-9 h-9" />
           </Button>
         </div>
       </main>
