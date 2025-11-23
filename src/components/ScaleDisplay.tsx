@@ -158,7 +158,7 @@ export const ScaleDisplay = ({
             size="lg"
             onClick={onTare}
             disabled={!isConnected}
-            className="px-8 py-6 text-base font-bold rounded-full bg-foreground/90 text-background hover:bg-foreground hover:scale-110 disabled:bg-foreground/30 disabled:text-background/50"
+            className="px-8 py-6 text-base font-bold rounded-full glass-effect border-2 border-foreground text-foreground hover:bg-foreground/10 hover:scale-110 disabled:opacity-40"
           >
             <Scale className="w-5 h-5" />
             TARE
