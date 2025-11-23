@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power, CreditCard } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
 import { ConnectionHelpDialog } from "./ConnectionHelpDialog";
 import { getCurrencyByCode } from "@/lib/currencies";
-
 interface ScaleDisplayProps {
   weight: number;
   isConnected: boolean;
@@ -15,14 +14,13 @@ interface ScaleDisplayProps {
   onTare: () => void;
   onToggleConnection: () => void;
 }
-
 export const ScaleDisplay = ({
   weight,
   isConnected,
   connectionStatus,
   battery,
   onTare,
-  onToggleConnection,
+  onToggleConnection
 }: ScaleDisplayProps) => {
   const [pricePerHundred, setPricePerHundred] = useState(89);
   const [currency, setCurrency] = useState(() => localStorage.getItem("currency") || "THB");
@@ -42,25 +40,21 @@ export const ScaleDisplay = ({
         timestamp: new Date().toISOString(),
         weight,
         pricePerHundred,
-        totalPrice: calculatePrice(),
+        totalPrice: calculatePrice()
       };
-      
       const history = JSON.parse(localStorage.getItem("transactionHistory") || "[]");
       history.push(transaction);
-      
+
       // Keep only last 1000 transactions
       if (history.length > 1000) {
         history.shift();
       }
-      
       localStorage.setItem("transactionHistory", JSON.stringify(history));
     }
   }, [weight, isConnected]);
-
   const handleSettingsClick = () => {
     setIsPinDialogOpen(true);
   };
-
   const handlePinSuccess = () => {
     setIsPinDialogOpen(false);
     setIsSettingsOpen(true);
@@ -72,13 +66,13 @@ export const ScaleDisplay = ({
     const total = Math.ceil(weight * pricePerGram);
     return total;
   };
-
-  return (
-    <div className="min-h-screen gradient-mesh-bg relative overflow-hidden">
+  return <div className="min-h-screen gradient-mesh-bg relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 -right-20 w-[500px] h-[500px] bg-foreground/5 rounded-full blur-3xl animate-float" />
-        <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-foreground/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+        <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-foreground/5 rounded-full blur-3xl animate-float" style={{
+        animationDelay: '3s'
+      }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-foreground/3 rounded-full blur-3xl animate-glow-pulse" />
       </div>
 
@@ -90,26 +84,17 @@ export const ScaleDisplay = ({
         
         <div className="flex items-center gap-4">
           {/* Connection Status */}
-          <div className={cn(
-            "flex items-center gap-3 px-5 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300",
-            connectionStatus === "connected" && "shadow-glow"
-          )}>
-            {connectionStatus === "connected" ? (
-              <>
+          <div className={cn("flex items-center gap-3 px-5 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300", connectionStatus === "connected" && "shadow-glow")}>
+            {connectionStatus === "connected" ? <>
                 <Wifi className="w-5 h-5" />
                 <span className="font-bold text-sm">Connected</span>
-              </>
-            ) : connectionStatus === "connecting" ? (
-              <>
+              </> : connectionStatus === "connecting" ? <>
                 <Wifi className="w-5 h-5 animate-pulse" />
                 <span className="font-bold text-sm">Connecting...</span>
-              </>
-            ) : (
-              <>
+              </> : <>
                 <WifiOff className="w-5 h-5" />
                 <span className="font-bold text-sm">Offline</span>
-              </>
-            )}
+              </>}
           </div>
 
           {/* Battery */}
@@ -119,12 +104,7 @@ export const ScaleDisplay = ({
           </div>
 
           {/* Settings Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSettingsClick}
-            className="rounded-full w-14 h-14 glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110"
-          >
+          <Button variant="ghost" size="icon" onClick={handleSettingsClick} className="rounded-full w-14 h-14 glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110">
             <Settings className="w-7 h-7" />
           </Button>
         </div>
@@ -145,7 +125,7 @@ export const ScaleDisplay = ({
           {/* Credit card decorative elements */}
           <div className="absolute top-8 left-12 w-14 h-10 rounded-md border-2 border-foreground/30 bg-foreground/5" />
           <div className="absolute top-6 right-12 opacity-40">
-            <CreditCard className="w-12 h-12" />
+            
           </div>
           
           {/* Card number placeholder */}
@@ -168,25 +148,15 @@ export const ScaleDisplay = ({
         </div>
 
         {/* Control Buttons */}
-        <div className="flex gap-5 items-center justify-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <button
-            onClick={isConnected ? onTare : undefined}
-            disabled={!isConnected}
-            className={cn(
-              "flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300 font-bold text-base",
-              isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "cursor-not-allowed"
-            )}
-          >
+        <div className="flex gap-5 items-center justify-center animate-slide-up" style={{
+        animationDelay: '0.1s'
+      }}>
+          <button onClick={isConnected ? onTare : undefined} disabled={!isConnected} className={cn("flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300 font-bold text-base", isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "cursor-not-allowed")}>
             <Scale className="w-5 h-5" />
             <span>TARE</span>
           </button>
 
-          <Button
-            size="lg"
-            variant={isConnected ? "outline" : "default"}
-            onClick={onToggleConnection}
-            className="px-8 py-6 text-base font-bold rounded-full"
-          >
+          <Button size="lg" variant={isConnected ? "outline" : "default"} onClick={onToggleConnection} className="px-8 py-6 text-base font-bold rounded-full">
             <Power className="w-5 h-5" />
             {isConnected ? "DISCONNECT" : "CONNECT"}
           </Button>
@@ -194,40 +164,21 @@ export const ScaleDisplay = ({
       </main>
 
       {/* Help Button - Fixed to bottom right */}
-      <div className="fixed bottom-8 right-8 z-20 animate-scale-in" style={{ animationDelay: '0.2s' }}>
-        <Button
-          size="lg"
-          variant="ghost"
-          onClick={() => setIsHelpDialogOpen(true)}
-          className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110"
-          title="Need Help?"
-        >
+      <div className="fixed bottom-8 right-8 z-20 animate-scale-in" style={{
+      animationDelay: '0.2s'
+    }}>
+        <Button size="lg" variant="ghost" onClick={() => setIsHelpDialogOpen(true)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Need Help?">
           <HelpCircle className="w-8 h-8" />
         </Button>
       </div>
 
       {/* PIN Dialog */}
-      <PinDialog
-        isOpen={isPinDialogOpen}
-        onClose={() => setIsPinDialogOpen(false)}
-        onSuccess={handlePinSuccess}
-      />
+      <PinDialog isOpen={isPinDialogOpen} onClose={() => setIsPinDialogOpen(false)} onSuccess={handlePinSuccess} />
 
       {/* Connection Help Dialog */}
-      <ConnectionHelpDialog
-        open={isHelpDialogOpen}
-        onOpenChange={setIsHelpDialogOpen}
-      />
+      <ConnectionHelpDialog open={isHelpDialogOpen} onOpenChange={setIsHelpDialogOpen} />
 
       {/* Settings Panel */}
-      <SettingsPanel
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        pricePerHundred={pricePerHundred}
-        onPriceChange={setPricePerHundred}
-        currency={currency}
-        onCurrencyChange={setCurrency}
-      />
-    </div>
-  );
+      <SettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} pricePerHundred={pricePerHundred} onPriceChange={setPricePerHundred} currency={currency} onCurrencyChange={setCurrency} />
+    </div>;
 };
