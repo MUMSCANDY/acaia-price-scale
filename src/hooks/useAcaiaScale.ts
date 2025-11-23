@@ -59,13 +59,12 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         return;
       }
 
-      // Request device
+      // Request device - don't filter by service as Acaia doesn't advertise it
       console.log("Requesting device...");
       const device = await navigator.bluetooth.requestDevice({
         filters: [
           { namePrefix: "ACAIA" },
           { namePrefix: "PEARL" },
-          { services: [ACAIA_SERVICE_UUID] },
         ],
         optionalServices: [ACAIA_SERVICE_UUID],
       });
@@ -75,15 +74,22 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         throw new Error("GATT not available");
       }
 
-      // Connect to GATT server with timeout
+      // Connect to GATT server with retry logic
       console.log("Connecting to GATT server...");
-      const server = await Promise.race([
-        device.gatt!.connect(),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Connection timeout - device not responding')), 10000)
-        )
-      ]);
-      console.log("Connected to GATT server, getting services...");
+      let server: BluetoothRemoteGATTServer;
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          server = await device.gatt!.connect();
+          console.log("Connected to GATT server");
+          break;
+        } catch (err) {
+          retries--;
+          if (retries === 0) throw err;
+          console.log(`Connection failed, retrying... (${retries} attempts left)`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
       
       console.log("Getting service:", ACAIA_SERVICE_UUID);
       const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
