@@ -120,25 +120,24 @@ export const ScaleDisplay = ({
           </div>
         </div>
 
-        {/* Price Display - Credit Card Style */}
-        <div className="mb-16 text-left glass-effect rounded-3xl px-12 py-10 shadow-lifted border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[520px] aspect-[1.586/1]">
-          {/* Credit card decorative elements */}
-          <div className="absolute top-8 left-12 w-14 h-10 rounded-md border-2 border-foreground/30 bg-foreground/5" />
-          <div className="absolute top-6 right-12 opacity-40">
-            
+        {/* Price Display - Credit Card Back Design */}
+        <div className="mb-16 text-left glass-effect rounded-3xl shadow-lifted border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[520px] aspect-[1.586/1]">
+          {/* Magnetic strip */}
+          <div className="absolute top-12 left-0 right-0 h-16 bg-foreground/90" />
+          
+          {/* Signature strip */}
+          <div className="absolute top-32 left-8 right-8 h-12 bg-background/80 border border-foreground/20 flex items-center px-4">
+            <div className="text-xs text-foreground/40 font-mono">AUTHORIZED SIGNATURE</div>
           </div>
           
-          {/* Card number placeholder */}
-          <div className="absolute bottom-20 left-12 flex gap-4 opacity-20 font-mono text-sm">
-            <span>••••</span>
-            <span>••••</span>
-            <span>••••</span>
-            <span>{weight.toFixed(0).padStart(4, '0')}</span>
+          {/* CVV area */}
+          <div className="absolute top-32 right-12 w-16 h-12 bg-background rounded border border-foreground/30 flex items-center justify-center">
+            <span className="text-xs font-mono text-foreground/60">{weight.toFixed(0).slice(-3).padStart(3, '0')}</span>
           </div>
           
-          {/* Main price */}
-          <div className="relative z-10 mt-16">
-            <div className="text-display text-[100px] leading-none text-foreground mb-2">
+          {/* Main price - larger font */}
+          <div className="relative z-10 mt-48 px-12">
+            <div className="text-display text-[120px] leading-none text-foreground mb-2">
               {getCurrencyByCode(currency).symbol}{calculatePrice()}
             </div>
             <p className="text-base text-foreground/60 font-semibold tracking-wide">
