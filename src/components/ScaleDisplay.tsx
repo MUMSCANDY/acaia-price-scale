@@ -27,6 +27,22 @@ export const ScaleDisplay = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
+  const [isWeightStable, setIsWeightStable] = useState(false);
+
+  // Detect weight stabilization
+  useEffect(() => {
+    if (!isConnected || weight === 0) {
+      setIsWeightStable(false);
+      return;
+    }
+
+    setIsWeightStable(false);
+    const timer = setTimeout(() => {
+      setIsWeightStable(true);
+    }, 2500); // 2.5 seconds
+
+    return () => clearTimeout(timer);
+  }, [weight, isConnected]);
 
   // Save currency to localStorage when it changes
   useEffect(() => {
@@ -113,11 +129,22 @@ export const ScaleDisplay = ({
       {/* Main Display */}
       <main className="relative z-10 flex flex-col items-center justify-center flex-1 px-12 py-20">
         {/* Weight Display */}
-        <div className="mb-12 text-center animate-scale-in">
-          <div className="text-digital text-[200px] leading-none mb-4 drop-shadow-2xl">
+        <div className="mb-12 text-center animate-scale-in relative">
+          <div className={cn(
+            "text-digital text-[200px] leading-none mb-4 drop-shadow-2xl transition-all duration-500",
+            isWeightStable && weight > 0 && "animate-glow-pulse"
+          )}>
             {weight.toFixed(1)}
             <span className="text-[140px] ml-6 font-bold">g</span>
           </div>
+          
+          {/* Stable Indicator */}
+          {isWeightStable && weight > 0 && (
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 glass-effect border-2 border-foreground rounded-full animate-fade-in">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-digital text-sm font-bold tracking-wider">STABLE</span>
+            </div>
+          )}
         </div>
 
         {/* Price Display - Receipt Style */}

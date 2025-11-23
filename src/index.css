@@ -56,6 +56,9 @@ All colors MUST be HSL.
     
     /* Smooth Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Glow effect */
+    --glow-color: 220 80% 60%;
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -113,5 +116,18 @@ All colors MUST be HSL.
   
   .button-glow {
     box-shadow: 0 0 20px hsla(340 76% 65% / 0.4), var(--shadow-soft);
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 20px hsl(var(--glow-color) / 0.6));
+    }
+    50% {
+      filter: drop-shadow(0 0 40px hsl(var(--glow-color) / 0.9));
+    }
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
   }
 }
