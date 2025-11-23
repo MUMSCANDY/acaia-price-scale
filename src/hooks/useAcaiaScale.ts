@@ -271,21 +271,22 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       // Start heartbeat to keep connection alive
       const writeCharUuid = writeChar.uuid; // Capture in closure
+      const deviceIdForHeartbeat = device.deviceId; // Capture deviceId
       console.log("Setting up heartbeat with write char:", writeCharUuid);
       
       heartbeatIntervalRef.current = setInterval(async () => {
         try {
-          console.log("Sending heartbeat...");
+          console.log("Sending heartbeat to device:", deviceIdForHeartbeat);
           // Acaia heartbeat message: 0xef 0xdd 0x00 0x00
           const heartbeat = new Uint8Array([0xef, 0xdd, 0x00, 0x00]);
-          await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
+          await BleClient.write(deviceIdForHeartbeat, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
           console.log("Heartbeat sent successfully");
         } catch (error) {
           console.error("Heartbeat error:", error);
         }
       }, 3000); // Send heartbeat every 3 seconds
       
-      console.log("Heartbeat interval started");
+      console.log("Heartbeat interval started with ID:", heartbeatIntervalRef.current);
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
