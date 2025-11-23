@@ -128,11 +128,6 @@ export const ScaleDisplay = ({
             repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)
           `
         }}>
-          {/* Torn edge effect at top */}
-          <svg className="w-full h-4" preserveAspectRatio="none" viewBox="0 0 600 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,16 L0,8 L10,0 L20,8 L30,0 L40,8 L50,0 L60,8 L70,0 L80,8 L90,0 L100,8 L110,0 L120,8 L130,0 L140,8 L150,0 L160,8 L170,0 L180,8 L190,0 L200,8 L210,0 L220,8 L230,0 L240,8 L250,0 L260,8 L270,0 L280,8 L290,0 L300,8 L310,0 L320,8 L330,0 L340,8 L350,0 L360,8 L370,0 L380,8 L390,0 L400,8 L410,0 L420,8 L430,0 L440,8 L450,0 L460,8 L470,0 L480,8 L490,0 L500,8 L510,0 L520,8 L530,0 L540,8 L550,0 L560,8 L570,0 L580,8 L590,0 L600,8 L600,16 Z" fill="currentColor" opacity="0.4"/>
-          </svg>
-          
           <div className="px-8 py-5">
             {/* Total Section - Centered, Large */}
             <div className="text-center mb-3" key={`${calculatePrice()}-${currency}`}>
