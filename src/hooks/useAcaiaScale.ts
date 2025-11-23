@@ -24,12 +24,13 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
-  const [autoReconnectEnabled, setAutoReconnectEnabled] = useState(false);
   
-  // Use refs for buffer and reconnect
+  // Use refs for buffer, reconnect, and auto-reconnect flag
   const dataBufferRef = useRef<number[]>([]);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoReconnectEnabledRef = useRef(false); // Use ref to avoid closure issues
+  const connectFunctionRef = useRef<(() => Promise<void>) | null>(null);
 
   // Parse weight data from Acaia scale with proper buffering
   const parseWeightData = useCallback((dataView: DataView) => {
@@ -211,12 +212,13 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         setConnectionStatus("disconnected");
         setDeviceId(null);
         
-        // Auto-reconnect if enabled
-        if (autoReconnectEnabled) {
+        // Auto-reconnect if enabled (use ref to avoid closure issues)
+        if (autoReconnectEnabledRef.current && connectFunctionRef.current) {
           console.log("🔄 Auto-reconnect enabled - will reconnect in 2s");
+          toast.info("Scale disconnected - reconnecting...");
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log("🔄 Auto-reconnecting...");
-            connect();
+            console.log("🔄 Attempting auto-reconnect...");
+            connectFunctionRef.current?.();
           }, 2000);
         } else {
           toast.info("Scale disconnected");
@@ -284,8 +286,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION 10.0: AUTO-RECONNECT ===
-      console.log("🚀 V10.0 - AUTO-RECONNECT");
+      // === VERSION 10.1: AUTO-RECONNECT WITH REF FIX ===
+      console.log("🚀 V10.1 - AUTO-RECONNECT (REF FIX)");
       
       // Just send timer start
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
@@ -297,31 +299,28 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setConnectionStatus("connected");
       setWeight(0);
       setBattery(85);
-      setAutoReconnectEnabled(true); // Enable auto-reconnect after first successful connection
+      autoReconnectEnabledRef.current = true; // Enable auto-reconnect using ref
       
-      toast.success("Connected to scale");
-
-      setDeviceId(device.deviceId);
-      setIsConnected(true);
-      setConnectionStatus("connected");
-      setWeight(0);
-      setBattery(85);
-      
-      toast.success("Connected to Acaia scale!");
+      toast.success("Connected - auto-reconnect enabled");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
       toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsConnected(false);
       setConnectionStatus("disconnected");
       setDeviceId(null);
-      setAutoReconnectEnabled(false); // Disable auto-reconnect on manual connection failure
+      autoReconnectEnabledRef.current = false; // Disable auto-reconnect on failure
     }
-  }, [parseWeightData, autoReconnectEnabled]);
+  }, [parseWeightData]);
+
+  // Store connect function ref
+  useEffect(() => {
+    connectFunctionRef.current = connect;
+  }, [connect]);
 
   // Disconnect from scale
   const disconnect = useCallback(async () => {
     // Disable auto-reconnect
-    setAutoReconnectEnabled(false);
+    autoReconnectEnabledRef.current = false;
     
     // Clear any pending reconnect
     if (reconnectTimeoutRef.current) {
