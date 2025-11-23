@@ -91,6 +91,18 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     try {
       console.log("Starting connection to Acaia scale...");
 
+      // Initialize BLE Client first
+      console.log("Initializing BLE Client...");
+      try {
+        await BleClient.initialize();
+        console.log("BLE Client initialized successfully");
+      } catch (initError) {
+        console.error("BLE initialization failed:", initError);
+        toast.error("Failed to initialize Bluetooth");
+        setConnectionStatus("disconnected");
+        return;
+      }
+
       // Check if Bluetooth is enabled
       console.log("Checking if Bluetooth is enabled...");
       const isEnabled = await BleClient.isEnabled();
@@ -117,7 +129,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         return;
       }
       
-      console.log("Location and Bluetooth are enabled, proceeding with BLE scan...");
+      console.log("All checks passed, starting BLE scan...");
+      console.log("This should show ALL nearby BLE devices...");
 
       // Request device - Remove ALL filters to see every BLE device nearby
       console.log("Calling BleClient.requestDevice with NO filters...");
