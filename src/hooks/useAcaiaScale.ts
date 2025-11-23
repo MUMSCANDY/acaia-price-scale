@@ -23,48 +23,73 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [dataBuffer, setDataBuffer] = useState<number[]>([]);
 
   // Parse weight data from Acaia scale
   const parseWeightData = useCallback((dataView: DataView) => {
     try {
-      // Log raw data for debugging
-      const bytes = Array.from(new Uint8Array(dataView.buffer));
-      console.log("Received data:", bytes.map(b => b.toString(16).padStart(2, '0')).join(' '));
+      // Convert to byte array and add to buffer
+      const newBytes = Array.from(new Uint8Array(dataView.buffer));
       
-      // Acaia protocol: messages start with 0xef 0xdd
-      if (dataView.byteLength < 4) {
-        console.log("Message too short");
-        return;
-      }
-      
-      const header1 = dataView.getUint8(0);
-      const header2 = dataView.getUint8(1);
-      
-      if (header1 !== 0xef || header2 !== 0xdd) {
-        console.log("Invalid header");
-        return;
-      }
-      
-      const msgType = dataView.getUint8(2);
-      console.log("Message type:", msgType.toString(16));
-      
-      // Type 0x05 = weight data
-      // Type 0x08 = battery
-      if (msgType === 0x05 && dataView.byteLength >= 9) {
-        // Weight is in bytes 4-8 as big-endian integer (grams * 10)
-        const weightRaw = (dataView.getUint8(4) << 24) | 
-                         (dataView.getUint8(5) << 16) | 
-                         (dataView.getUint8(6) << 8) | 
-                         dataView.getUint8(7);
-        const weightGrams = weightRaw / 10.0;
-        console.log("Weight:", weightGrams, "g");
-        setWeight(Math.max(0, weightGrams));
-      } else if (msgType === 0x08 && dataView.byteLength >= 5) {
-        // Battery level in byte 4
-        const batteryLevel = dataView.getUint8(4);
-        console.log("Battery:", batteryLevel, "%");
-        setBattery(batteryLevel);
-      }
+      setDataBuffer(prevBuffer => {
+        const buffer = [...prevBuffer, ...newBytes];
+        
+        // Process complete messages from buffer
+        let processedBytes = 0;
+        
+        while (buffer.length - processedBytes >= 4) {
+          const offset = processedBytes;
+          
+          // Look for message header (0xef 0xdd)
+          if (buffer[offset] !== 0xef || buffer[offset + 1] !== 0xdd) {
+            // Invalid header, skip this byte and continue searching
+            processedBytes++;
+            continue;
+          }
+          
+          const msgType = buffer[offset + 2];
+          const msgLength = buffer[offset + 3];
+          const totalLength = 4 + msgLength; // header(2) + type(1) + length(1) + payload(msgLength)
+          
+          // Check if we have complete message
+          if (buffer.length - offset < totalLength) {
+            // Incomplete message, keep remaining bytes in buffer
+            break;
+          }
+          
+          // Process complete message
+          const message = buffer.slice(offset, offset + totalLength);
+          
+          // Type 0x07 = weight data (Pearl S)
+          // Type 0x05 = weight data (older models)
+          // Type 0x08 = battery
+          if ((msgType === 0x07 || msgType === 0x05) && message.length >= 8) {
+            // For type 0x07 (Pearl S): weight appears to be in bytes 4-7
+            // For type 0x05: weight is in bytes 4-7 as well
+            // Format: big-endian integer representing grams * 10
+            const weightRaw = (message[4] << 24) | 
+                             (message[5] << 16) | 
+                             (message[6] << 8) | 
+                             message[7];
+            const weightGrams = weightRaw / 10.0;
+            
+            if (weightGrams >= 0 && weightGrams < 10000) { // Sanity check
+              console.log("Weight:", weightGrams, "g");
+              setWeight(weightGrams);
+            }
+          } else if (msgType === 0x08 && message.length >= 5) {
+            // Battery level in byte 4
+            const batteryLevel = message[4];
+            console.log("Battery:", batteryLevel, "%");
+            setBattery(batteryLevel);
+          }
+          
+          processedBytes = offset + totalLength;
+        }
+        
+        // Keep unprocessed bytes in buffer
+        return buffer.slice(processedBytes);
+      });
     } catch (error) {
       console.error("Error parsing data:", error);
     }
