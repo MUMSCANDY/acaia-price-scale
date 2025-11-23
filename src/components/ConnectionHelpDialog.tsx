@@ -95,7 +95,7 @@ export const ConnectionHelpDialog = ({ open, onOpenChange }: ConnectionHelpDialo
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction>Got it</AlertDialogAction>
+          <AlertDialogAction className="text-digital">Got it</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

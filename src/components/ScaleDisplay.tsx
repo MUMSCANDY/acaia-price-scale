@@ -158,12 +158,12 @@ export const ScaleDisplay = ({
         <div className="flex gap-5 items-center justify-center animate-slide-up" style={{
         animationDelay: '0.1s'
       }}>
-          <button onClick={isConnected ? onTare : undefined} disabled={!isConnected} className={cn("flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300 font-bold text-base", isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "cursor-not-allowed")}>
+          <button onClick={isConnected ? onTare : undefined} disabled={!isConnected} className={cn("flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300 text-digital text-base", isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "cursor-not-allowed")}>
             <Scale className="w-5 h-5" />
             <span>TARE</span>
           </button>
 
-          <Button size="lg" variant={isConnected ? "outline" : "default"} onClick={onToggleConnection} className="px-8 py-6 text-base font-bold rounded-full">
+          <Button size="lg" variant={isConnected ? "outline" : "default"} onClick={onToggleConnection} className="px-8 py-6 text-base text-digital rounded-full">
             <Power className="w-5 h-5" />
             {isConnected ? "DISCONNECT" : "CONNECT"}
           </Button>
