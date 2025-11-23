@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
+import { BleClient, numbersToDataView, numberToUUID } from '@capacitor-community/bluetooth-le';
 
 // Acaia BLE Service and Characteristic UUIDs (from reverse engineering)
 const ACAIA_SERVICE_UUID = "49535343-fe7d-4ae5-8fa9-9fafd205e455";
@@ -21,8 +22,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [battery, setBattery] = useState(85);
-  const [device, setDevice] = useState<BluetoothDevice | null>(null);
-  const [characteristic, setCharacteristic] = useState<BluetoothRemoteGATTCharacteristic | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
 
   // Parse weight data from Acaia scale
   const parseWeightData = useCallback((dataView: DataView) => {
@@ -70,121 +70,132 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, []);
 
-  // Handle incoming data from scale
-  const handleNotification = useCallback(
-    (event: Event) => {
-      const target = event.target as BluetoothRemoteGATTCharacteristic;
-      const value = target.value;
-      if (value) {
-        parseWeightData(value);
+  // Initialize BLE client on mount
+  useEffect(() => {
+    const initializeBle = async () => {
+      try {
+        await BleClient.initialize();
+        console.log("BLE Client initialized");
+      } catch (error) {
+        console.error("BLE initialization error:", error);
+        toast.error("Failed to initialize Bluetooth");
       }
-    },
-    [parseWeightData]
-  );
+    };
 
-  // Connect to Acaia scale via Web Bluetooth API
+    initializeBle();
+  }, []);
+
+  // Connect to Acaia scale via Native Bluetooth
   const connect = useCallback(async () => {
     setConnectionStatus("connecting");
     try {
       console.log("Starting connection to Acaia scale...");
-      
-      // Check if Web Bluetooth is available
-      if (!navigator.bluetooth) {
-        toast.error("Web Bluetooth not supported. Please use a compatible browser or native app.");
-        return;
-      }
 
       // Request device - Pearl S uses "PEARLS-" prefix
       console.log("Requesting device...");
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [
-          { namePrefix: "PEARLS-" },
-          { namePrefix: "ACAIA" },
-        ],
+      const device = await BleClient.requestDevice({
+        namePrefix: 'PEARLS-',
         optionalServices: [ACAIA_SERVICE_UUID],
       });
-      console.log("Device selected:", device.name);
-
-      if (!device.gatt) {
-        throw new Error("GATT not available");
-      }
-
-      // Connect to GATT server
-      console.log("Connecting to GATT server...");
-      if (!device.gatt) {
-        throw new Error("GATT not available on device");
-      }
-
-      let server: BluetoothRemoteGATTServer;
-      try {
-        server = await device.gatt.connect();
-        console.log("GATT server connected successfully");
-      } catch (err) {
-        console.error("GATT connection failed:", err);
-        throw new Error(`Cannot connect to scale. Error: ${err instanceof Error ? err.message : 'Unknown'}`);
-      }
       
-      // MINIMAL CONNECTION TEST - just save device and set state
-      // Don't get services, don't get characteristics, don't do ANYTHING
-      console.log("Minimal connection established - testing if it stays alive...");
+      console.log("Device selected:", device.deviceId);
+
+      // Connect to device
+      console.log("Connecting to device...");
+      await BleClient.connect(device.deviceId, (disconnectedDeviceId) => {
+        console.log(`Disconnected from ${disconnectedDeviceId}`);
+        setIsConnected(false);
+        setConnectionStatus("disconnected");
+        setDeviceId(null);
+        toast.info("Scale disconnected");
+      });
       
-      setDevice(device);
-      setCharacteristic(null); // No characteristic yet
+      console.log("Connected successfully");
+
+      // Get services to verify connection
+      console.log("Getting services...");
+      const services = await BleClient.getServices(device.deviceId);
+      console.log("Services discovered:", services.length);
+
+      // Start notifications for weight data
+      console.log("Starting notifications...");
+      await BleClient.startNotifications(
+        device.deviceId,
+        ACAIA_SERVICE_UUID,
+        ACAIA_CHAR_NOTIFY_UUID,
+        (value) => {
+          parseWeightData(value);
+        }
+      );
+      
+      console.log("Notifications started");
+
+      setDeviceId(device.deviceId);
       setIsConnected(true);
       setConnectionStatus("connected");
       setWeight(0);
       setBattery(85);
       
-      console.log("Connection test complete. If this stays connected, we can proceed to get characteristics.");
-      toast.success("Connected! Testing connection stability...");
+      toast.success("Connected to Acaia scale!");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
       toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsConnected(false);
       setConnectionStatus("disconnected");
+      setDeviceId(null);
     }
-  }, [handleNotification]);
+  }, [parseWeightData]);
 
   // Disconnect from scale
-  const disconnect = useCallback(() => {
-    if (device?.gatt?.connected) {
-      device.gatt.disconnect();
+  const disconnect = useCallback(async () => {
+    if (deviceId) {
+      try {
+        await BleClient.disconnect(deviceId);
+        console.log("Disconnected from scale");
+      } catch (error) {
+        console.error("Disconnect error:", error);
+      }
     }
-    if (characteristic) {
-      characteristic.removeEventListener("characteristicvaluechanged", handleNotification);
-    }
-    setDevice(null);
-    setCharacteristic(null);
+    setDeviceId(null);
     setIsConnected(false);
     setConnectionStatus("disconnected");
     toast.info("Disconnected from scale");
-  }, [device, characteristic, handleNotification]);
+  }, [deviceId]);
 
   // Send tare command to scale
   const tare = useCallback(async () => {
-    if (!characteristic || !isConnected) {
+    if (!deviceId || !isConnected) {
       toast.error("Not connected to scale");
       return;
     }
 
     try {
       // Acaia tare command (simplified - actual command from protocol doc)
-      // Command format based on Acaia protocol
       const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00, 0x00, 0x00, 0x00]);
-      await characteristic.writeValue(tareCommand);
+      const dataView = numbersToDataView(Array.from(tareCommand));
+      
+      await BleClient.write(
+        deviceId,
+        ACAIA_SERVICE_UUID,
+        ACAIA_CHAR_WRITE_UUID,
+        dataView
+      );
+      
       toast.success("Scale tared");
     } catch (error) {
       console.error("Tare error:", error);
       toast.error("Failed to tare scale");
     }
-  }, [characteristic, isConnected]);
+  }, [deviceId, isConnected]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      disconnect();
+      if (deviceId) {
+        BleClient.disconnect(deviceId).catch(console.error);
+      }
     };
-  }, [disconnect]);
+  }, [deviceId]);
 
   // Simulate weight changes for demo purposes only when disconnected
   useEffect(() => {
