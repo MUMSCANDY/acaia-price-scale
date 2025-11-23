@@ -138,7 +138,7 @@ export const ScaleDisplay = ({
         <div className="mb-12 text-center animate-scale-in">
           <div className="text-display text-[200px] leading-none mb-4 drop-shadow-2xl">
             {weight.toFixed(1)}
-            <span className="text-[140px] ml-6 font-light opacity-60">g</span>
+            <span className="text-[140px] ml-6 font-bold">g</span>
           </div>
         </div>
 
