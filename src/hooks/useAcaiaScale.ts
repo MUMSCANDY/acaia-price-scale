@@ -75,10 +75,15 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         throw new Error("GATT not available");
       }
 
-      // Connect to GATT server
+      // Connect to GATT server with timeout
       console.log("Connecting to GATT server...");
-      const server = await device.gatt.connect();
-      console.log("Connected to GATT server");
+      const server = await Promise.race([
+        device.gatt!.connect(),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Connection timeout - device not responding')), 10000)
+        )
+      ]);
+      console.log("Connected to GATT server, getting services...");
       
       console.log("Getting service:", ACAIA_SERVICE_UUID);
       const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
