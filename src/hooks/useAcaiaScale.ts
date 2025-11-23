@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import "../types/bluetooth";
 
 // Acaia BLE Service and Characteristic UUIDs (from the protocol document)
 const ACAIA_SERVICE_UUID = "00001820-0000-1000-8000-00805f9b34fb";
