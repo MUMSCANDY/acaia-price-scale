@@ -34,6 +34,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     try {
       // Convert to byte array and add to buffer
       const newBytes = Array.from(new Uint8Array(dataView.buffer));
+      console.log("📥 RAW DATA RECEIVED:", newBytes.map(b => b.toString(16).padStart(2, '0')).join(' '));
       dataBufferRef.current = [...dataBufferRef.current, ...newBytes];
       
       // Process complete messages from buffer
@@ -45,6 +46,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         
         if (headerIndex === -1) {
           // No valid header found, clear buffer
+          console.log("⚠️ No valid header found, clearing buffer");
           dataBufferRef.current = [];
           break;
         }
@@ -63,23 +65,26 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         const msgLength = dataBufferRef.current[3];
         const totalLength = 4 + msgLength;
         
+        console.log(`📦 Message type: 0x${msgType.toString(16).padStart(2, '0')}, length: ${msgLength}, total: ${totalLength}`);
+        
         // Check if we have complete message
         if (dataBufferRef.current.length < totalLength) {
           // Wait for more data
+          console.log("⏳ Waiting for more data...");
           break;
         }
         
         // Extract complete message
         const message = dataBufferRef.current.slice(0, totalLength);
+        console.log("📦 Complete message:", message.map(b => b.toString(16).padStart(2, '0')).join(' '));
         
         // Process the message
         if ((msgType === 0x07 || msgType === 0x05) && message.length >= 11) {
           // For Acaia Pearl S (type 0x07), weight is encoded in payload
-          // Message format: ef dd 07 07 03 5c 01 00 05 01 64 09
-          // Payload starts at byte 4: 03 5c 01 00 05 01 64
-          // Weight appears to be in bytes 4-5 (0x03 0x5c) as 16-bit value
           const weightRaw = (message[4] << 8) | message[5];
           const weightGrams = weightRaw / 10.0;
+          
+          console.log(`⚖️ Weight parsed: ${weightGrams}g (raw: ${weightRaw})`);
           
           if (weightGrams >= 0 && weightGrams < 10000) {
             setWeight(weightGrams);
@@ -87,17 +92,20 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         } else if (msgType === 0x08 && message.length >= 5) {
           // Battery data
           const batteryLevel = message[4];
+          console.log(`🔋 Battery: ${batteryLevel}%`);
           setBattery(batteryLevel);
         } else if (msgType === 0x0c) {
-          // Heartbeat/status message - send acknowledgment
-          console.log("Received heartbeat");
+          // Heartbeat/status message
+          console.log("💓 Heartbeat/status message received");
+        } else {
+          console.log(`❓ Unknown message type: 0x${msgType.toString(16).padStart(2, '0')}`);
         }
         
         // Remove processed message from buffer
         dataBufferRef.current = dataBufferRef.current.slice(totalLength);
       }
     } catch (error) {
-      console.error("Error parsing data:", error);
+      console.error("❌ Error parsing data:", error);
       dataBufferRef.current = []; // Clear buffer on error
     }
   }, []);
@@ -264,16 +272,34 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // Send initial identification command
+      // === VERSION CHECK: v4.0 ===
+      console.log("🚀 ACAIA CONNECT VERSION 4.0 - NO HEARTBEAT + ENHANCED INIT");
+      
+      // Send initialization command sequence
+      console.log("📤 Sending identification command...");
       const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(identCommand)));
-      console.log("Sent identification command");
+      console.log("✅ Identification command sent:", Array.from(identCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
       
-      // === VERSION CHECK: v3.0 ===
-      console.log("🚀 ACAIA CONNECT VERSION 3.0 - HEARTBEAT VIA EFFECT");
+      // Wait a moment for scale to process
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Don't start interval here - let the useEffect handle it
-      console.log("✅ Connection complete - heartbeat will be managed by effect");
+      // Enable event notifications for weight/battery data
+      console.log("📤 Enabling event notifications...");
+      const eventCommand = new Uint8Array([0xef, 0xdd, 0x0c, 0x09, 0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04, 0x08]);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(eventCommand)));
+      console.log("✅ Event notifications enabled:", Array.from(eventCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
+      
+      // Wait a moment
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Send tare command to initialize and start receiving data
+      console.log("📤 Sending initial tare command...");
+      const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00]);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(tareCommand)));
+      console.log("✅ Tare command sent:", Array.from(tareCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
+      
+      console.log("✅ Connection complete - NO HEARTBEAT - waiting for scale data...");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -332,32 +358,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [deviceId, writeCharUuid]);
 
-  // Manage heartbeat in a separate effect
-  useEffect(() => {
-    if (!isConnected || !deviceId || !writeCharUuid) {
-      return;
-    }
-
-    console.log("🔧 Setting up heartbeat effect for device:", deviceId);
-    
-    const intervalId = setInterval(async () => {
-      console.log("🔄 HEARTBEAT TICK - Attempting to send");
-      try {
-        const heartbeat = new Uint8Array([0xef, 0xdd, 0x00, 0x00]);
-        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
-        console.log("✅ HEARTBEAT SENT");
-      } catch (error) {
-        console.error("❌ HEARTBEAT ERROR:", error);
-      }
-    }, 3000);
-
-    console.log("✅ Heartbeat effect interval created:", intervalId);
-
-    return () => {
-      console.log("🧹 Cleaning up heartbeat interval:", intervalId);
-      clearInterval(intervalId);
-    };
-  }, [isConnected, deviceId, writeCharUuid]);
+  // NO HEARTBEAT IN V4.0 - Testing if heartbeat was causing disconnections
   
   // Cleanup on unmount
   useEffect(() => {
