@@ -9,6 +9,7 @@ import { getCurrencyByCode } from "@/lib/currencies";
 interface ScaleDisplayProps {
   weight: number;
   isConnected: boolean;
+  connectionStatus: "disconnected" | "connecting" | "connected";
   battery: number;
   onTare: () => void;
   onToggleConnection: () => void;
@@ -17,6 +18,7 @@ interface ScaleDisplayProps {
 export const ScaleDisplay = ({
   weight,
   isConnected,
+  connectionStatus,
   battery,
   onTare,
   onToggleConnection,
@@ -87,14 +89,21 @@ export const ScaleDisplay = ({
           {/* Connection Status */}
           <div className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all",
-            isConnected 
+            connectionStatus === "connected"
               ? "bg-primary/10 text-foreground" 
+              : connectionStatus === "connecting"
+              ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
               : "bg-muted/50 text-muted-foreground"
           )}>
-            {isConnected ? (
+            {connectionStatus === "connected" ? (
               <>
                 <Wifi className="w-5 h-5" />
                 <span className="font-semibold text-sm">Acaia Pearl S</span>
+              </>
+            ) : connectionStatus === "connecting" ? (
+              <>
+                <Wifi className="w-5 h-5 animate-pulse" />
+                <span className="font-semibold text-sm">Connecting...</span>
               </>
             ) : (
               <>
