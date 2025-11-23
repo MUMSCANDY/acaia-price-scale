@@ -272,34 +272,27 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION CHECK: v5.0 ===
-      console.log("🚀 ACAIA CONNECT VERSION 5.0 - WITH TIMER START COMMAND");
+      // === VERSION CHECK: v6.0 ===
+      console.log("🚀 ACAIA CONNECT VERSION 6.0 - WITH LIGHT HEARTBEAT");
       
-      // Send initialization command sequence
-      console.log("📤 Sending identification command...");
+      // Send initialization commands
       const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(identCommand)));
-      console.log("✅ Identification command sent:", Array.from(identCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
+      console.log("✅ Ident sent");
       
-      // Wait a moment for scale to process
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Enable event notifications for weight/battery data
-      console.log("📤 Enabling event notifications...");
       const eventCommand = new Uint8Array([0xef, 0xdd, 0x0c, 0x09, 0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04, 0x08]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(eventCommand)));
-      console.log("✅ Event notifications enabled:", Array.from(eventCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
+      console.log("✅ Events enabled");
       
-      // Wait a moment
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // CRITICAL: Start the timer to enable continuous data streaming
-      console.log("📤 Starting timer to enable continuous data flow...");
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
-      console.log("✅ Timer started:", Array.from(timerStartCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
+      console.log("✅ Timer started");
       
-      console.log("✅ Connection complete - scale should now send continuous data...");
+      console.log("✅ Ready - heartbeat will maintain connection");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -358,7 +351,27 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [deviceId, writeCharUuid]);
 
-  // NO HEARTBEAT IN V4.0 - Testing if heartbeat was causing disconnections
+  // Light heartbeat every 10 seconds to maintain connection
+  useEffect(() => {
+    if (!isConnected || !deviceId || !writeCharUuid) {
+      return;
+    }
+
+    console.log("🔧 Starting 10s heartbeat");
+    
+    const intervalId = setInterval(async () => {
+      try {
+        // Resend timer command as heartbeat
+        const heartbeat = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
+        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
+        console.log("💓");
+      } catch (error) {
+        console.error("❌ HB error:", error);
+      }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [isConnected, deviceId, writeCharUuid]);
   
   // Cleanup on unmount
   useEffect(() => {
