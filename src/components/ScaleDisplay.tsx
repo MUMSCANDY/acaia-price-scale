@@ -124,9 +124,9 @@ export const ScaleDisplay = ({
         <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]">
           <div className="px-8 py-5">
             {/* Total Section - Centered, Large */}
-            <div className="text-center mb-3">
+            <div className="text-center mb-3" key={`${calculatePrice()}-${currency}`}>
               <div className="text-sm font-bold text-foreground/70 tracking-widest mb-1">TOTAL</div>
-              <div className="text-display text-[100px] leading-none text-foreground">
+              <div className="text-display text-[100px] leading-none text-foreground animate-fade-in">
                 {getCurrencyByCode(currency).symbol}{calculatePrice()}
               </div>
             </div>
