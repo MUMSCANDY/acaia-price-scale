@@ -2,7 +2,7 @@ import { ScaleDisplay } from "@/components/ScaleDisplay";
 import { useAcaiaScale } from "@/hooks/useAcaiaScale";
 
 const Index = () => {
-  const { weight, isConnected, battery, connect, disconnect, tare } = useAcaiaScale();
+  const { weight, isConnected, connectionStatus, battery, connect, disconnect, tare } = useAcaiaScale();
 
   const handleToggleConnection = async () => {
     if (isConnected) {
@@ -16,6 +16,7 @@ const Index = () => {
     <ScaleDisplay
       weight={weight}
       isConnected={isConnected}
+      connectionStatus={connectionStatus}
       battery={battery}
       onTare={tare}
       onToggleConnection={handleToggleConnection}

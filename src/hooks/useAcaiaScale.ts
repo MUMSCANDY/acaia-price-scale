@@ -9,6 +9,7 @@ const ACAIA_CHAR_NOTIFY_UUID = "49535343-1023-4bd4-bba4-00e6539e5aa7";
 interface UseAcaiaScaleReturn {
   weight: number;
   isConnected: boolean;
+  connectionStatus: "disconnected" | "connecting" | "connected";
   battery: number;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -18,6 +19,7 @@ interface UseAcaiaScaleReturn {
 export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [weight, setWeight] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [battery, setBattery] = useState(85);
   const [device, setDevice] = useState<BluetoothDevice | null>(null);
   const [characteristic, setCharacteristic] = useState<BluetoothRemoteGATTCharacteristic | null>(null);
@@ -50,6 +52,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
 
   // Connect to Acaia scale via Web Bluetooth API
   const connect = useCallback(async () => {
+    setConnectionStatus("connecting");
     try {
       console.log("Starting connection to Acaia scale...");
       
@@ -74,21 +77,32 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         throw new Error("GATT not available");
       }
 
-      // Connect to GATT server with retry logic
+      // Connect to GATT server with retry logic and timeout per attempt
       console.log("Connecting to GATT server...");
-      let server: BluetoothRemoteGATTServer;
+      let server: BluetoothRemoteGATTServer | null = null;
       let retries = 3;
-      while (retries > 0) {
+      
+      while (retries > 0 && !server) {
         try {
-          server = await device.gatt!.connect();
+          server = await Promise.race([
+            device.gatt!.connect(),
+            new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error('Connection timeout')), 5000)
+            )
+          ]);
           console.log("Connected to GATT server");
-          break;
         } catch (err) {
           retries--;
-          if (retries === 0) throw err;
-          console.log(`Connection failed, retrying... (${retries} attempts left)`);
+          if (retries === 0) {
+            throw new Error('Failed to connect after multiple attempts. Make sure the scale is on and not connected to another device.');
+          }
+          console.log(`Connection attempt failed, retrying... (${retries} attempts left)`);
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
+      }
+      
+      if (!server) {
+        throw new Error('Failed to establish GATT connection');
       }
       
       console.log("Getting service:", ACAIA_SERVICE_UUID);
@@ -112,6 +126,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setDevice(device);
       setCharacteristic(writeChar);
       setIsConnected(true);
+      setConnectionStatus("connected");
       setBattery(85); // Would be read from actual device
 
       console.log("Connection complete!");
@@ -120,6 +135,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       console.error("Bluetooth connection error:", error);
       toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsConnected(false);
+      setConnectionStatus("disconnected");
     }
   }, [handleNotification]);
 
@@ -134,6 +150,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     setDevice(null);
     setCharacteristic(null);
     setIsConnected(false);
+    setConnectionStatus("disconnected");
     toast.info("Disconnected from scale");
   }, [device, characteristic, handleNotification]);
 
@@ -177,6 +194,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   return {
     weight,
     isConnected,
+    connectionStatus,
     battery,
     connect,
     disconnect,
