@@ -120,29 +120,67 @@ export const ScaleDisplay = ({
           </div>
         </div>
 
-        {/* Price Display - Credit Card Back Design */}
-        <div className="mb-16 text-left glass-effect rounded-3xl shadow-lifted border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[520px] aspect-[1.586/1]">
-          {/* Magnetic strip */}
-          <div className="absolute top-12 left-0 right-0 h-16 bg-foreground/90" />
-          
-          {/* Signature strip */}
-          <div className="absolute top-32 left-8 right-8 h-12 bg-background/80 border border-foreground/20 flex items-center px-4">
-            <div className="text-xs text-foreground/40 font-mono">AUTHORIZED SIGNATURE</div>
+        {/* Price Display - Digital Receipt/Ticket Style */}
+        <div className="mb-16 glass-effect rounded-2xl shadow-lifted border-2 border-foreground/20 hover-lift animate-slide-up relative overflow-hidden w-[420px]">
+          {/* Perforated top edge */}
+          <div className="absolute top-0 left-0 right-0 h-8 border-b-2 border-dotted border-foreground/30 bg-foreground/5 flex items-center justify-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-foreground/20" />
+            <div className="w-3 h-3 rounded-full bg-foreground/20" />
+            <div className="w-3 h-3 rounded-full bg-foreground/20" />
+            <div className="w-3 h-3 rounded-full bg-foreground/20" />
+            <div className="w-3 h-3 rounded-full bg-foreground/20" />
           </div>
           
-          {/* CVV area */}
-          <div className="absolute top-32 right-12 w-16 h-12 bg-background rounded border border-foreground/30 flex items-center justify-center">
-            <span className="text-xs font-mono text-foreground/60">{weight.toFixed(0).slice(-3).padStart(3, '0')}</span>
-          </div>
-          
-          {/* Main price - larger font */}
-          <div className="relative z-10 mt-48 px-12">
-            <div className="text-display text-[120px] leading-none text-foreground mb-2">
-              {getCurrencyByCode(currency).symbol}{calculatePrice()}
+          <div className="px-8 py-6 pt-12">
+            {/* Header Section */}
+            <div className="text-center mb-6">
+              <h2 className="text-brand text-3xl tracking-tighter mb-2">MUMS</h2>
+              <div className="font-mono text-xs text-foreground/60">
+                <div>RECEIPT #{new Date().getTime().toString().slice(-8)}</div>
+                <div>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</div>
+              </div>
             </div>
-            <p className="text-base text-foreground/60 font-semibold tracking-wide">
-              {pricePerHundred} {getCurrencyByCode(currency).symbol} per 100g
-            </p>
+            
+            {/* Dotted separator */}
+            <div className="border-t-2 border-dotted border-foreground/30 my-5" />
+            
+            {/* Item Details Section */}
+            <div className="space-y-3 font-mono text-base">
+              <div className="flex justify-between items-center">
+                <span className="text-foreground/70">Product Weight</span>
+                <span className="font-bold">{weight.toFixed(1)}g</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-foreground/70">Price per 100g</span>
+                <span className="font-bold">{getCurrencyByCode(currency).symbol}{pricePerHundred}</span>
+              </div>
+            </div>
+            
+            {/* Dotted separator */}
+            <div className="border-t-2 border-dotted border-foreground/30 my-5" />
+            
+            {/* Total Section */}
+            <div className="mb-6">
+              <div className="text-center mb-3">
+                <div className="text-sm font-bold text-foreground/70 tracking-wider mb-2">TOTAL</div>
+                <div className="text-display text-[120px] leading-none text-foreground">
+                  {getCurrencyByCode(currency).symbol}{calculatePrice()}
+                </div>
+              </div>
+            </div>
+            
+            {/* Dotted separator */}
+            <div className="border-t-2 border-dotted border-foreground/30 my-5" />
+            
+            {/* Footer Section */}
+            <div className="text-center font-mono text-xs text-foreground/50 mb-2">
+              <div>Thank you for your purchase</div>
+              <div className="mt-2 flex justify-center gap-1">
+                {Array.from({length: 30}).map((_, i) => (
+                  <div key={i} className="w-0.5 h-3 bg-foreground/30" />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
