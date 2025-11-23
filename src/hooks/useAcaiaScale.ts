@@ -272,8 +272,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION CHECK: v4.0 ===
-      console.log("🚀 ACAIA CONNECT VERSION 4.0 - NO HEARTBEAT + ENHANCED INIT");
+      // === VERSION CHECK: v5.0 ===
+      console.log("🚀 ACAIA CONNECT VERSION 5.0 - WITH TIMER START COMMAND");
       
       // Send initialization command sequence
       console.log("📤 Sending identification command...");
@@ -282,7 +282,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       console.log("✅ Identification command sent:", Array.from(identCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
       
       // Wait a moment for scale to process
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // Enable event notifications for weight/battery data
       console.log("📤 Enabling event notifications...");
@@ -291,15 +291,15 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       console.log("✅ Event notifications enabled:", Array.from(eventCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
       
       // Wait a moment
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Send tare command to initialize and start receiving data
-      console.log("📤 Sending initial tare command...");
-      const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00]);
-      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(tareCommand)));
-      console.log("✅ Tare command sent:", Array.from(tareCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
+      // CRITICAL: Start the timer to enable continuous data streaming
+      console.log("📤 Starting timer to enable continuous data flow...");
+      const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
+      console.log("✅ Timer started:", Array.from(timerStartCommand).map(b => b.toString(16).padStart(2, '0')).join(' '));
       
-      console.log("✅ Connection complete - NO HEARTBEAT - waiting for scale data...");
+      console.log("✅ Connection complete - scale should now send continuous data...");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
