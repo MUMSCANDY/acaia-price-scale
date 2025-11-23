@@ -51,6 +51,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   // Connect to Acaia scale via Web Bluetooth API
   const connect = useCallback(async () => {
     try {
+      console.log("Starting connection to Acaia scale...");
+      
       // Check if Web Bluetooth is available
       if (!navigator.bluetooth) {
         toast.error("Web Bluetooth not supported. Please use a compatible browser or native app.");
@@ -58,6 +60,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       }
 
       // Request device
+      console.log("Requesting device...");
       const device = await navigator.bluetooth.requestDevice({
         filters: [
           { namePrefix: "ACAIA" },
@@ -66,30 +69,45 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         ],
         optionalServices: [ACAIA_SERVICE_UUID],
       });
+      console.log("Device selected:", device.name);
 
       if (!device.gatt) {
         throw new Error("GATT not available");
       }
 
       // Connect to GATT server
+      console.log("Connecting to GATT server...");
       const server = await device.gatt.connect();
+      console.log("Connected to GATT server");
+      
+      console.log("Getting service:", ACAIA_SERVICE_UUID);
       const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
+      console.log("Got service");
+      
+      console.log("Getting notify characteristic:", ACAIA_CHAR_NOTIFY_UUID);
       const notifyChar = await service.getCharacteristic(ACAIA_CHAR_NOTIFY_UUID);
+      console.log("Got notify characteristic");
+      
+      console.log("Getting write characteristic:", ACAIA_CHAR_WRITE_UUID);
       const writeChar = await service.getCharacteristic(ACAIA_CHAR_WRITE_UUID);
+      console.log("Got write characteristic");
 
       // Start notifications
+      console.log("Starting notifications...");
       await notifyChar.startNotifications();
       notifyChar.addEventListener("characteristicvaluechanged", handleNotification);
+      console.log("Notifications started");
 
       setDevice(device);
       setCharacteristic(writeChar);
       setIsConnected(true);
       setBattery(85); // Would be read from actual device
 
+      console.log("Connection complete!");
       toast.success("Connected to Acaia scale!");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
-      toast.error("Failed to connect to scale. Make sure Bluetooth is enabled.");
+      toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsConnected(false);
     }
   }, [handleNotification]);
