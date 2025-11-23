@@ -131,12 +131,35 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("All checks passed, starting BLE scan...");
 
-      // Request device - show picker dialog
-      console.log("Calling BleClient.requestDevice()...");
-      const device = await BleClient.requestDevice();
-      console.log("Device selected:", device);
+      // Scan for PEARLS device only  
+      console.log("Scanning for Acaia Pearl S scale...");
+      const devices: any[] = [];
       
-      console.log("Device selected:", device.deviceId);
+      await BleClient.requestLEScan({}, (result) => {
+        // Only collect PEARLS devices
+        if (result.localName?.startsWith('PEARLS') || result.device.name?.startsWith('PEARLS')) {
+          if (!devices.find(d => d.device.deviceId === result.device.deviceId)) {
+            devices.push(result);
+            console.log('Found Acaia scale:', result.device.name || result.localName);
+          }
+        }
+      });
+      
+      // Scan for 5 seconds
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      await BleClient.stopLEScan();
+      
+      console.log(`Scan complete. Found ${devices.length} Acaia scale(s)`);
+      
+      if (devices.length === 0) {
+        toast.error("No Acaia scale found. Make sure it's turned on.");
+        setConnectionStatus("disconnected");
+        return;
+      }
+      
+      // Use the first PEARLS device found
+      const device = devices[0].device;
+      console.log("Connecting to Acaia scale:", device.deviceId, device.name);
 
       // Connect to device
       console.log("Connecting to device...");
