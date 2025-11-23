@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-// Acaia BLE Service and Characteristic UUIDs (from the protocol document)
-const ACAIA_SERVICE_UUID = "00001820-0000-1000-8000-00805f9b34fb";
-const ACAIA_CHAR_UUID = "00002a80-0000-1000-8000-00805f9b34fb";
+// Acaia BLE Service and Characteristic UUIDs (from reverse engineering)
+const ACAIA_SERVICE_UUID = "49535343-fe7d-4ae5-8fa9-9fafd205e455";
+const ACAIA_CHAR_WRITE_UUID = "49535343-6daa-4d02-abf6-19569aca69fe";
+const ACAIA_CHAR_NOTIFY_UUID = "49535343-1023-4bd4-bba4-00e6539e5aa7";
 
 interface UseAcaiaScaleReturn {
   weight: number;
@@ -73,18 +74,19 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       // Connect to GATT server
       const server = await device.gatt.connect();
       const service = await server.getPrimaryService(ACAIA_SERVICE_UUID);
-      const char = await service.getCharacteristic(ACAIA_CHAR_UUID);
+      const notifyChar = await service.getCharacteristic(ACAIA_CHAR_NOTIFY_UUID);
+      const writeChar = await service.getCharacteristic(ACAIA_CHAR_WRITE_UUID);
 
       // Start notifications
-      await char.startNotifications();
-      char.addEventListener("characteristicvaluechanged", handleNotification);
+      await notifyChar.startNotifications();
+      notifyChar.addEventListener("characteristicvaluechanged", handleNotification);
 
       setDevice(device);
-      setCharacteristic(char);
+      setCharacteristic(writeChar);
       setIsConnected(true);
       setBattery(85); // Would be read from actual device
 
-      toast.success("Connected to Acaia Pearl S!");
+      toast.success("Connected to Acaia scale!");
     } catch (error) {
       console.error("Bluetooth connection error:", error);
       toast.error("Failed to connect to scale. Make sure Bluetooth is enabled.");
