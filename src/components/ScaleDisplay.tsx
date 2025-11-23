@@ -121,7 +121,13 @@ export const ScaleDisplay = ({
         </div>
 
         {/* Price Display - Receipt Style */}
-        <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]">
+        <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]" style={{
+          backgroundImage: `
+            linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, transparent 100%),
+            repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
+            repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)
+          `
+        }}>
           <div className="px-8 py-5">
             {/* Total Section - Centered, Large */}
             <div className="text-center mb-3" key={`${calculatePrice()}-${currency}`}>
