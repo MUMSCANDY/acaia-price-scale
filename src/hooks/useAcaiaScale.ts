@@ -26,15 +26,47 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
 
   // Parse weight data from Acaia scale
   const parseWeightData = useCallback((dataView: DataView) => {
-    // Based on Acaia protocol: weight data comes in specific byte format
-    // This is a simplified parser - actual implementation would follow the full protocol
     try {
-      // Acaia sends weight in grams as a float or integer depending on protocol version
-      // Byte 0-3: weight value (may need adjustment based on actual protocol)
-      const weightValue = dataView.getFloat32(0, true); // little-endian
-      setWeight(Math.max(0, weightValue));
+      // Log raw data for debugging
+      const bytes = Array.from(new Uint8Array(dataView.buffer));
+      console.log("Received data:", bytes.map(b => b.toString(16).padStart(2, '0')).join(' '));
+      
+      // Acaia protocol: messages start with 0xef 0xdd
+      if (dataView.byteLength < 4) {
+        console.log("Message too short");
+        return;
+      }
+      
+      const header1 = dataView.getUint8(0);
+      const header2 = dataView.getUint8(1);
+      
+      if (header1 !== 0xef || header2 !== 0xdd) {
+        console.log("Invalid header");
+        return;
+      }
+      
+      const msgType = dataView.getUint8(2);
+      console.log("Message type:", msgType.toString(16));
+      
+      // Type 0x05 = weight data
+      // Type 0x08 = battery
+      if (msgType === 0x05 && dataView.byteLength >= 9) {
+        // Weight is in bytes 4-8 as big-endian integer (grams * 10)
+        const weightRaw = (dataView.getUint8(4) << 24) | 
+                         (dataView.getUint8(5) << 16) | 
+                         (dataView.getUint8(6) << 8) | 
+                         dataView.getUint8(7);
+        const weightGrams = weightRaw / 10.0;
+        console.log("Weight:", weightGrams, "g");
+        setWeight(Math.max(0, weightGrams));
+      } else if (msgType === 0x08 && dataView.byteLength >= 5) {
+        // Battery level in byte 4
+        const batteryLevel = dataView.getUint8(4);
+        console.log("Battery:", batteryLevel, "%");
+        setBattery(batteryLevel);
+      }
     } catch (error) {
-      console.error("Error parsing weight data:", error);
+      console.error("Error parsing data:", error);
     }
   }, []);
 
