@@ -272,27 +272,26 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       console.log("Notifications started");
       
-      // === VERSION CHECK: v6.0 ===
-      console.log("🚀 ACAIA CONNECT VERSION 6.0 - WITH LIGHT HEARTBEAT");
+      // === VERSION CHECK: v7.0 ===
+      console.log("🚀 ACAIA V7.0 - 5S HEARTBEAT");
       
-      // Send initialization commands
       const identCommand = new Uint8Array([0xef, 0xdd, 0x0b, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(identCommand)));
-      console.log("✅ Ident sent");
+      console.log("✅ ID");
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
       const eventCommand = new Uint8Array([0xef, 0xdd, 0x0c, 0x09, 0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04, 0x08]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(eventCommand)));
-      console.log("✅ Events enabled");
+      console.log("✅ Events");
       
       await new Promise(resolve => setTimeout(resolve, 300));
       
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
-      console.log("✅ Timer started");
+      console.log("✅ Timer - 5s HB will prevent timeout");
       
-      console.log("✅ Ready - heartbeat will maintain connection");
+      console.log("✅ Connected");
 
       setDeviceId(device.deviceId);
       setIsConnected(true);
@@ -351,26 +350,28 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [deviceId, writeCharUuid]);
 
-  // Light heartbeat every 10 seconds to maintain connection
+  // Heartbeat every 5 seconds (before BLE supervision timeout)
   useEffect(() => {
     if (!isConnected || !deviceId || !writeCharUuid) {
       return;
     }
 
-    console.log("🔧 Starting 10s heartbeat");
+    console.log("🔧 Starting 5s heartbeat to prevent supervision timeout");
     
     const intervalId = setInterval(async () => {
       try {
-        // Resend timer command as heartbeat
         const heartbeat = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
         await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
-        console.log("💓");
+        console.log("💓 HB");
       } catch (error) {
-        console.error("❌ HB error:", error);
+        console.error("❌ HB failed:", error);
       }
-    }, 10000);
+    }, 5000); // 5 seconds - well before typical 10s BLE timeout
 
-    return () => clearInterval(intervalId);
+    return () => {
+      console.log("🧹 Stopping heartbeat");
+      clearInterval(intervalId);
+    };
   }, [isConnected, deviceId, writeCharUuid]);
   
   // Cleanup on unmount
