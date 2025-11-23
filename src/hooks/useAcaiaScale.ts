@@ -143,22 +143,19 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       const characteristics = await service.getCharacteristics();
       console.log("Found", characteristics.length, "characteristics:");
       characteristics.forEach(c => {
-        console.log("  -", c.uuid, "- notify:", c.properties.notify, "write:", c.properties.write || c.properties.writeWithoutResponse);
+        console.log("  -", c.uuid);
       });
       
-      // Try using the SECOND characteristic for notifications (49535343-4c8a-39b3-2f49-511cff073b7e)
-      // and keep using the first for writing
+      // Use first characteristic for both write and notify
       const writeChar = characteristics[0];
-      const notifyChar = characteristics[1]; // Try second characteristic
+      const notifyChar = characteristics[0];
       
-      console.log("Using write characteristic:", writeChar.uuid);
-      console.log("Using notify characteristic:", notifyChar.uuid);
+      console.log("Using characteristic:", writeChar.uuid);
 
-      // Start notifications on the second characteristic
-      console.log("Starting notifications...");
-      await notifyChar.startNotifications();
+      // Just add event listener WITHOUT calling startNotifications to see if connection stays alive
+      console.log("Adding notification listener (without explicit start)...");
       notifyChar.addEventListener("characteristicvaluechanged", handleNotification);
-      console.log("Notifications started");
+      console.log("Listener added - connection should stay alive now");
 
       setDevice(device);
       setCharacteristic(writeChar);
