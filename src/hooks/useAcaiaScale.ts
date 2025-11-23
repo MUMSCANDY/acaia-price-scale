@@ -91,9 +91,23 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     try {
       console.log("Starting connection to Acaia scale...");
 
+      // Check if Bluetooth is enabled
+      console.log("Checking if Bluetooth is enabled...");
+      const isEnabled = await BleClient.isEnabled();
+      console.log("Bluetooth enabled:", isEnabled);
+      
+      if (!isEnabled) {
+        console.log("Bluetooth is disabled - requesting to enable");
+        toast.error("Please enable Bluetooth on your device");
+        await BleClient.openBluetoothSettings();
+        setConnectionStatus("disconnected");
+        return;
+      }
+
       // Check if location is enabled (required for BLE scanning on Android)
       console.log("Checking if location is enabled...");
       const isLocationEnabled = await BleClient.isLocationEnabled();
+      console.log("Location enabled:", isLocationEnabled);
       
       if (!isLocationEnabled) {
         console.log("Location is not enabled");
@@ -103,14 +117,15 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         return;
       }
       
-      console.log("Location is enabled, proceeding with BLE scan...");
+      console.log("Location and Bluetooth are enabled, proceeding with BLE scan...");
 
       // Request device - Try without name filter first to see all devices
-      console.log("Requesting device (scanning for all BLE devices)...");
+      console.log("Calling BleClient.requestDevice...");
       const device = await BleClient.requestDevice({
         // Temporarily remove namePrefix to see all devices
         optionalServices: [ACAIA_SERVICE_UUID],
       });
+      console.log("Device selected:", device);
       
       console.log("Device selected:", device.deviceId);
 
