@@ -33,6 +33,7 @@ interface UseAcaiaScaleReturn {
 }
 
 export const useAcaiaScale = (): UseAcaiaScaleReturn => {
+  // ALL useState hooks must come first
   const [weight, setWeight] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
@@ -40,21 +41,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
   
-  // Connection diagnostics state
-  const [connectionDiagnostics, setConnectionDiagnostics] = useState<ConnectionDiagnostics>({
-    connectionStartTime: 0,
-    connectionDuration: 0,
-    totalWrites: 0,
-    totalNotifications: 0,
-    lastDisconnectReason: '',
-    sessionHistory: []
-  });
-  
-  // Use refs for buffer, reconnect, and auto-reconnect flag
+  // ALL useRef hooks must come after all useState hooks
   const dataBufferRef = useRef<number[]>([]);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const autoReconnectEnabledRef = useRef(false); // Use ref to avoid closure issues
+  const autoReconnectEnabledRef = useRef(false);
   const connectFunctionRef = useRef<(() => Promise<void>) | null>(null);
   
   // Diagnostic refs for tracking without causing re-renders
@@ -65,6 +56,17 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     lastHeartbeatTime: 0
   });
   const diagnosticsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Diagnostic state object built from refs (computed, not stored in useState)
+  const connectionDiagnostics: ConnectionDiagnostics = {
+    connectionStartTime: diagnosticsRef.current.connectionStartTime,
+    connectionDuration: diagnosticsRef.current.connectionStartTime ? 
+      (Date.now() - diagnosticsRef.current.connectionStartTime) / 1000 : 0,
+    totalWrites: diagnosticsRef.current.writeCount,
+    totalNotifications: diagnosticsRef.current.notificationCount,
+    lastDisconnectReason: '',
+    sessionHistory: []
+  };
 
   // Diagnostic logging function
   const logConnectionDiagnostics = useCallback(() => {
@@ -278,18 +280,6 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         
         // Log full diagnostics
         logConnectionDiagnostics();
-        
-        // Save session to history
-        setConnectionDiagnostics(prev => ({
-          ...prev,
-          lastDisconnectReason: 'Connection lost',
-          sessionHistory: [...prev.sessionHistory, {
-            duration,
-            writes: diagnosticsRef.current.writeCount,
-            notifications: diagnosticsRef.current.notificationCount,
-            timestamp: new Date().toISOString()
-          }]
-        }));
         
         // Clear diagnostic interval
         if (diagnosticsIntervalRef.current) {
