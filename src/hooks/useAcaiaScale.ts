@@ -7,6 +7,20 @@ const ACAIA_SERVICE_UUID = "49535343-fe7d-4ae5-8fa9-9fafd205e455";
 const ACAIA_CHAR_WRITE_UUID = "49535343-6daa-4d02-abf6-19569aca69fe";
 const ACAIA_CHAR_NOTIFY_UUID = "49535343-aca3-481c-91ec-d85e28a60318";
 
+interface ConnectionDiagnostics {
+  connectionStartTime: number;
+  connectionDuration: number;
+  totalWrites: number;
+  totalNotifications: number;
+  lastDisconnectReason: string;
+  sessionHistory: Array<{
+    duration: number;
+    writes: number;
+    notifications: number;
+    timestamp: string;
+  }>;
+}
+
 interface UseAcaiaScaleReturn {
   weight: number;
   isConnected: boolean;
@@ -15,6 +29,7 @@ interface UseAcaiaScaleReturn {
   connect: () => Promise<void>;
   disconnect: () => void;
   tare: () => void;
+  diagnostics: ConnectionDiagnostics;
 }
 
 export const useAcaiaScale = (): UseAcaiaScaleReturn => {
@@ -25,19 +40,56 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
   
+  // Connection diagnostics state
+  const [connectionDiagnostics, setConnectionDiagnostics] = useState<ConnectionDiagnostics>({
+    connectionStartTime: 0,
+    connectionDuration: 0,
+    totalWrites: 0,
+    totalNotifications: 0,
+    lastDisconnectReason: '',
+    sessionHistory: []
+  });
+  
   // Use refs for buffer, reconnect, and auto-reconnect flag
   const dataBufferRef = useRef<number[]>([]);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoReconnectEnabledRef = useRef(false); // Use ref to avoid closure issues
   const connectFunctionRef = useRef<(() => Promise<void>) | null>(null);
+  
+  // Diagnostic refs for tracking without causing re-renders
+  const diagnosticsRef = useRef({
+    connectionStartTime: 0,
+    writeCount: 0,
+    notificationCount: 0,
+    lastHeartbeatTime: 0
+  });
+  const diagnosticsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Diagnostic logging function
+  const logConnectionDiagnostics = useCallback(() => {
+    const now = Date.now();
+    const duration = (now - diagnosticsRef.current.connectionStartTime) / 1000;
+    
+    console.log("═══════════════════════════════════════════════");
+    console.log("📊 CONNECTION DIAGNOSTICS");
+    console.log(`⏱️  Duration: ${duration.toFixed(1)}s`);
+    console.log(`✍️  Total Writes: ${diagnosticsRef.current.writeCount}`);
+    console.log(`📬 Total Notifications: ${diagnosticsRef.current.notificationCount}`);
+    console.log(`💓 Last Heartbeat: ${((now - diagnosticsRef.current.lastHeartbeatTime) / 1000).toFixed(1)}s ago`);
+    console.log(`📈 Avg Notifications/sec: ${(diagnosticsRef.current.notificationCount / duration).toFixed(2)}`);
+    console.log("═══════════════════════════════════════════════");
+  }, []);
 
   // Parse weight data from Acaia scale with proper buffering
   const parseWeightData = useCallback((dataView: DataView) => {
     try {
+      // Increment notification counter
+      diagnosticsRef.current.notificationCount++;
+      
       // Convert to byte array and add to buffer
       const newBytes = Array.from(new Uint8Array(dataView.buffer));
-      console.log("📥 RAW DATA RECEIVED:", newBytes.map(b => b.toString(16).padStart(2, '0')).join(' '));
+      console.log(`📥 RAW DATA RECEIVED (notification #${diagnosticsRef.current.notificationCount}):`, newBytes.map(b => b.toString(16).padStart(2, '0')).join(' '));
       dataBufferRef.current = [...dataBufferRef.current, ...newBytes];
       
       // Process complete messages from buffer
@@ -135,6 +187,16 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   // Connect to Acaia scale via Native Bluetooth
   const connect = useCallback(async () => {
     setConnectionStatus("connecting");
+    
+    // Reset diagnostics at connection start
+    diagnosticsRef.current = {
+      connectionStartTime: Date.now(),
+      writeCount: 0,
+      notificationCount: 0,
+      lastHeartbeatTime: Date.now()
+    };
+    console.log("🔬 Diagnostics reset - tracking started at", new Date().toISOString());
+    
     try {
       console.log("Starting connection to Acaia scale...");
 
@@ -211,7 +273,30 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       // Connect to device with auto-reconnect handler
       console.log("Connecting to device...");
       await BleClient.connect(device.deviceId, (disconnectedDeviceId) => {
-        console.log(`⚠️ Disconnected from ${disconnectedDeviceId}`);
+        const duration = (Date.now() - diagnosticsRef.current.connectionStartTime) / 1000;
+        console.log(`⚠️ DISCONNECTED from ${disconnectedDeviceId} after ${duration.toFixed(1)}s`);
+        
+        // Log full diagnostics
+        logConnectionDiagnostics();
+        
+        // Save session to history
+        setConnectionDiagnostics(prev => ({
+          ...prev,
+          lastDisconnectReason: 'Connection lost',
+          sessionHistory: [...prev.sessionHistory, {
+            duration,
+            writes: diagnosticsRef.current.writeCount,
+            notifications: diagnosticsRef.current.notificationCount,
+            timestamp: new Date().toISOString()
+          }]
+        }));
+        
+        // Clear diagnostic interval
+        if (diagnosticsIntervalRef.current) {
+          clearInterval(diagnosticsIntervalRef.current);
+          diagnosticsIntervalRef.current = null;
+        }
+        
         setIsConnected(false);
         setConnectionStatus("disconnected");
         setDeviceId(null);
@@ -295,6 +380,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       // Just send timer start
       const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
+      diagnosticsRef.current.writeCount++;
+      console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: Timer start`);
       await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
       console.log("✅ Timer started");
 
@@ -304,6 +391,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setWeight(0);
       setBattery(85);
       autoReconnectEnabledRef.current = true; // Keep auto-reconnect as backup
+      
+      // Start periodic diagnostics logging every 10 seconds
+      diagnosticsIntervalRef.current = setInterval(() => {
+        logConnectionDiagnostics();
+      }, 10000);
       
       toast.success("Connected - heartbeat enabled");
     } catch (error) {
@@ -323,6 +415,13 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
 
   // Disconnect from scale
   const disconnect = useCallback(async () => {
+    // Log final diagnostics before disconnect
+    if (isConnected) {
+      const duration = (Date.now() - diagnosticsRef.current.connectionStartTime) / 1000;
+      console.log(`🔌 Manual disconnect after ${duration.toFixed(1)}s`);
+      logConnectionDiagnostics();
+    }
+    
     // Disable auto-reconnect
     autoReconnectEnabledRef.current = false;
     
@@ -338,6 +437,12 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       heartbeatIntervalRef.current = null;
     }
     
+    // Clear diagnostics interval
+    if (diagnosticsIntervalRef.current) {
+      clearInterval(diagnosticsIntervalRef.current);
+      diagnosticsIntervalRef.current = null;
+    }
+    
     if (deviceId) {
       try {
         await BleClient.disconnect(deviceId);
@@ -350,7 +455,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     setIsConnected(false);
     setConnectionStatus("disconnected");
     toast.info("Disconnected from scale");
-  }, [deviceId]);
+  }, [deviceId, isConnected, logConnectionDiagnostics]);
 
   // Send tare command to scale
   const tare = useCallback(async () => {
@@ -362,6 +467,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     try {
       // Acaia tare command: 0xef 0xdd 0x04 0x00
       const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00]);
+      diagnosticsRef.current.writeCount++;
+      console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: Tare`);
       await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(tareCommand)));
       toast.success("Scale tared");
       setWeight(0);
@@ -381,9 +488,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     
     const sendHeartbeat = async () => {
       try {
+        diagnosticsRef.current.lastHeartbeatTime = Date.now();
+        diagnosticsRef.current.writeCount++;
         const heartbeat = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
         await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
-        console.log("💓");
+        console.log(`💓 Heartbeat #${diagnosticsRef.current.writeCount}`);
       } catch (error) {
         console.error("❌ HB failed:", error);
       }
@@ -434,5 +543,6 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     connect,
     disconnect,
     tare,
+    diagnostics: connectionDiagnostics,
   };
 };
