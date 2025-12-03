@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power, Bug } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
@@ -23,7 +23,6 @@ export const ScaleDisplay = ({
   battery,
   onTare,
   onToggleConnection,
-  debugLog = []
 }: ScaleDisplayProps) => {
   const [pricePerHundred, setPricePerHundred] = useState(() => {
     const saved = localStorage.getItem("pricePerHundred");
@@ -34,7 +33,6 @@ export const ScaleDisplay = ({
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
 
   // Save price to localStorage when it changes
   useEffect(() => {
@@ -111,11 +109,6 @@ export const ScaleDisplay = ({
         </h1>
         
         <div className="flex items-center gap-4">
-          {/* Debug Button - IN HEADER for visibility */}
-          <Button variant="ghost" size="icon" onClick={() => setShowDebug(!showDebug)} className={cn("rounded-full w-14 h-14 glass-effect border-2 border-foreground hover:bg-foreground/10", showDebug && "bg-foreground/20")}>
-            <Bug className="w-7 h-7" />
-          </Button>
-
           {/* Connection Status */}
           <div className={cn("flex items-center gap-3 px-5 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300", connectionStatus === "connected" && "shadow-glow")}>
             {connectionStatus === "connected" ? <>
@@ -222,22 +215,6 @@ export const ScaleDisplay = ({
           <HelpCircle className="w-8 h-8" />
         </Button>
       </div>
-
-      {/* Debug Panel - Shows from top right under header */}
-      {showDebug && (
-        <div className="fixed top-28 right-4 z-30 w-96 max-h-80 overflow-y-auto glass-effect border-2 border-foreground rounded-xl p-4">
-          <div className="text-xs font-mono space-y-1">
-            <div className="font-bold mb-2 text-lg">🐛 BLE Debug ({debugLog.length})</div>
-            {debugLog.length === 0 ? (
-              <div className="text-foreground/50">No data yet. Connect to scale to see logs.</div>
-            ) : (
-              debugLog.map((log, i) => (
-                <div key={i} className="text-foreground/80 break-all">{log}</div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
 
       {/* PIN Dialog */}
       <PinDialog isOpen={isPinDialogOpen} onClose={() => setIsPinDialogOpen(false)} onSuccess={handlePinSuccess} />
