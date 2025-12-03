@@ -15,10 +15,18 @@ const ACAIA_CMD_IDENTIFY = new Uint8Array([
   0x9a, 0x6d
 ]);
 
-// NOTIFICATION_REQUEST: Enables weight notifications from scale
+// NOTIFICATION_REQUEST: Enables weight notifications from scale (Pearl S "new style" format)
+// Event types enabled: weight (0x05, 0x07), timer, settings/battery
+// Config byte breakdown: 0x01=weight stable, 0x02=weight, 0x05=button, 0x07=threshold, 0x09=timer
 const ACAIA_CMD_NOTIFICATION_REQUEST = new Uint8Array([
-  0xef, 0xdd, 0x0c, 0x09, 
-  0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04, 0x15, 0x06
+  0xef, 0xdd, 0x0c, 0x0d,  // header + length (13 bytes payload)
+  0x09,                     // config: enable all weight event types
+  0x01, 0x01,               // weight stable events
+  0x02, 0x02,               // weight change events  
+  0x05, 0x07,               // button + threshold events
+  0x03, 0x04,               // settings bytes
+  0x04,                     // additional config
+  0x15, 0x06                // checksum bytes
 ]);
 
 // HEARTBEAT: Keep-alive command (proper format)
@@ -159,20 +167,39 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         const message = dataBufferRef.current.slice(0, totalLength);
         console.log("📦 Complete message:", message.map(b => b.toString(16).padStart(2, '0')).join(' '));
         
-        // Process the message
-        if ((msgType === 0x07 || msgType === 0x05) && message.length >= 11) {
-          // For Acaia Pearl S (type 0x07), weight is in bytes 6-7 (little-endian)
-          // Message structure: ef dd 07 07 [4] [5] [6] [7] [8] [9] [10]
-          // Example: ef dd 07 07 03 5c 01 00 05 01 64 -> weight at bytes 6-7
-          const weightLow = message[6];
-          const weightHigh = message[7];
-          const weightRaw = (weightHigh << 8) | weightLow;
-          const weightGrams = weightRaw / 10.0;
+        // Process the message - try multiple parsing strategies
+        if ((msgType === 0x07 || msgType === 0x05 || msgType === 0x0c) && message.length >= 7) {
+          console.log(`🔍 Parsing weight message type 0x${msgType.toString(16)}, length: ${message.length}`);
           
-          console.log(`⚖️ Weight parsed: ${weightGrams}g (raw: ${weightRaw}, bytes: ${weightLow.toString(16)} ${weightHigh.toString(16)})`);
+          // Try different byte positions based on message type
+          let weightGrams = -1;
+          
+          // Strategy 1: Standard format - bytes 4-5 (for shorter messages)
+          if (message.length >= 6) {
+            const w1 = (message[5] << 8) | message[4];
+            console.log(`  Strategy 1 (bytes 4-5): raw=${w1}, grams=${w1/10}`);
+            if (w1 >= 0 && w1 < 100000) weightGrams = w1 / 10.0;
+          }
+          
+          // Strategy 2: Extended format - bytes 6-7 (for longer messages like type 0x07)
+          if (message.length >= 8) {
+            const w2 = (message[7] << 8) | message[6];
+            console.log(`  Strategy 2 (bytes 6-7): raw=${w2}, grams=${w2/10}`);
+            // Prefer this if it looks valid and message type is 0x07
+            if (msgType === 0x07 && w2 >= 0 && w2 < 100000) weightGrams = w2 / 10.0;
+          }
+          
+          // Strategy 3: Alternative format - bytes 5-6
+          if (message.length >= 7) {
+            const w3 = (message[6] << 8) | message[5];
+            console.log(`  Strategy 3 (bytes 5-6): raw=${w3}, grams=${w3/10}`);
+          }
+          
+          console.log(`⚖️ Final weight: ${weightGrams}g`);
           
           if (weightGrams >= 0 && weightGrams < 10000) {
             setWeight(weightGrams);
+            console.log(`✅ Weight updated to ${weightGrams}g`);
           }
         } else if (msgType === 0x08 && message.length >= 5) {
           // Battery data
@@ -392,10 +419,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         ACAIA_SERVICE_UUID,
         notifyChar.uuid,
         (value) => {
+          console.log("🔔 NOTIFICATION CALLBACK TRIGGERED - data length:", value.byteLength);
           parseWeightData(value);
         }
       );
-      console.log("✅ Notifications started");
+      console.log("✅ Notifications started on characteristic:", notifyChar.uuid);
       
       // Small delay to ensure notifications are ready
       await new Promise(resolve => setTimeout(resolve, 100));
