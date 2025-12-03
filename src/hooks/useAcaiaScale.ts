@@ -7,37 +7,52 @@ const ACAIA_SERVICE_UUID = "49535343-fe7d-4ae5-8fa9-9fafd205e455";
 const ACAIA_CHAR_WRITE_UUID = "49535343-6daa-4d02-abf6-19569aca69fe";
 const ACAIA_CHAR_NOTIFY_UUID = "49535343-aca3-481c-91ec-d85e28a60318";
 
-// Acaia Protocol Commands (from official protocol documentation)
-// IDENTIFY: Required handshake command - must be sent after connection
-const ACAIA_CMD_IDENTIFY = new Uint8Array([
-  0xef, 0xdd, 0x0b, 
-  0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34,
-  0x9a, 0x6d
+// Helper function to encode Acaia protocol messages (from pyacaia)
+function encodeAcaiaMessage(msgType: number, payload: number[]): Uint8Array {
+  const bytes = new Uint8Array(5 + payload.length);
+  bytes[0] = 0xef; // HEADER1
+  bytes[1] = 0xdd; // HEADER2
+  bytes[2] = msgType;
+  
+  let cksum1 = 0;
+  let cksum2 = 0;
+  
+  for (let i = 0; i < payload.length; i++) {
+    const val = payload[i] & 0xff;
+    bytes[3 + i] = val;
+    if (i % 2 === 0) {
+      cksum1 += val;
+    } else {
+      cksum2 += val;
+    }
+  }
+  
+  bytes[payload.length + 3] = cksum1 & 0xff;
+  bytes[payload.length + 4] = cksum2 & 0xff;
+  
+  return bytes;
+}
+
+// Encode event data for notification request
+function encodeEventData(payload: number[]): Uint8Array {
+  const wrappedPayload = [payload.length + 1, ...payload];
+  return encodeAcaiaMessage(12, wrappedPayload);
+}
+
+// Acaia Protocol Commands (from pyacaia library)
+// IDENTIFY: Required handshake command - for Pearl S (PEARLS- prefix)
+const ACAIA_CMD_IDENTIFY = encodeAcaiaMessage(11, [
+  0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34
 ]);
 
-// NOTIFICATION_REQUEST: Enables weight notifications from scale (Pearl S "new style" format)
-// Event types enabled: weight (0x05, 0x07), timer, settings/battery
-// Config byte breakdown: 0x01=weight stable, 0x02=weight, 0x05=button, 0x07=threshold, 0x09=timer
-const ACAIA_CMD_NOTIFICATION_REQUEST = new Uint8Array([
-  0xef, 0xdd, 0x0c, 0x0d,  // header + length (13 bytes payload)
-  0x09,                     // config: enable all weight event types
-  0x01, 0x01,               // weight stable events
-  0x02, 0x02,               // weight change events  
-  0x05, 0x07,               // button + threshold events
-  0x03, 0x04,               // settings bytes
-  0x04,                     // additional config
-  0x15, 0x06                // checksum bytes
-]);
+// NOTIFICATION_REQUEST: Enables weight, battery, timer, key, setting notifications
+const ACAIA_CMD_NOTIFICATION_REQUEST = encodeEventData([0, 1, 1, 2, 2, 5, 3, 4]);
 
-// HEARTBEAT: Keep-alive command (proper format)
-const ACAIA_CMD_HEARTBEAT = new Uint8Array([
-  0xef, 0xdd, 0x00, 0x02, 0x00, 0x02, 0x00
-]);
+// HEARTBEAT: Keep-alive command
+const ACAIA_CMD_HEARTBEAT = encodeAcaiaMessage(0, [2, 0]);
 
 // TARE: Zero the scale
-const ACAIA_CMD_TARE = new Uint8Array([
-  0xef, 0xdd, 0x04, 0x00, 0x00, 0x00
-]);
+const ACAIA_CMD_TARE = encodeAcaiaMessage(4, [0]);
 
 interface ConnectionDiagnostics {
   connectionStartTime: number;
@@ -167,45 +182,78 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         const message = dataBufferRef.current.slice(0, totalLength);
         console.log("📦 Complete message:", message.map(b => b.toString(16).padStart(2, '0')).join(' '));
         
-        // Process the message - try multiple parsing strategies
-        if ((msgType === 0x07 || msgType === 0x05 || msgType === 0x0c) && message.length >= 7) {
-          console.log(`🔍 Parsing weight message type 0x${msgType.toString(16)}, length: ${message.length}`);
+        // Decode weight from payload according to pyacaia protocol
+        const decodeWeight = (payload: number[]): number | null => {
+          if (payload.length < 6) return null;
           
-          // Try different byte positions based on message type
-          let weightGrams = -1;
+          // Little-endian: low byte first, high byte second
+          const rawValue = (payload[1] << 8) | payload[0];
+          const unit = payload[4] & 0xff;
           
-          // Strategy 1: Standard format - bytes 4-5 (for shorter messages)
-          if (message.length >= 6) {
-            const w1 = (message[5] << 8) | message[4];
-            console.log(`  Strategy 1 (bytes 4-5): raw=${w1}, grams=${w1/10}`);
-            if (w1 >= 0 && w1 < 100000) weightGrams = w1 / 10.0;
+          let value = rawValue;
+          if (unit === 1) value = rawValue / 10.0;
+          else if (unit === 2) value = rawValue / 100.0;
+          else if (unit === 3) value = rawValue / 1000.0;
+          else if (unit === 4) value = rawValue / 10000.0;
+          
+          // Check for negative (sign bit at payload[5])
+          if ((payload[5] & 0x02) === 0x02) {
+            value *= -1;
           }
           
-          // Strategy 2: Extended format - bytes 6-7 (for longer messages like type 0x07)
-          if (message.length >= 8) {
-            const w2 = (message[7] << 8) | message[6];
-            console.log(`  Strategy 2 (bytes 6-7): raw=${w2}, grams=${w2/10}`);
-            // Prefer this if it looks valid and message type is 0x07
-            if (msgType === 0x07 && w2 >= 0 && w2 < 100000) weightGrams = w2 / 10.0;
-          }
+          console.log(`  Weight decode: raw=${rawValue}, unit=${unit}, value=${value}g`);
+          return value;
+        };
+
+        // Command 0x0c (12) is event notification - actual msgType is at byte[4]
+        if (msgType === 0x0c && message.length >= 6) {
+          const eventType = message[4];
+          const payload = message.slice(5);
+          console.log(`🔍 Event notification: type=${eventType}, payload length=${payload.length}`);
           
-          // Strategy 3: Alternative format - bytes 5-6
-          if (message.length >= 7) {
-            const w3 = (message[6] << 8) | message[5];
-            console.log(`  Strategy 3 (bytes 5-6): raw=${w3}, grams=${w3/10}`);
+          if (eventType === 5 && payload.length >= 6) {
+            // Direct weight message
+            const weight = decodeWeight(payload);
+            if (weight !== null && weight >= -1000 && weight < 10000) {
+              setWeight(weight);
+              console.log(`✅ Weight updated to ${weight}g`);
+            }
+          } else if (eventType === 11 && payload.length >= 4) {
+            // Heartbeat response - may contain weight
+            if (payload[2] === 5 && payload.length >= 9) {
+              const weight = decodeWeight(payload.slice(3));
+              if (weight !== null && weight >= -1000 && weight < 10000) {
+                setWeight(weight);
+                console.log(`✅ Weight from heartbeat: ${weight}g`);
+              }
+            }
+          } else if (eventType === 8 && payload.length >= 2) {
+            // Button event (tare, start, stop, reset)
+            if (payload[0] === 0 && payload[1] === 5 && payload.length >= 8) {
+              // Tare button - contains weight
+              const weight = decodeWeight(payload.slice(2));
+              if (weight !== null) {
+                setWeight(weight);
+                console.log(`✅ Weight after tare: ${weight}g`);
+              }
+            }
           }
-          
-          console.log(`⚖️ Final weight: ${weightGrams}g`);
-          
-          if (weightGrams >= 0 && weightGrams < 10000) {
-            setWeight(weightGrams);
-            console.log(`✅ Weight updated to ${weightGrams}g`);
+        } else if (msgType === 0x05 && message.length >= 10) {
+          // Direct weight message (msgType 5)
+          const payload = message.slice(4);
+          const weight = decodeWeight(payload);
+          if (weight !== null && weight >= -1000 && weight < 10000) {
+            setWeight(weight);
+            console.log(`✅ Direct weight: ${weight}g`);
           }
-        } else if (msgType === 0x08 && message.length >= 5) {
-          // Battery data
-          const batteryLevel = message[4];
+        } else if (msgType === 0x08 && message.length >= 6) {
+          // Settings/Battery data (cmd 8)
+          // Battery is at payload[1] & 0x7F where payload starts at length byte (message[3])
+          const batteryLevel = message[4] & 0x7f;
           console.log(`🔋 Battery: ${batteryLevel}%`);
-          setBattery(batteryLevel);
+          if (batteryLevel > 0 && batteryLevel <= 100) {
+            setBattery(batteryLevel);
+          }
         } else if (msgType === 0x0c) {
           // Heartbeat/status message
           console.log("💓 Heartbeat/status message received");
