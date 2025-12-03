@@ -38,12 +38,17 @@ export const SettingsPanel = ({
   
   const selectedCurrency = getCurrencyByCode(currency);
 
-  const handleSave = () => {
-    const newPrice = parseFloat(tempPrice);
+  const handlePriceInputChange = (value: string) => {
+    setTempPrice(value);
+    // Update price immediately as user types
+    const newPrice = parseFloat(value);
     if (!isNaN(newPrice) && newPrice > 0) {
       onPriceChange(newPrice);
-      onClose();
     }
+  };
+
+  const handleSave = () => {
+    onClose();
   };
 
   const handleChangePIN = () => {
@@ -218,7 +223,7 @@ export const SettingsPanel = ({
                   id="price"
                   type="number"
                   value={tempPrice}
-                  onChange={(e) => setTempPrice(e.target.value)}
+                  onChange={(e) => handlePriceInputChange(e.target.value)}
                   className="text-2xl font-bold h-14 px-4 rounded-xl"
                   placeholder="89"
                   step="0.01"
