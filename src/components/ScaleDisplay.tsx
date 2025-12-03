@@ -25,13 +25,21 @@ export const ScaleDisplay = ({
   onToggleConnection,
   debugLog = []
 }: ScaleDisplayProps) => {
-  const [pricePerHundred, setPricePerHundred] = useState(89);
+  const [pricePerHundred, setPricePerHundred] = useState(() => {
+    const saved = localStorage.getItem("pricePerHundred");
+    return saved ? parseFloat(saved) : 89;
+  });
   const [currency, setCurrency] = useState(() => localStorage.getItem("currency") || "THB");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+
+  // Save price to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("pricePerHundred", pricePerHundred.toString());
+  }, [pricePerHundred]);
 
   // Detect weight stabilization
   useEffect(() => {
