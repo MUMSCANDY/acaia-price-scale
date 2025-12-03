@@ -469,9 +469,13 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       try {
         mtuValue = await BleClient.getMtu(device.deviceId);
         console.log(`📏 MTU negotiated: ${mtuValue} (Acaia recommends 247)`);
+        addDebug(`MTU: ${mtuValue}`);
       } catch (mtuError) {
         console.log("MTU check not supported on this platform");
       }
+      
+      addDebug(`Notify char: ${notifyChar.uuid.slice(-8)}`);
+      addDebug(`Write char: ${writeChar.uuid.slice(-8)}`);
       
       // Start notifications for weight data BEFORE sending commands
       console.log("Starting notifications...");
@@ -480,10 +484,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         ACAIA_SERVICE_UUID,
         notifyChar.uuid,
         (value) => {
-          console.log("🔔 NOTIFICATION CALLBACK TRIGGERED - data length:", value.byteLength);
+          addDebug(`NOTIFY: ${value.byteLength} bytes`);
           parseWeightData(value);
         }
       );
+      addDebug("Notifications started");
       console.log("✅ Notifications started on characteristic:", notifyChar.uuid);
       
       // Small delay to ensure notifications are ready
@@ -539,7 +544,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setDeviceId(null);
       autoReconnectEnabledRef.current = false; // Disable auto-reconnect on failure
     }
-  }, [parseWeightData]);
+  }, [parseWeightData, addDebug, logConnectionDiagnostics]);
 
   // Store connect function ref
   useEffect(() => {
