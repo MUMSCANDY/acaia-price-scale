@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power, Bug } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
 import { ConnectionHelpDialog } from "./ConnectionHelpDialog";
 import { getCurrencyByCode } from "@/lib/currencies";
+
 interface ScaleDisplayProps {
   weight: number;
   isConnected: boolean;
@@ -13,6 +14,7 @@ interface ScaleDisplayProps {
   battery: number;
   onTare: () => void;
   onToggleConnection: () => void;
+  debugLog?: string[];
 }
 export const ScaleDisplay = ({
   weight,
@@ -20,7 +22,8 @@ export const ScaleDisplay = ({
   connectionStatus,
   battery,
   onTare,
-  onToggleConnection
+  onToggleConnection,
+  debugLog = []
 }: ScaleDisplayProps) => {
   const [pricePerHundred, setPricePerHundred] = useState(89);
   const [currency, setCurrency] = useState(() => localStorage.getItem("currency") || "THB");
@@ -28,6 +31,7 @@ export const ScaleDisplay = ({
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
 
   // Detect weight stabilization
   useEffect(() => {
@@ -198,13 +202,32 @@ export const ScaleDisplay = ({
       </main>
 
       {/* Help Button - Fixed to bottom right */}
-      <div className="fixed bottom-8 right-8 z-20 animate-scale-in" style={{
+      <div className="fixed bottom-8 right-8 z-20 animate-scale-in flex gap-2" style={{
       animationDelay: '0.2s'
     }}>
+        <Button size="lg" variant="ghost" onClick={() => setShowDebug(!showDebug)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Debug Log">
+          <Bug className="w-8 h-8" />
+        </Button>
         <Button size="lg" variant="ghost" onClick={() => setIsHelpDialogOpen(true)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Need Help?">
           <HelpCircle className="w-8 h-8" />
         </Button>
       </div>
+
+      {/* Debug Panel */}
+      {showDebug && (
+        <div className="fixed bottom-28 right-8 z-30 w-96 max-h-64 overflow-y-auto glass-effect border-2 border-foreground rounded-xl p-4">
+          <div className="text-xs font-mono space-y-1">
+            <div className="font-bold mb-2">BLE Debug Log ({debugLog.length})</div>
+            {debugLog.length === 0 ? (
+              <div className="text-foreground/50">No notifications received yet...</div>
+            ) : (
+              debugLog.map((log, i) => (
+                <div key={i} className="text-foreground/80 break-all">{log}</div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
       {/* PIN Dialog */}
       <PinDialog isOpen={isPinDialogOpen} onClose={() => setIsPinDialogOpen(false)} onSuccess={handlePinSuccess} />

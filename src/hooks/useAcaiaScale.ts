@@ -80,6 +80,7 @@ interface UseAcaiaScaleReturn {
   disconnect: () => void;
   tare: () => void;
   diagnostics: ConnectionDiagnostics;
+  debugLog: string[];
 }
 
 export const useAcaiaScale = (): UseAcaiaScaleReturn => {
@@ -89,6 +90,14 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [debugLog, setDebugLog] = useState<string[]>([]);
+  
+  // Helper to add debug messages (keeps last 20)
+  const addDebug = (msg: string) => {
+    const time = new Date().toLocaleTimeString();
+    setDebugLog(prev => [...prev.slice(-19), `${time}: ${msg}`]);
+    console.log(msg);
+  };
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
   
   // ALL useRef hooks must come after all useState hooks
@@ -141,7 +150,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       
       // Convert to byte array and add to buffer
       const newBytes = Array.from(new Uint8Array(dataView.buffer));
-      console.log(`📥 RAW DATA RECEIVED (notification #${diagnosticsRef.current.notificationCount}):`, newBytes.map(b => b.toString(16).padStart(2, '0')).join(' '));
+      const hexStr = newBytes.map(b => b.toString(16).padStart(2, '0')).join(' ');
+      addDebug(`RX #${diagnosticsRef.current.notificationCount}: ${hexStr}`);
       dataBufferRef.current = [...dataBufferRef.current, ...newBytes];
       
       // Process complete messages from buffer
@@ -666,5 +676,6 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     disconnect,
     tare,
     diagnostics: connectionDiagnostics,
+    debugLog,
   };
 };
