@@ -2,10 +2,34 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { BleClient, numbersToDataView, numberToUUID } from '@capacitor-community/bluetooth-le';
 
-// Acaia BLE Service and Characteristic UUIDs (from reverse engineering)
+// Acaia BLE Service and Characteristic UUIDs
 const ACAIA_SERVICE_UUID = "49535343-fe7d-4ae5-8fa9-9fafd205e455";
 const ACAIA_CHAR_WRITE_UUID = "49535343-6daa-4d02-abf6-19569aca69fe";
 const ACAIA_CHAR_NOTIFY_UUID = "49535343-aca3-481c-91ec-d85e28a60318";
+
+// Acaia Protocol Commands (from official protocol documentation)
+// IDENTIFY: Required handshake command - must be sent after connection
+const ACAIA_CMD_IDENTIFY = new Uint8Array([
+  0xef, 0xdd, 0x0b, 
+  0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34,
+  0x9a, 0x6d
+]);
+
+// NOTIFICATION_REQUEST: Enables weight notifications from scale
+const ACAIA_CMD_NOTIFICATION_REQUEST = new Uint8Array([
+  0xef, 0xdd, 0x0c, 0x09, 
+  0x00, 0x01, 0x01, 0x02, 0x02, 0x05, 0x03, 0x04, 0x15, 0x06
+]);
+
+// HEARTBEAT: Keep-alive command (proper format)
+const ACAIA_CMD_HEARTBEAT = new Uint8Array([
+  0xef, 0xdd, 0x00, 0x02, 0x00, 0x02, 0x00
+]);
+
+// TARE: Zero the scale
+const ACAIA_CMD_TARE = new Uint8Array([
+  0xef, 0xdd, 0x04, 0x00, 0x00, 0x00
+]);
 
 interface ConnectionDiagnostics {
   connectionStartTime: number;
@@ -352,7 +376,16 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       console.log("Using write characteristic:", writeChar.uuid);
       setWriteCharUuid(writeChar.uuid);
 
-      // Start notifications for weight data
+      // === Get MTU for diagnostics (Acaia recommends 247) ===
+      let mtuValue = 0;
+      try {
+        mtuValue = await BleClient.getMtu(device.deviceId);
+        console.log(`📏 MTU negotiated: ${mtuValue} (Acaia recommends 247)`);
+      } catch (mtuError) {
+        console.log("MTU check not supported on this platform");
+      }
+      
+      // Start notifications for weight data BEFORE sending commands
       console.log("Starting notifications...");
       await BleClient.startNotifications(
         device.deviceId,
@@ -362,32 +395,53 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
           parseWeightData(value);
         }
       );
+      console.log("✅ Notifications started");
       
-      console.log("Notifications started");
+      // Small delay to ensure notifications are ready
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // === VERSION 11.0: REF-BASED HEARTBEAT ===
-      console.log("🚀 V11.0 - REF-BASED HEARTBEAT (CLOSURE FIX)");
+      // === ACAIA HANDSHAKE PROTOCOL (REQUIRED) ===
+      console.log("🤝 V12.0 - IMPLEMENTING PROPER ACAIA HANDSHAKE PROTOCOL");
       
-      // Just send timer start
-      const timerStartCommand = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
+      // Step 1: Send IDENTIFY command (required for handshake)
       diagnosticsRef.current.writeCount++;
-      console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: Timer start`);
-      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(timerStartCommand)));
-      console.log("✅ Timer started");
+      console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: IDENTIFY (handshake)`);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(ACAIA_CMD_IDENTIFY)));
+      console.log("✅ IDENTIFY sent");
+      
+      // Small delay between commands
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Step 2: Send NOTIFICATION_REQUEST to enable weight data
+      diagnosticsRef.current.writeCount++;
+      console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: NOTIFICATION_REQUEST`);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(ACAIA_CMD_NOTIFICATION_REQUEST)));
+      console.log("✅ NOTIFICATION_REQUEST sent");
+      
+      // Small delay before heartbeat
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Step 3: Send initial HEARTBEAT
+      diagnosticsRef.current.writeCount++;
+      diagnosticsRef.current.lastHeartbeatTime = Date.now();
+      console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: Initial HEARTBEAT`);
+      await BleClient.write(device.deviceId, ACAIA_SERVICE_UUID, writeChar.uuid, numbersToDataView(Array.from(ACAIA_CMD_HEARTBEAT)));
+      console.log("✅ Initial HEARTBEAT sent");
 
       setDeviceId(device.deviceId);
+      setWriteCharUuid(writeChar.uuid);
       setIsConnected(true);
       setConnectionStatus("connected");
       setWeight(0);
       setBattery(85);
-      autoReconnectEnabledRef.current = true; // Keep auto-reconnect as backup
+      autoReconnectEnabledRef.current = true;
       
       // Start periodic diagnostics logging every 10 seconds
       diagnosticsIntervalRef.current = setInterval(() => {
         logConnectionDiagnostics();
       }, 10000);
       
-      toast.success("Connected - heartbeat enabled");
+      toast.success(`Connected with proper handshake (MTU: ${mtuValue || 'default'})`);
     } catch (error) {
       console.error("Bluetooth connection error:", error);
       toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -455,11 +509,10 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
     
     try {
-      // Acaia tare command: 0xef 0xdd 0x04 0x00
-      const tareCommand = new Uint8Array([0xef, 0xdd, 0x04, 0x00]);
+      // Use proper Acaia tare command (6 bytes)
       diagnosticsRef.current.writeCount++;
       console.log(`✍️  Write #${diagnosticsRef.current.writeCount}: Tare`);
-      await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(tareCommand)));
+      await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(ACAIA_CMD_TARE)));
       toast.success("Scale tared");
       setWeight(0);
     } catch (error) {
@@ -480,8 +533,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       try {
         diagnosticsRef.current.lastHeartbeatTime = Date.now();
         diagnosticsRef.current.writeCount++;
-        const heartbeat = new Uint8Array([0xef, 0xdd, 0x0d, 0x00]);
-        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(heartbeat)));
+        // Use proper Acaia heartbeat command (7 bytes)
+        await BleClient.write(deviceId, ACAIA_SERVICE_UUID, writeCharUuid, numbersToDataView(Array.from(ACAIA_CMD_HEARTBEAT)));
         console.log(`💓 Heartbeat #${diagnosticsRef.current.writeCount}`);
       } catch (error) {
         console.error("❌ HB failed:", error);
