@@ -26,7 +26,7 @@ export const ScaleDisplay = ({
 }: ScaleDisplayProps) => {
   const [pricePerHundred, setPricePerHundred] = useState(() => {
     const saved = localStorage.getItem("pricePerHundred");
-    return saved ? parseFloat(saved) : 89;
+    return saved ? parseFloat(saved) : 99;
   });
   const [currency, setCurrency] = useState(() => localStorage.getItem("currency") || "THB");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
