@@ -91,13 +91,6 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [battery, setBattery] = useState(85);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [debugLog, setDebugLog] = useState<string[]>([]);
-  
-  // Helper to add debug messages (keeps last 20)
-  const addDebug = (msg: string) => {
-    const time = new Date().toLocaleTimeString();
-    setDebugLog(prev => [...prev.slice(-19), `${time}: ${msg}`]);
-    console.log(msg);
-  };
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
   
   // ALL useRef hooks must come after all useState hooks
@@ -106,6 +99,13 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoReconnectEnabledRef = useRef(false);
   const connectFunctionRef = useRef<(() => Promise<void>) | null>(null);
+  
+  // Helper to add debug messages (keeps last 20) - defined after all hooks
+  const addDebug = useCallback((msg: string) => {
+    const time = new Date().toLocaleTimeString();
+    setDebugLog(prev => [...prev.slice(-19), `${time}: ${msg}`]);
+    console.log(msg);
+  }, []);
   
   // Diagnostic refs for tracking without causing re-renders
   const diagnosticsRef = useRef({
@@ -281,7 +281,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       console.error("❌ Error parsing data:", error);
       dataBufferRef.current = []; // Clear buffer on error
     }
-  }, []);
+  }, [addDebug]);
 
   // Initialize BLE client on mount
   useEffect(() => {
