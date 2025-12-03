@@ -46,7 +46,9 @@ const ACAIA_CMD_IDENTIFY = encodeAcaiaMessage(11, [
 ]);
 
 // NOTIFICATION_REQUEST: Enables weight, battery, timer, key, setting notifications
-const ACAIA_CMD_NOTIFICATION_REQUEST = encodeEventData([0, 1, 1, 2, 2, 5, 3, 4]);
+// For Pearl S (new_style_data): payload = [0, 5, 0, 1, 1, 2, 2, 5, 3, 4]
+// Format: [request_type=0, event_count=5, then pairs of (weight_event_type, enable)]
+const ACAIA_CMD_NOTIFICATION_REQUEST = encodeEventData([0, 5, 0, 1, 1, 2, 2, 5, 3, 4]);
 
 // HEARTBEAT: Keep-alive command
 const ACAIA_CMD_HEARTBEAT = encodeAcaiaMessage(0, [2, 0]);
