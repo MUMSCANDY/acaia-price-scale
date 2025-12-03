@@ -111,6 +111,11 @@ export const ScaleDisplay = ({
         </h1>
         
         <div className="flex items-center gap-4">
+          {/* Debug Button - IN HEADER for visibility */}
+          <Button variant="ghost" size="icon" onClick={() => setShowDebug(!showDebug)} className={cn("rounded-full w-14 h-14 glass-effect border-2 border-foreground hover:bg-foreground/10", showDebug && "bg-foreground/20")}>
+            <Bug className="w-7 h-7" />
+          </Button>
+
           {/* Connection Status */}
           <div className={cn("flex items-center gap-3 px-5 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300", connectionStatus === "connected" && "shadow-glow")}>
             {connectionStatus === "connected" ? <>
@@ -210,24 +215,21 @@ export const ScaleDisplay = ({
       </main>
 
       {/* Help Button - Fixed to bottom right */}
-      <div className="fixed bottom-4 right-4 z-20 animate-scale-in flex gap-2" style={{
+      <div className="fixed bottom-4 right-4 z-20 animate-scale-in" style={{
       animationDelay: '0.2s'
     }}>
-        <Button size="lg" variant="ghost" onClick={() => setShowDebug(!showDebug)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Debug Log">
-          <Bug className="w-8 h-8" />
-        </Button>
         <Button size="lg" variant="ghost" onClick={() => setIsHelpDialogOpen(true)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Need Help?">
           <HelpCircle className="w-8 h-8" />
         </Button>
       </div>
 
-      {/* Debug Panel */}
+      {/* Debug Panel - Shows from top right under header */}
       {showDebug && (
-        <div className="fixed bottom-28 right-8 z-30 w-96 max-h-64 overflow-y-auto glass-effect border-2 border-foreground rounded-xl p-4">
+        <div className="fixed top-28 right-4 z-30 w-96 max-h-80 overflow-y-auto glass-effect border-2 border-foreground rounded-xl p-4">
           <div className="text-xs font-mono space-y-1">
-            <div className="font-bold mb-2">BLE Debug Log ({debugLog.length})</div>
+            <div className="font-bold mb-2 text-lg">🐛 BLE Debug ({debugLog.length})</div>
             {debugLog.length === 0 ? (
-              <div className="text-foreground/50">No notifications received yet...</div>
+              <div className="text-foreground/50">No data yet. Connect to scale to see logs.</div>
             ) : (
               debugLog.map((log, i) => (
                 <div key={i} className="text-foreground/80 break-all">{log}</div>
