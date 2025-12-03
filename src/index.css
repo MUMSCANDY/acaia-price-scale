@@ -8,57 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* MUMS Brand Colors - Pink #E86A9E & Black Only */
-    --background: 340 76% 65%; /* #E86A9E */
+    /* MUMS Brand Colors - Soft Pink & Black Only */
+    --background: 340 45% 88%; /* Soft pink */
     --foreground: 0 0% 0%; /* Black text only */
 
-    --card: 340 76% 70%;
+    --card: 340 50% 92%;
     --card-foreground: 0 0% 0%;
 
-    --popover: 340 76% 68%;
+    --popover: 340 45% 90%;
     --popover-foreground: 0 0% 0%;
 
-    /* Primary brand pink #E86A9E */
-    --primary: 340 76% 65%;
+    /* Primary soft pink */
+    --primary: 340 55% 75%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 340 76% 72%;
+    --secondary: 340 45% 85%;
     --secondary-foreground: 0 0% 0%;
 
-    --muted: 340 50% 82%;
+    --muted: 340 30% 90%;
     --muted-foreground: 0 0% 15%;
 
-    --accent: 340 76% 60%;
+    --accent: 340 60% 70%;
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 0%;
 
     --border: 0 0% 15%;
-    --input: 340 76% 75%;
+    --input: 340 45% 92%;
     --ring: 0 0% 0%;
 
     --radius: 1.5rem;
 
-    /* Gen Z Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(340 76% 65%), hsl(340 76% 75%));
-    --gradient-background: linear-gradient(165deg, hsl(340 76% 65%) 0%, hsl(340 76% 72%) 100%);
-    --gradient-bold: linear-gradient(120deg, hsl(340 76% 60%), hsl(340 76% 70%), hsl(340 76% 65%));
+    /* Soft Pink Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(340 45% 88%), hsl(340 50% 92%));
+    --gradient-background: linear-gradient(165deg, hsl(340 45% 88%) 0%, hsl(340 50% 92%) 100%);
+    --gradient-bold: linear-gradient(120deg, hsl(340 55% 80%), hsl(340 45% 88%), hsl(340 50% 85%));
     --gradient-mesh: 
-      radial-gradient(at 0% 0%, hsl(340 76% 68%) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(340 76% 62%) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsl(340 50% 90%) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(340 45% 85%) 0px, transparent 50%);
     
     /* Modern Shadows */
-    --shadow-soft: 0 4px 24px hsla(0 0% 0% / 0.12);
-    --shadow-bold: 0 12px 40px hsla(0 0% 0% / 0.2);
-    --shadow-glow: 0 0 40px hsla(340 76% 65% / 0.3);
-    --shadow-lifted: 0 20px 60px hsla(0 0% 0% / 0.25);
+    --shadow-soft: 0 4px 24px hsla(0 0% 0% / 0.08);
+    --shadow-bold: 0 12px 40px hsla(0 0% 0% / 0.15);
+    --shadow-glow: 0 0 40px hsla(340 55% 75% / 0.3);
+    --shadow-lifted: 0 20px 60px hsla(0 0% 0% / 0.18);
     
     /* Smooth Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Glow effect */
-    --glow-color: 220 80% 60%;
+    --glow-color: 340 55% 70%;
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -115,7 +115,7 @@ All colors MUST be HSL.
   }
   
   .button-glow {
-    box-shadow: 0 0 20px hsla(340 76% 65% / 0.4), var(--shadow-soft);
+    box-shadow: 0 0 20px hsla(340 55% 75% / 0.4), var(--shadow-soft);
   }
 
   @keyframes glow-pulse {
