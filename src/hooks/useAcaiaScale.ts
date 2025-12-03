@@ -230,6 +230,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
             const weight = decodeWeight(payload);
             if (weight !== null && weight >= -1000 && weight < 10000) {
               setWeight(weight);
+              addDebug(`⚖️ ${weight}g`);
               console.log(`✅ Weight updated to ${weight}g`);
             }
           } else if (eventType === 11 && payload.length >= 4) {
@@ -238,6 +239,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
               const weight = decodeWeight(payload.slice(3));
               if (weight !== null && weight >= -1000 && weight < 10000) {
                 setWeight(weight);
+                addDebug(`⚖️ HB ${weight}g`);
                 console.log(`✅ Weight from heartbeat: ${weight}g`);
               }
             }
@@ -248,6 +250,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
               const weight = decodeWeight(payload.slice(2));
               if (weight !== null) {
                 setWeight(weight);
+                addDebug(`⚖️ TARE ${weight}g`);
                 console.log(`✅ Weight after tare: ${weight}g`);
               }
             }
@@ -284,10 +287,8 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
     }
   }, [addDebug]);
 
-  // Keep ref updated with latest parseWeightData
-  useEffect(() => {
-    parseWeightDataRef.current = parseWeightData;
-  }, [parseWeightData]);
+  // Keep ref updated with latest parseWeightData - set immediately AND on change
+  parseWeightDataRef.current = parseWeightData;
 
   // Initialize BLE client on mount
   useEffect(() => {
@@ -491,9 +492,12 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         notifyChar.uuid,
         (value) => {
           console.log(`🔔 NOTIFY callback - ${value.byteLength} bytes`);
+          setDebugLog(prev => [...prev.slice(-19), `${new Date().toLocaleTimeString()}: BLE ${value.byteLength}b`]);
           // Use ref to always get latest parseWeightData function
           if (parseWeightDataRef.current) {
             parseWeightDataRef.current(value);
+          } else {
+            console.error("❌ parseWeightDataRef is null!");
           }
         }
       );
