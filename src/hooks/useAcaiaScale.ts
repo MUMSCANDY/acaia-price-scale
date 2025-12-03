@@ -4,8 +4,9 @@ import { BleClient, numbersToDataView, numberToUUID } from '@capacitor-community
 
 // Acaia BLE Service and Characteristic UUIDs
 const ACAIA_SERVICE_UUID = "49535343-fe7d-4ae5-8fa9-9fafd205e455";
-const ACAIA_CHAR_WRITE_UUID = "49535343-6daa-4d02-abf6-19569aca69fe";
-const ACAIA_CHAR_NOTIFY_UUID = "49535343-aca3-481c-91ec-d85e28a60318";
+// UUIDs from aioacaia library (for Pearl S)
+const ACAIA_CHAR_WRITE_UUID = "49535343-8841-43f4-a8d4-ecbe34729bb3"; // DEFAULT_CHAR_ID 
+const ACAIA_CHAR_NOTIFY_UUID = "49535343-1e4d-4bd9-ba61-23c647249616"; // NOTIFY_CHAR_ID
 
 // Helper function to encode Acaia protocol messages (from pyacaia)
 function encodeAcaiaMessage(msgType: number, payload: number[]): Uint8Array {
