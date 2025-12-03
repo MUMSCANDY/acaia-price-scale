@@ -210,7 +210,7 @@ export const ScaleDisplay = ({
       </main>
 
       {/* Help Button - Fixed to bottom right */}
-      <div className="fixed bottom-8 right-8 z-20 animate-scale-in flex gap-2" style={{
+      <div className="fixed bottom-4 right-4 z-20 animate-scale-in flex gap-2" style={{
       animationDelay: '0.2s'
     }}>
         <Button size="lg" variant="ghost" onClick={() => setShowDebug(!showDebug)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Debug Log">
