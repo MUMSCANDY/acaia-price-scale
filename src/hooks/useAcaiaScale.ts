@@ -99,6 +99,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoReconnectEnabledRef = useRef(false);
   const connectFunctionRef = useRef<(() => Promise<void>) | null>(null);
+  const parseWeightDataRef = useRef<((dataView: DataView) => void) | null>(null);
   
   // Helper to add debug messages (keeps last 20) - defined after all hooks
   const addDebug = useCallback((msg: string) => {
@@ -282,6 +283,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       dataBufferRef.current = []; // Clear buffer on error
     }
   }, [addDebug]);
+
+  // Keep ref updated with latest parseWeightData
+  useEffect(() => {
+    parseWeightDataRef.current = parseWeightData;
+  }, [parseWeightData]);
 
   // Initialize BLE client on mount
   useEffect(() => {
@@ -484,8 +490,11 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
         ACAIA_SERVICE_UUID,
         notifyChar.uuid,
         (value) => {
-          addDebug(`NOTIFY: ${value.byteLength} bytes`);
-          parseWeightData(value);
+          console.log(`🔔 NOTIFY callback - ${value.byteLength} bytes`);
+          // Use ref to always get latest parseWeightData function
+          if (parseWeightDataRef.current) {
+            parseWeightDataRef.current(value);
+          }
         }
       );
       addDebug("Notifications started");
@@ -544,7 +553,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setDeviceId(null);
       autoReconnectEnabledRef.current = false; // Disable auto-reconnect on failure
     }
-  }, [parseWeightData, addDebug, logConnectionDiagnostics]);
+  }, [addDebug, logConnectionDiagnostics]);
 
   // Store connect function ref
   useEffect(() => {
