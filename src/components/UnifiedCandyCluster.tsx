@@ -154,8 +154,8 @@ export const UnifiedCandyCluster = ({
             <SlotDigit key={`p-${i}-${char}`} digit={char} isAnimating={priceAnimating} />
           ))}
         </div>
-        <div className="text-foreground/30 font-label text-lg uppercase tracking-[0.3em] mt-3">
-          {currencySymbol}{pricePerHundred.toLocaleString()} / 100g
+        <div className="text-foreground/30 font-label text-base tracking-[0.2em] mt-3">
+          {currencySymbol}{pricePerHundred.toLocaleString()} per 100 grams
         </div>
       </div>
     </div>
