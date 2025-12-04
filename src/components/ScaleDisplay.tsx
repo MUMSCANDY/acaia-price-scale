@@ -21,8 +21,11 @@ interface ScaleDisplayProps {
   debugLog?: string[];
 }
 
+// Demo weight sequence: 25, 50, 100, 150, 200... up to 1500
+const DEMO_WEIGHTS = [25, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500];
+
 export const ScaleDisplay = ({
-  weight,
+  weight: externalWeight,
   isConnected,
   connectionStatus,
   battery,
@@ -40,7 +43,24 @@ export const ScaleDisplay = ({
   const [isWeightStable, setIsWeightStable] = useState(false);
   const [priceAnimating, setPriceAnimating] = useState(false);
   
+  // Demo mode
+  const [demoIndex, setDemoIndex] = useState(0);
+  const [isDemoMode, setIsDemoMode] = useState(!isConnected);
+  
   const prevPriceRef = useRef(0);
+
+  // Demo mode cycling
+  useEffect(() => {
+    if (!isConnected && isDemoMode) {
+      const interval = setInterval(() => {
+        setDemoIndex(prev => (prev + 1) % DEMO_WEIGHTS.length);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected, isDemoMode]);
+
+  // Use external weight when connected, demo weight otherwise
+  const weight = isConnected ? externalWeight : (isDemoMode ? DEMO_WEIGHTS[demoIndex] : 0);
 
   useEffect(() => {
     localStorage.setItem("pricePerHundred", pricePerHundred.toString());
@@ -209,7 +229,7 @@ export const ScaleDisplay = ({
             />
           </div>
 
-          {/* Center: Weight Display with Gauge */}
+          {/* Center: Weight Display with Gauge + Humor Text */}
           <div className="flex flex-col items-center flex-shrink-0">
             <CircularGauge 
               weight={weight} 
@@ -228,13 +248,21 @@ export const ScaleDisplay = ({
             </CircularGauge>
 
             {/* Stable indicator */}
-            <div className="mt-4 h-10 flex items-center justify-center">
+            <div className="mt-2 h-8 flex items-center justify-center">
               {isWeightStable && weight > 0 && (
                 <div className="flex items-center gap-2 px-5 py-2 rounded-full border-2 border-foreground animate-scale-in animate-stable-pulse">
                   <div className="w-2 h-2 bg-foreground rounded-full" />
                   <span className="font-display text-sm font-bold tracking-wide">STABLE</span>
                 </div>
               )}
+            </div>
+
+            {/* Humor Text - close to gauge */}
+            <div className="mt-2">
+              <HumorText 
+                tier={priceTier}
+                price={price}
+              />
             </div>
           </div>
 
@@ -267,13 +295,7 @@ export const ScaleDisplay = ({
         </div>
       </main>
 
-      {/* Footer - Humor Text */}
-      <footer className="relative z-10 px-8 py-6">
-        <HumorText 
-          tier={priceTier}
-          price={price}
-        />
-      </footer>
+      {/* No footer - humor text moved inline */}
 
       {/* PIN Dialog */}
       <PinDialog 
