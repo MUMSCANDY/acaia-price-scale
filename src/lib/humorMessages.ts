@@ -1,53 +1,57 @@
 // MUMS FUTUREPLAY - Pixel-Modern Humor Engine
 // Short, smart, slightly cheeky, Gen-Z premium tone
 
-export type PriceTier = 'tiny' | 'nice' | 'hype' | 'legendary';
+export type PriceTier = 'tiny' | 'nice' | 'nicePlus' | 'hype' | 'legendary';
 
 export const getPriceTier = (price: number): PriceTier => {
-  if (price < 200) return 'tiny';
-  if (price < 500) return 'nice';
+  if (price < 150) return 'tiny';
+  if (price < 250) return 'nice';
+  if (price < 500) return 'nicePlus';
   if (price < 900) return 'hype';
   return 'legendary';
 };
 
 export const humorMessages: Record<PriceTier, string[]> = {
   tiny: [
-    "Just getting started!",
-    "Room for more!",
-    "The bucket awaits!",
-    "A taste of things to come!",
-    "Warm-up round!",
+    "Just getting warmed up!",
+    "A cute little start!",
+    "Still room to level up!",
+    "Warm-up mix!",
     "Light but promising!",
-    "The journey begins!",
-    "Appetizer energy!",
+    "Appetizer mode!",
+    "Treat yourself a bit more!",
   ],
   nice: [
-    "Solid choices!",
-    "This is becoming something!",
-    "Now we're talking!",
+    "You're getting warmed up!",
+    "Sweet progress!",
+    "We're entering candy mode!",
+    "Keep it coming!",
+    "Room for more!",
+  ],
+  nicePlus: [
     "Main character vibes!",
     "Good taste confirmed!",
-    "The plot thickens!",
-    "Sweet momentum!",
-    "Getting somewhere!",
+    "This mix is becoming something!",
+    "Sweet momentum unlocked!",
+    "You've got the touch!",
   ],
   hype: [
     "Elite candy energy!",
     "This mix goes hard!",
     "Peak munch behavior!",
     "Too good to share!",
-    "Masterclass in progress!",
+    "Masterclass unlocked!",
     "Big scoop energy!",
-    "The flex is real!",
+    "This is a flex!",
     "Certified premium!",
   ],
   legendary: [
     "A legendary scoop!",
-    "Hall of fame material!",
+    "Hall of fame behavior!",
     "Absolutely iconic!",
     "Pure greatness!",
-    "This is art!",
-    "Maximum achieved!",
+    "This is art now.",
+    "Maxed out!",
     "The ultimate mix!",
     "Respect earned!",
   ],
@@ -64,7 +68,8 @@ export type MascotExpression = 'sad' | 'neutral' | 'happy' | 'excited' | 'heartE
 export const getTierExpression = (tier: PriceTier): MascotExpression => {
   switch (tier) {
     case 'tiny': return 'sad';
-    case 'nice': return 'happy';
+    case 'nice': return 'neutral';
+    case 'nicePlus': return 'happy';
     case 'hype': return 'excited';
     case 'legendary': return 'heartEyes';
   }
@@ -73,8 +78,9 @@ export const getTierExpression = (tier: PriceTier): MascotExpression => {
 // Fill percentage for bucket based on tier
 export const getTierFillPercent = (tier: PriceTier): number => {
   switch (tier) {
-    case 'tiny': return 25;
-    case 'nice': return 50;
+    case 'tiny': return 20;
+    case 'nice': return 40;
+    case 'nicePlus': return 60;
     case 'hype': return 80;
     case 'legendary': return 100;
   }
