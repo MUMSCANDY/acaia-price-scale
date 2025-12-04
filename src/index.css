@@ -214,8 +214,21 @@
     animation: digit-breathe 2s ease-in-out infinite;
   }
 
+  /* Settle Glow Effect */
+  @keyframes settle-glow {
+    0% {
+      text-shadow: 0 0 0px hsl(var(--foreground) / 0);
+    }
+    40% {
+      text-shadow: 0 0 30px hsl(var(--foreground) / 0.4), 0 0 60px hsl(var(--foreground) / 0.2);
+    }
+    100% {
+      text-shadow: 0 0 0px hsl(var(--foreground) / 0);
+    }
+  }
+
   .digit-stable {
-    animation: none;
+    animation: settle-glow 1s ease-out;
     transform: scaleY(1) scaleX(1) translateY(0);
   }
 
