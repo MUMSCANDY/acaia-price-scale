@@ -133,11 +133,8 @@ export const UnifiedCandyCluster = ({
             <SlotDigit key={`w-${i}-${weightChars.join('')}`} digit={char} index={i} isStable={isStable} />
           ))}
         </div>
-        <div className={cn(
-          "text-foreground/85 font-label text-lg tracking-[0.3em] mt-1",
-          isStable && weight > 0 && "animate-label-fade"
-        )} style={{ opacity: isStable && weight > 0 ? undefined : 0.85 }}>
-          grams
+        <div className="text-foreground/85 font-label text-sm tracking-[0.15em] mt-1">
+          grams of sweetness
         </div>
       </div>
 
