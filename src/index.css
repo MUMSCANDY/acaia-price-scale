@@ -216,6 +216,11 @@
 
   .digit-idle {
     animation: digit-breathe 2s ease-in-out infinite;
+    opacity: 1;
+  }
+
+  .digit-counting {
+    opacity: 1;
   }
 
   /* Settle Glow Effect */
