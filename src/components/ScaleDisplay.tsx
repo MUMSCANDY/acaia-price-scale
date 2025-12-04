@@ -40,6 +40,16 @@ export const ScaleDisplay = ({
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+
+  // Auto-hide header after 5 seconds
+  useEffect(() => {
+    if (isHeaderVisible) {
+      const timer = setTimeout(() => {
+        setIsHeaderVisible(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isHeaderVisible]);
   
   // Demo mode
   const [demoIndex, setDemoIndex] = useState(0);
@@ -120,11 +130,13 @@ export const ScaleDisplay = ({
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col cloudy-bg grain-overlay">
       {/* Background handled by cloudy-bg class */}
       
-      {/* Tap zone to show header */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-16 z-20 cursor-pointer"
-        onClick={() => setIsHeaderVisible(!isHeaderVisible)}
-      />
+      {/* Tap zone to show header - only active when header is hidden */}
+      {!isHeaderVisible && (
+        <div 
+          className="absolute top-0 left-0 right-0 h-16 z-20 cursor-pointer"
+          onClick={() => setIsHeaderVisible(true)}
+        />
+      )}
 
       {/* Header - Soft, Playful, FUTUREPLAY - Hidden by default */}
       <header className={cn(
