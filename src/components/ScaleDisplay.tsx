@@ -116,9 +116,8 @@ export const ScaleDisplay = ({
   const currencySymbol = getCurrencyByCode(currency).symbol;
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col noise-texture">
-      {/* Subtle Pixel Grid Background */}
-      <div className="absolute inset-0 pixel-grid pointer-events-none" />
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col cloudy-bg grain-overlay">
+      {/* Background handled by cloudy-bg class */}
       
       {/* Header - Minimal Pixel-Modern */}
       <header className="relative z-10 flex items-center justify-between px-8 py-5">
