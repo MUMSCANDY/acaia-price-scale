@@ -8,58 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* MUMS Brand Colors - Soft Pink #F7B4C3 & Black Only */
-    /* #F7B4C3 = HSL(347, 67%, 84%) */
-    --background: 347 67% 84%;
-    --foreground: 0 0% 0%;
+    /* MUMS Brand Colors - Vibrant Pink like the logo */
+    --background: 340 82% 76%; /* More saturated pink like MUMS logo */
+    --foreground: 0 0% 13%; /* Soft black */
 
-    --card: 347 60% 86%;
-    --card-foreground: 0 0% 0%;
+    --card: 340 75% 80%;
+    --card-foreground: 0 0% 13%;
 
-    --popover: 347 60% 85%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 340 70% 78%;
+    --popover-foreground: 0 0% 13%;
 
-    /* Primary soft pink */
-    --primary: 347 67% 84%;
-    --primary-foreground: 0 0% 0%;
+    /* Primary pink */
+    --primary: 340 82% 76%;
+    --primary-foreground: 0 0% 13%;
 
-    --secondary: 347 55% 87%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 340 70% 82%;
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 347 45% 88%;
-    --muted-foreground: 0 0% 15%;
+    --muted: 340 55% 85%;
+    --muted-foreground: 0 0% 25%;
 
-    --accent: 347 60% 80%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 340 75% 70%;
+    --accent-foreground: 0 0% 13%;
 
     --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 0%;
+    --destructive-foreground: 0 0% 13%;
 
-    --border: 0 0% 15%;
-    --input: 347 55% 88%;
-    --ring: 0 0% 0%;
+    --border: 0 0% 20%;
+    --input: 340 60% 85%;
+    --ring: 0 0% 13%;
 
     --radius: 1.5rem;
 
-    /* Soft Pink Gradients - all using correct saturation */
-    --gradient-primary: linear-gradient(135deg, hsl(347 67% 84%), hsl(347 60% 86%));
-    --gradient-background: linear-gradient(165deg, hsl(347 67% 84%) 0%, hsl(347 60% 86%) 100%);
-    --gradient-bold: linear-gradient(120deg, hsl(347 65% 82%), hsl(347 67% 84%), hsl(347 60% 86%));
+    /* Pink Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(340 82% 76%), hsl(340 75% 80%));
+    --gradient-background: linear-gradient(165deg, hsl(340 82% 76%) 0%, hsl(340 75% 80%) 100%);
+    --gradient-bold: linear-gradient(120deg, hsl(340 85% 72%), hsl(340 82% 76%), hsl(340 75% 80%));
     --gradient-mesh: 
-      radial-gradient(at 0% 0%, hsl(347 60% 85%) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(347 65% 83%) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsl(340 75% 80%) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(340 80% 74%) 0px, transparent 50%);
     
     /* Modern Shadows */
     --shadow-soft: 0 4px 24px hsla(0 0% 0% / 0.08);
     --shadow-bold: 0 12px 40px hsla(0 0% 0% / 0.15);
-    --shadow-glow: 0 0 40px hsla(347 67% 84% / 0.3);
+    --shadow-glow: 0 0 40px hsla(340 82% 76% / 0.4);
     --shadow-lifted: 0 20px 60px hsla(0 0% 0% / 0.18);
     
     /* Smooth Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Glow effect */
-    --glow-color: 347 60% 78%;
+    --glow-color: 340 75% 70%;
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -72,30 +71,33 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@700&family=Orbitron:wght@400;700;900&display=swap');
 }
 
 @layer utilities {
   .text-display {
-    @apply text-foreground font-black tracking-tighter;
-    font-family: 'Space Grotesk', 'Outfit', sans-serif;
-    letter-spacing: -0.04em;
+    @apply text-foreground font-black tracking-tight;
+    font-family: 'Nunito', sans-serif;
   }
   
   .text-brand {
-    @apply text-foreground font-extrabold tracking-tight;
-    font-family: 'Space Grotesk', 'Outfit', sans-serif;
+    @apply text-foreground font-black tracking-tight;
+    font-family: 'Nunito', sans-serif;
   }
   
   .text-digital {
     @apply text-foreground font-black;
     font-family: 'Orbitron', monospace;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+  }
+  
+  .text-mums {
+    @apply text-foreground font-black;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: -0.02em;
   }
   
   .gradient-bg {
@@ -116,7 +118,7 @@ All colors MUST be HSL.
   }
   
   .button-glow {
-    box-shadow: 0 0 20px hsla(347 67% 84% / 0.4), var(--shadow-soft);
+    box-shadow: 0 0 20px hsla(340 82% 76% / 0.4), var(--shadow-soft);
   }
 
   /* MUMS Candy Scale Animations */
@@ -267,5 +269,35 @@ All colors MUST be HSL.
 
   .animate-stable-pulse {
     animation: stable-pulse 2s ease-in-out infinite;
+  }
+
+  /* Gentle float */
+  @keyframes float-gentle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .animate-float-gentle {
+    animation: float-gentle 3s ease-in-out infinite;
+  }
+
+  /* Wiggle */
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+
+  .animate-wiggle {
+    animation: wiggle 0.8s ease-in-out infinite;
+  }
+
+  /* Price pop animation - smoother */
+  @keyframes price-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .animate-price-pulse {
+    animation: price-pulse 0.3s ease-out;
   }
 }
