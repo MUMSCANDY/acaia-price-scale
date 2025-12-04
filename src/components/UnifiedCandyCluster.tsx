@@ -54,11 +54,12 @@ const SlotDigit = ({ digit, index, isStable }: { digit: string; index: number; i
   return (
     <span 
       className={cn(
-        "inline-block origin-center",
+        "inline-block origin-center transition-[filter] duration-150",
         getAnimationClass()
       )}
       style={{ 
         animationDelay: isSpinning ? `${index * 30}ms` : `${index * 150}ms`,
+        filter: isSpinning ? 'blur(2px)' : 'blur(0px)',
       }}
     >
       {displayDigit}
@@ -121,7 +122,7 @@ export const UnifiedCandyCluster = ({
 
       {/* Weight - Massive billboard display with slot animation */}
       <div className={cn(
-        "text-center pixel-underline transition-transform duration-300",
+        "text-center transition-transform duration-300",
         stablePulse && "animate-stable-pulse"
       )}>
         <div 
@@ -133,21 +134,15 @@ export const UnifiedCandyCluster = ({
           ))}
         </div>
         <div className={cn(
-          "text-foreground/85 font-label text-xl uppercase tracking-[0.5em] mt-4",
+          "text-foreground/85 font-label text-xl tracking-[0.3em] mt-4",
           isStable && weight > 0 && "animate-label-fade"
         )} style={{ opacity: isStable && weight > 0 ? undefined : 0.85 }}>
           grams
         </div>
       </div>
 
-      {/* Pixel Dots Divider */}
-      <div className="pixel-dots my-8">
-        <div className="pixel-dot" />
-        <div className="pixel-dot" />
-        <div className="pixel-dot" />
-        <div className="pixel-dot" />
-        <div className="pixel-dot" />
-      </div>
+      {/* Spacer */}
+      <div className="my-8" />
 
       {/* Price - Secondary but still bold */}
       <div className="text-center transition-all duration-300">
@@ -160,7 +155,7 @@ export const UnifiedCandyCluster = ({
             <SlotDigit key={`p-${i}-${priceChars.join('')}`} digit={char} index={i} isStable={isStable} />
           ))}
         </div>
-        <div className="text-foreground/85 font-label text-base tracking-[0.2em] mt-3">
+        <div className="text-foreground/85 font-label text-base tracking-[0.15em] mt-3">
           {currencySymbol}{pricePerHundred.toLocaleString()} per 100 grams
         </div>
       </div>
