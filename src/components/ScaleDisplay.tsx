@@ -39,6 +39,7 @@ export const ScaleDisplay = ({
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
   
   // Demo mode
   const [demoIndex, setDemoIndex] = useState(0);
@@ -119,8 +120,19 @@ export const ScaleDisplay = ({
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col cloudy-bg grain-overlay">
       {/* Background handled by cloudy-bg class */}
       
-      {/* Header - Soft, Playful, FUTUREPLAY */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-4">
+      {/* Tap zone to show header */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-16 z-20 cursor-pointer"
+        onClick={() => setIsHeaderVisible(!isHeaderVisible)}
+      />
+
+      {/* Header - Soft, Playful, FUTUREPLAY - Hidden by default */}
+      <header className={cn(
+        "relative z-10 flex items-center justify-between px-6 py-4 transition-all duration-300",
+        isHeaderVisible 
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 -translate-y-full pointer-events-none"
+      )}>
         {/* Left: Status pill */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2.5 bg-foreground/5 backdrop-blur-sm rounded-full px-4 py-2.5 border border-foreground/8">
