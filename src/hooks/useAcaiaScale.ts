@@ -88,7 +88,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
   const [weight, setWeight] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
-  const [battery, setBattery] = useState(85);
+  const [battery, setBattery] = useState(0); // 0 until we get real reading from scale
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [debugLog, setDebugLog] = useState<string[]>([]);
   const [writeCharUuid, setWriteCharUuid] = useState<string | null>(null);
