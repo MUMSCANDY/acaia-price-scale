@@ -5,32 +5,33 @@ import { PriceTier, getRandomMessage } from "@/lib/humorMessages";
 interface HumorTextProps {
   tier: PriceTier;
   price: number;
+  isStable?: boolean;
   className?: string;
 }
 
-export const HumorText = ({ tier, price, className }: HumorTextProps) => {
+export const HumorText = ({ tier, price, isStable, className }: HumorTextProps) => {
   const [message, setMessage] = useState(() => getRandomMessage(tier));
   const [isAnimating, setIsAnimating] = useState(false);
+  const prevStableRef = useRef(isStable);
   const prevTierRef = useRef(tier);
 
-  // Change message when tier changes
+  // Change message when weight stabilizes OR tier changes
   useEffect(() => {
-    if (prevTierRef.current !== tier) {
+    const justStabilized = isStable && !prevStableRef.current;
+    const tierChanged = prevTierRef.current !== tier;
+    
+    if ((justStabilized || tierChanged) && price > 0) {
       setIsAnimating(true);
       
       setTimeout(() => {
         setMessage(getRandomMessage(tier));
         setIsAnimating(false);
       }, 200);
-      
-      prevTierRef.current = tier;
     }
-  }, [tier]);
-
-  // Also update message on initial mount based on tier
-  useEffect(() => {
-    setMessage(getRandomMessage(tier));
-  }, []);
+    
+    prevStableRef.current = isStable;
+    prevTierRef.current = tier;
+  }, [tier, isStable, price]);
 
   // Don't show message if no weight
   if (price === 0) {

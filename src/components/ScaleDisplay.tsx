@@ -217,6 +217,7 @@ export const ScaleDisplay = ({
           <HumorText 
             tier={priceTier}
             price={price}
+            isStable={isWeightStable}
           />
         </div>
       </main>
