@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -6,9 +6,8 @@ import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
 import { ConnectionHelpDialog } from "./ConnectionHelpDialog";
 import { getCurrencyByCode } from "@/lib/currencies";
-import { CircularGauge } from "./CircularGauge";
 import { HumorText } from "./HumorText";
-import { CandyBucket } from "./CandyBucket";
+import { UnifiedCandyCluster } from "./UnifiedCandyCluster";
 import { getPriceTier, getTierFillPercent } from "@/lib/humorMessages";
 
 interface ScaleDisplayProps {
@@ -41,13 +40,10 @@ export const ScaleDisplay = ({
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
-  const [priceAnimating, setPriceAnimating] = useState(false);
   
   // Demo mode
   const [demoIndex, setDemoIndex] = useState(0);
   const [isDemoMode, setIsDemoMode] = useState(!isConnected);
-  
-  const prevPriceRef = useRef(0);
 
   // Demo mode cycling
   useEffect(() => {
@@ -102,14 +98,6 @@ export const ScaleDisplay = ({
     }
   }, [weight, isConnected]);
 
-  useEffect(() => {
-    const currentPrice = calculatePrice();
-    if (currentPrice !== prevPriceRef.current && currentPrice > 0) {
-      setPriceAnimating(true);
-      setTimeout(() => setPriceAnimating(false), 500);
-    }
-    prevPriceRef.current = currentPrice;
-  }, [weight, pricePerHundred]);
 
   const handleSettingsClick = () => {
     setIsPinDialogOpen(true);
@@ -216,82 +204,36 @@ export const ScaleDisplay = ({
         </div>
       </header>
 
-      {/* Main Content - 3 Column Layout */}
-      <main className="relative z-10 flex-1 flex items-center justify-center px-8">
-        <div className="flex items-center justify-between w-full max-w-6xl gap-8">
-          
-          {/* Left: Animated Candy Bucket */}
-          <div className="w-64 flex-shrink-0">
-            <CandyBucket 
-              tier={priceTier}
-              fillPercent={fillPercent}
-              className="w-full h-auto"
-            />
-          </div>
+      {/* Main Content - Unified Cluster Layout */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-8">
+        {/* Unified Candy Cluster */}
+        <UnifiedCandyCluster 
+          weight={weight}
+          price={price}
+          currencySymbol={currencySymbol}
+          pricePerHundred={pricePerHundred}
+          tier={priceTier}
+          fillPercent={fillPercent}
+          isStable={isWeightStable}
+          maxWeight={1500}
+        />
 
-          {/* Center: Weight Display with Gauge + Humor Text */}
-          <div className="flex flex-col items-center flex-shrink-0">
-            <CircularGauge 
-              weight={weight} 
-              isStable={isWeightStable}
-              maxWeight={1500}
-            >
-              <div className="text-center">
-                <div className={cn(
-                  "text-numbers text-[100px] leading-none tabular-nums transition-transform duration-300",
-                  priceAnimating && "animate-weight-pop"
-                )}>
-                  {weight.toFixed(0)}
-                </div>
-                <div className="text-display text-3xl mt-1 opacity-60 font-semibold">grams</div>
-              </div>
-            </CircularGauge>
-
-            {/* Stable indicator */}
-            <div className="mt-2 h-8 flex items-center justify-center">
-              {isWeightStable && weight > 0 && (
-                <div className="flex items-center gap-2 px-5 py-2 rounded-full border-2 border-foreground animate-scale-in animate-stable-pulse">
-                  <div className="w-2 h-2 bg-foreground rounded-full" />
-                  <span className="font-display text-sm font-bold tracking-wide">STABLE</span>
-                </div>
-              )}
+        {/* Stable indicator */}
+        <div className="mt-4 h-8 flex items-center justify-center">
+          {isWeightStable && weight > 0 && (
+            <div className="flex items-center gap-2 px-5 py-2 rounded-full border-2 border-foreground animate-scale-in animate-stable-pulse">
+              <div className="w-2 h-2 bg-foreground rounded-full" />
+              <span className="font-display text-sm font-bold tracking-wide">STABLE</span>
             </div>
+          )}
+        </div>
 
-            {/* Humor Text - close to gauge */}
-            <div className="mt-2">
-              <HumorText 
-                tier={priceTier}
-                price={price}
-              />
-            </div>
-          </div>
-
-          {/* Right: Price Display - Receipt Style */}
-          <div className="w-72 flex-shrink-0">
-            <div className="receipt-card px-8 py-6">
-              {/* Price header */}
-              <div className="text-center mb-2">
-                <span className="text-body text-sm font-semibold opacity-50 uppercase tracking-wider">Total</span>
-              </div>
-              
-              {/* Big Price */}
-              <div className={cn(
-                "text-center transition-all duration-300",
-                priceAnimating && "animate-price-pop"
-              )}>
-                <div className="text-numbers text-[72px] leading-none tabular-nums">
-                  {currencySymbol}{price}
-                </div>
-              </div>
-              
-              {/* Price per 100g */}
-              <div className="text-center mt-4 pt-4 border-t-2 border-foreground/10">
-                <span className="text-body text-base opacity-60">
-                  {currencySymbol}{pricePerHundred} per 100g
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Humor Text - centered below cluster */}
+        <div className="mt-4">
+          <HumorText 
+            tier={priceTier}
+            price={price}
+          />
         </div>
       </main>
 
