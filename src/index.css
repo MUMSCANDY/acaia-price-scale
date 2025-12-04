@@ -9,55 +9,57 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* MUMS Brand Colors - Soft Pink #F7B4C3 & Black Only */
-    --background: 347 67% 84%; /* #F7B4C3 - correct HSL */
-    --foreground: 0 0% 0%; /* Black text only */
-    --card: 347 75% 88%;
+    /* #F7B4C3 = HSL(347, 67%, 84%) */
+    --background: 347 67% 84%;
+    --foreground: 0 0% 0%;
+
+    --card: 347 60% 86%;
     --card-foreground: 0 0% 0%;
 
-    --popover: 347 78% 86%;
+    --popover: 347 60% 85%;
     --popover-foreground: 0 0% 0%;
 
     /* Primary soft pink */
-    --primary: 347 81% 84%;
+    --primary: 347 67% 84%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 347 70% 88%;
+    --secondary: 347 55% 87%;
     --secondary-foreground: 0 0% 0%;
 
-    --muted: 347 50% 90%;
+    --muted: 347 45% 88%;
     --muted-foreground: 0 0% 15%;
 
-    --accent: 347 85% 78%;
+    --accent: 347 60% 80%;
     --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 0%;
 
     --border: 0 0% 15%;
-    --input: 347 70% 90%;
+    --input: 347 55% 88%;
     --ring: 0 0% 0%;
 
     --radius: 1.5rem;
 
-    /* Soft Pink Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(347 81% 84%), hsl(347 75% 88%));
-    --gradient-background: linear-gradient(165deg, hsl(347 81% 84%) 0%, hsl(347 75% 88%) 100%);
-    --gradient-bold: linear-gradient(120deg, hsl(347 85% 80%), hsl(347 81% 84%), hsl(347 75% 86%));
+    /* Soft Pink Gradients - all using correct saturation */
+    --gradient-primary: linear-gradient(135deg, hsl(347 67% 84%), hsl(347 60% 86%));
+    --gradient-background: linear-gradient(165deg, hsl(347 67% 84%) 0%, hsl(347 60% 86%) 100%);
+    --gradient-bold: linear-gradient(120deg, hsl(347 65% 82%), hsl(347 67% 84%), hsl(347 60% 86%));
     --gradient-mesh: 
-      radial-gradient(at 0% 0%, hsl(347 78% 86%) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsl(347 81% 82%) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsl(347 60% 85%) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(347 65% 83%) 0px, transparent 50%);
     
     /* Modern Shadows */
     --shadow-soft: 0 4px 24px hsla(0 0% 0% / 0.08);
     --shadow-bold: 0 12px 40px hsla(0 0% 0% / 0.15);
-    --shadow-glow: 0 0 40px hsla(347 81% 84% / 0.3);
+    --shadow-glow: 0 0 40px hsla(347 67% 84% / 0.3);
     --shadow-lifted: 0 20px 60px hsla(0 0% 0% / 0.18);
     
     /* Smooth Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Glow effect */
-    --glow-color: 347 81% 75%;
+    --glow-color: 347 60% 78%;
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -114,7 +116,7 @@ All colors MUST be HSL.
   }
   
   .button-glow {
-    box-shadow: 0 0 20px hsla(347 81% 84% / 0.4), var(--shadow-soft);
+    box-shadow: 0 0 20px hsla(347 67% 84% / 0.4), var(--shadow-soft);
   }
 
   /* MUMS Candy Scale Animations */

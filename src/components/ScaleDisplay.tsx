@@ -211,8 +211,8 @@ export const ScaleDisplay = ({
       {/* Main Content */}
       <main className="relative z-10 flex-1 flex items-center justify-center px-8">
         <div className="flex items-center gap-16">
-          {/* Left: Candy Bucket with Mascot */}
-          <div className="flex flex-col items-center gap-4">
+          {/* Left: Candy Bucket with Mascot - Fixed width */}
+          <div className="flex flex-col items-center gap-4 w-44">
             {/* Mascot Bubble */}
             <MascotBubble 
               tier={priceTier}
@@ -229,43 +229,37 @@ export const ScaleDisplay = ({
             />
           </div>
 
-          {/* Center: Weight Display with Gauge */}
-          <div className="flex flex-col items-center">
+          {/* Center: Weight Display with Gauge - Fixed dimensions */}
+          <div className="flex flex-col items-center w-[340px]">
             <CircularGauge 
               weight={weight} 
               isStable={isWeightStable}
               maxWeight={1500}
             >
-              <div className="text-center">
-                <div className={cn(
-                  "text-digital text-[120px] leading-none transition-all duration-300",
-                  isWeightStable && weight > 0 && "animate-stable-pulse"
-                )}>
+              <div className="text-center w-[200px]">
+                <div className="text-digital text-[120px] leading-none tabular-nums">
                   {weight.toFixed(0)}
                 </div>
                 <div className="text-digital text-3xl mt-1 opacity-70">g</div>
               </div>
             </CircularGauge>
 
-            {/* Stable indicator */}
-            {isWeightStable && weight > 0 && (
-              <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground animate-scale-in">
-                <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
-                <span className="font-digital text-xs tracking-widest">STABLE</span>
-              </div>
-            )}
+            {/* Stable indicator - fixed height container */}
+            <div className="mt-4 h-10 flex items-center justify-center">
+              {isWeightStable && weight > 0 && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground animate-scale-in">
+                  <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
+                  <span className="font-digital text-xs tracking-widest">STABLE</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right: Price Display */}
-          <div className="flex flex-col items-center gap-6">
+          {/* Right: Price Display - Fixed width */}
+          <div className="flex flex-col items-center w-64">
             {/* Big Price */}
             <div className="text-center">
-              <div 
-                className={cn(
-                  "text-digital text-[100px] leading-none transition-transform",
-                  priceAnimating && "animate-price-pop"
-                )}
-              >
+              <div className="text-digital text-[100px] leading-none tabular-nums min-w-[200px]">
                 {currencySymbol}{price}
               </div>
               <div className="text-digital text-lg mt-2 opacity-50">
