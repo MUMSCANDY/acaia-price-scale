@@ -14,25 +14,25 @@ interface UnifiedCandyClusterProps {
   className?: string;
 }
 
-// Slot machine digit component with dramatic animation
-const SlotDigit = ({ digit, index }: { digit: string; index: number }) => {
+// Slot machine digit component
+const SlotDigit = ({ digit, index, isStable }: { digit: string; index: number; isStable: boolean }) => {
   const [displayDigit, setDisplayDigit] = useState(digit);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
   const prevDigitRef = useRef(digit);
 
   useEffect(() => {
     if (digit !== prevDigitRef.current) {
-      setIsAnimating(true);
+      setIsSpinning(true);
       
-      // After exit animation, swap digit
+      // Swap digit after brief delay
       const swapTimeout = setTimeout(() => {
         setDisplayDigit(digit);
-      }, 200);
+      }, 100);
       
-      // Reset animation state
+      // End spin animation
       const resetTimeout = setTimeout(() => {
-        setIsAnimating(false);
-      }, 700);
+        setIsSpinning(false);
+      }, 450);
       
       prevDigitRef.current = digit;
       
@@ -43,14 +43,21 @@ const SlotDigit = ({ digit, index }: { digit: string; index: number }) => {
     }
   }, [digit]);
 
+  // Determine animation class
+  const getAnimationClass = () => {
+    if (isSpinning) return "digit-slot-spin";
+    if (isStable) return "digit-stable";
+    return "digit-idle";
+  };
+
   return (
     <span 
       className={cn(
-        "inline-block origin-bottom",
-        isAnimating ? "digit-animate" : "digit-idle"
+        "inline-block origin-center",
+        getAnimationClass()
       )}
       style={{ 
-        animationDelay: isAnimating ? `${index * 50}ms` : `${index * 200}ms`,
+        animationDelay: isSpinning ? `${index * 30}ms` : `${index * 150}ms`,
       }}
     >
       {displayDigit}
@@ -117,7 +124,7 @@ export const UnifiedCandyCluster = ({
           style={{ fontSize: 'clamp(140px, 28vw, 280px)' }}
         >
           {weightChars.map((char, i) => (
-            <SlotDigit key={`w-${i}-${weightChars.join('')}`} digit={char} index={i} />
+            <SlotDigit key={`w-${i}-${weightChars.join('')}`} digit={char} index={i} isStable={isStable} />
           ))}
         </div>
         <div className={cn(
@@ -145,7 +152,7 @@ export const UnifiedCandyCluster = ({
         >
           {currencySymbol}
           {priceChars.map((char, i) => (
-            <SlotDigit key={`p-${i}-${priceChars.join('')}`} digit={char} index={i} />
+            <SlotDigit key={`p-${i}-${priceChars.join('')}`} digit={char} index={i} isStable={isStable} />
           ))}
         </div>
         <div className="text-foreground/85 font-label text-base tracking-[0.2em] mt-3">
