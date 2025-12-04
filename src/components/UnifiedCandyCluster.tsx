@@ -126,36 +126,36 @@ export const UnifiedCandyCluster = ({
         stablePulse && "animate-stable-pulse"
       )}>
         <div 
-          className="font-display font-extrabold text-foreground leading-[0.85] tracking-tighter py-4"
-          style={{ fontSize: 'clamp(140px, 28vw, 280px)' }}
+          className="font-display font-extrabold text-foreground leading-[0.8] tracking-tighter py-2"
+          style={{ fontSize: 'clamp(100px, 22vw, 220px)' }}
         >
           {weightChars.map((char, i) => (
             <SlotDigit key={`w-${i}-${weightChars.join('')}`} digit={char} index={i} isStable={isStable} />
           ))}
         </div>
         <div className={cn(
-          "text-foreground/85 font-label text-xl tracking-[0.3em] mt-4",
+          "text-foreground/85 font-label text-lg tracking-[0.3em] mt-1",
           isStable && weight > 0 && "animate-label-fade"
         )} style={{ opacity: isStable && weight > 0 ? undefined : 0.85 }}>
           grams
         </div>
       </div>
 
-      {/* Spacer */}
-      <div className="my-8" />
+      {/* Spacer - Reduced */}
+      <div className="my-3" />
 
       {/* Price - Secondary but still bold */}
       <div className="text-center transition-all duration-300">
         <div 
-          className="font-display font-extrabold text-foreground leading-[0.9] tracking-tight py-2"
-          style={{ fontSize: 'clamp(80px, 18vw, 180px)' }}
+          className="font-display font-extrabold text-foreground leading-[0.85] tracking-tight py-1"
+          style={{ fontSize: 'clamp(60px, 14vw, 140px)' }}
         >
           {currencySymbol}
           {priceChars.map((char, i) => (
             <SlotDigit key={`p-${i}-${priceChars.join('')}`} digit={char} index={i} isStable={isStable} />
           ))}
         </div>
-        <div className="text-foreground/85 font-label text-base tracking-[0.15em] mt-3">
+        <div className="text-foreground/85 font-label text-sm tracking-[0.15em] mt-1">
           {currencySymbol}{pricePerHundred.toLocaleString()} per 100 grams
         </div>
       </div>

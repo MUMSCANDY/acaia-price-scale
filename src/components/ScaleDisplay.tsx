@@ -198,8 +198,8 @@ export const ScaleDisplay = ({
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-8 -mt-8">
+      {/* Main Content - Compact for landscape */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 -mt-4">
         {/* Unified Typography Cluster */}
         <UnifiedCandyCluster 
           weight={weight}
@@ -213,7 +213,7 @@ export const ScaleDisplay = ({
         />
 
         {/* Humor Line - Centered, elegant */}
-        <div className="mt-12">
+        <div className="mt-4">
           <HumorText 
             tier={priceTier}
             price={price}
