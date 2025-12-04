@@ -1,60 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Baloo+2:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* MUMS Brand Design System - Soft Pink #F7B4C3 */
+/* 2025 Gen-Z Design System - Premium Soft Pink */
 
 @layer base {
   :root {
-    /* MUMS Brand Colors - Soft Pink */
-    --background: 347 67% 84%; /* #F7B4C3 - exact soft pink */
-    --foreground: 0 0% 13%; /* Soft black */
+    /* Premium Pink Palette */
+    --background: 340 65% 82%;
+    --foreground: 0 0% 10%;
 
-    --card: 347 60% 88%;
-    --card-foreground: 0 0% 13%;
+    --card: 340 55% 86%;
+    --card-foreground: 0 0% 10%;
 
-    --popover: 347 55% 86%;
-    --popover-foreground: 0 0% 13%;
+    --popover: 340 50% 88%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary pink */
-    --primary: 347 67% 84%;
-    --primary-foreground: 0 0% 13%;
+    --primary: 340 65% 82%;
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 347 55% 88%;
-    --secondary-foreground: 0 0% 13%;
+    --secondary: 340 50% 88%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 347 45% 90%;
+    --muted: 340 40% 90%;
     --muted-foreground: 0 0% 25%;
 
-    --accent: 347 60% 78%;
-    --accent-foreground: 0 0% 13%;
+    --accent: 340 55% 75%;
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 13%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 347 50% 90%;
-    --ring: 0 0% 13%;
+    --border: 0 0% 15%;
+    --input: 340 45% 92%;
+    --ring: 0 0% 10%;
 
     --radius: 1.5rem;
 
-    /* Pink Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(347 67% 84%), hsl(347 60% 88%));
-    --gradient-background: linear-gradient(165deg, hsl(347 67% 84%) 0%, hsl(347 60% 88%) 100%);
+    /* Premium Shadows */
+    --shadow-soft: 0 4px 20px hsla(0 0% 0% / 0.06);
+    --shadow-medium: 0 8px 30px hsla(0 0% 0% / 0.1);
+    --shadow-lifted: 0 20px 50px hsla(0 0% 0% / 0.12);
+    --shadow-glow: 0 0 60px hsla(340 65% 70% / 0.3);
     
-    /* Modern Shadows */
-    --shadow-soft: 0 4px 24px hsla(0 0% 0% / 0.08);
-    --shadow-bold: 0 12px 40px hsla(0 0% 0% / 0.15);
-    --shadow-glow: 0 0 40px hsla(347 67% 84% / 0.4);
-    --shadow-lifted: 0 20px 60px hsla(0 0% 0% / 0.18);
-    
-    /* Smooth Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Glow effect */
-    --glow-color: 347 60% 70%;
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Spring Transitions */
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.3, 0.265, 1.3);
   }
 }
 
@@ -72,241 +66,214 @@
 }
 
 @layer utilities {
-  /* Playful number display - bubbly, candy-like */
+  /* Typography System */
   .text-numbers {
     @apply text-foreground;
     font-family: 'Fredoka', 'Baloo 2', sans-serif;
     font-weight: 700;
   }
   
-  /* Display text - headings */
   .text-display {
     @apply text-foreground;
     font-family: 'Baloo 2', 'Fredoka', sans-serif;
     font-weight: 700;
   }
   
-  /* Body text - soft and readable */
   .text-body {
     @apply text-foreground;
     font-family: 'Nunito', 'Quicksand', sans-serif;
     font-weight: 600;
   }
   
-  /* MUMS brand text */
   .text-mums {
     @apply text-foreground;
     font-family: 'Baloo 2', sans-serif;
     font-weight: 800;
   }
-  
-  .gradient-bg {
-    background: var(--gradient-background);
+
+  /* Glass Morphism Card */
+  .glass-card {
+    background: hsla(var(--background) / 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid hsla(var(--foreground) / 0.1);
+    box-shadow: 
+      0 8px 32px hsla(0 0% 0% / 0.08),
+      inset 0 1px 0 hsla(var(--background) / 0.5);
   }
-  
-  .glass-effect {
-    @apply backdrop-blur-xl bg-foreground/5 border border-foreground/10;
+
+  .glass-pill {
+    background: hsla(var(--foreground) / 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid hsla(var(--foreground) / 0.15);
   }
-  
+
+  /* Hover Effects */
   .hover-lift {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-lifted;
+    @apply transition-all duration-300;
   }
-
-  /* Receipt card styling */
-  .receipt-card {
-    @apply bg-card/80 rounded-3xl border-2 border-foreground/10;
-    box-shadow: 0 8px 32px hsla(0 0% 0% / 0.08), 0 2px 8px hsla(0 0% 0% / 0.05);
-  }
-
-  /* MUMS Candy Scale Animations */
   
-  @keyframes glow-pulse {
-    0%, 100% {
-      filter: drop-shadow(0 0 15px hsl(var(--glow-color) / 0.5));
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px hsla(0 0% 0% / 0.1);
+  }
+
+  /* === ANIMATIONS === */
+
+  /* Stable pulse - breathing effect */
+  @keyframes stable-pulse {
+    0%, 100% { 
+      opacity: 1; 
+      transform: scale(1); 
     }
-    50% {
-      filter: drop-shadow(0 0 30px hsl(var(--glow-color) / 0.8));
+    50% { 
+      opacity: 0.6; 
+      transform: scale(1.02); 
     }
   }
 
-  .animate-glow-pulse {
-    animation: glow-pulse 2s ease-in-out infinite;
+  .animate-stable-pulse {
+    animation: stable-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Price pop animation */
-  @keyframes price-pop {
-    0% { transform: scale(1) translateY(0); }
-    50% { transform: scale(1.08) translateY(-8px); }
-    100% { transform: scale(1) translateY(0); }
-  }
-
-  .animate-price-pop {
-    animation: price-pop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  /* Bucket bounce for hype tier */
-  @keyframes bucket-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-
-  .animate-bucket-bounce {
-    animation: bucket-bounce 1s ease-in-out infinite;
-  }
-
-  /* Bucket wiggle for legendary tier */
-  @keyframes bucket-wiggle {
-    0%, 100% { transform: rotate(-4deg) scale(1.02); }
-    50% { transform: rotate(4deg) scale(1.02); }
-  }
-
-  .animate-bucket-wiggle {
-    animation: bucket-wiggle 0.6s ease-in-out infinite;
-  }
-
-  /* Sparkle animation */
-  @keyframes sparkle {
-    0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
-    50% { opacity: 0.6; transform: scale(1.2) rotate(180deg); }
-  }
-
-  .animate-sparkle {
-    animation: sparkle 1.5s ease-in-out infinite;
-  }
-
-  /* Floating hearts */
-  @keyframes float-hearts {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-    50% { transform: translateY(-15px) rotate(15deg); opacity: 1; }
-  }
-
-  .animate-float-hearts {
-    animation: float-hearts 2s ease-in-out infinite;
-  }
-
-  /* Candy float up */
-  @keyframes candy-float-up {
-    0% { transform: translateY(30px); opacity: 0; }
-    60% { transform: translateY(-5px); opacity: 1; }
-    100% { transform: translateY(0); opacity: 1; }
-  }
-
-  .animate-candy-float {
-    animation: candy-float-up 0.6s ease-out forwards;
-  }
-
-  /* Candy pop */
-  @keyframes candy-pop {
-    0% { transform: scale(0); opacity: 0; }
-    60% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .animate-candy-pop {
-    animation: candy-pop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-  }
-
-  /* Candy overflow */
-  @keyframes candy-overflow {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    25% { transform: translateY(-5px) rotate(5deg); }
-    75% { transform: translateY(3px) rotate(-3deg); }
-  }
-
-  .animate-candy-overflow {
-    animation: candy-overflow 2s ease-in-out infinite;
-  }
-
-  /* Gauge settle bounce */
-  @keyframes gauge-settle {
-    0% { transform: rotate(-90deg) scale(1); }
-    40% { transform: rotate(-90deg) scale(1.04); }
-    70% { transform: rotate(-90deg) scale(0.98); }
-    100% { transform: rotate(-90deg) scale(1); }
-  }
-
-  .animate-gauge-settle {
-    animation: gauge-settle 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  /* Gauge bounce on weight change */
-  @keyframes gauge-bounce {
-    0%, 100% { transform: rotate(-90deg) scale(1); }
-    50% { transform: rotate(-90deg) scale(1.015); }
-  }
-
-  .animate-gauge-bounce {
-    animation: gauge-bounce 0.5s ease-out;
-  }
-
-  /* Slow bounce for decorations */
-  @keyframes bounce-slow {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .animate-bounce-slow {
-    animation: bounce-slow 2s ease-in-out infinite;
-  }
-
-  /* Slow spin */
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .animate-spin-slow {
-    animation: spin-slow 4s linear infinite;
-  }
-
-  /* Weight number pop */
+  /* Weight pop - spring bounce */
   @keyframes weight-pop {
     0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    40% { transform: scale(1.06); }
+    70% { transform: scale(0.98); }
     100% { transform: scale(1); }
   }
 
   .animate-weight-pop {
-    animation: weight-pop 0.3s ease-out;
+    animation: weight-pop 0.4s cubic-bezier(0.68, -0.3, 0.265, 1.3);
   }
 
-  /* Stable indicator pulse */
-  @keyframes stable-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.05); }
+  /* Price pop - elevated spring */
+  @keyframes price-pop {
+    0% { transform: scale(1) translateY(0); }
+    30% { transform: scale(1.04) translateY(-6px); }
+    60% { transform: scale(0.98) translateY(2px); }
+    100% { transform: scale(1) translateY(0); }
   }
 
-  .animate-stable-pulse {
-    animation: stable-pulse 1.5s ease-in-out infinite;
+  .animate-price-pop {
+    animation: price-pop 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.3);
   }
 
-  /* Gentle float */
+  /* Gentle float - ambient motion */
   @keyframes float-gentle {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50% { transform: translateY(-6px); }
   }
 
   .animate-float-gentle {
     animation: float-gentle 3s ease-in-out infinite;
   }
 
-  /* Humor text entrance */
+  /* Bucket bounce - playful */
+  @keyframes bucket-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-bucket-bounce {
+    animation: bucket-bounce 1s ease-in-out infinite;
+  }
+
+  /* Bucket wiggle - excited */
+  @keyframes bucket-wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+
+  .animate-bucket-wiggle {
+    animation: bucket-wiggle 0.6s ease-in-out infinite;
+  }
+
+  /* Float hearts - celebration */
+  @keyframes float-hearts {
+    0%, 100% { 
+      transform: translateY(0) rotate(0deg); 
+      opacity: 0.5; 
+    }
+    50% { 
+      transform: translateY(-12px) rotate(10deg); 
+      opacity: 0.8; 
+    }
+  }
+
+  .animate-float-hearts {
+    animation: float-hearts 2.5s ease-in-out infinite;
+  }
+
+  /* Sparkle - star eyes */
+  @keyframes sparkle {
+    0%, 100% { 
+      opacity: 1; 
+      transform: scale(1) rotate(0deg); 
+    }
+    50% { 
+      opacity: 0.7; 
+      transform: scale(1.1) rotate(10deg); 
+    }
+  }
+
+  .animate-sparkle {
+    animation: sparkle 1.2s ease-in-out infinite;
+  }
+
+  /* Bounce slow - decorations */
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 2s ease-in-out infinite;
+  }
+
+  /* Scale in - entrance */
+  @keyframes scale-in {
+    0% { 
+      transform: scale(0.9); 
+      opacity: 0; 
+    }
+    100% { 
+      transform: scale(1); 
+      opacity: 1; 
+    }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Humor enter - text reveal */
   @keyframes humor-enter {
-    0% { transform: translateY(15px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% { 
+      transform: translateY(10px); 
+      opacity: 0; 
+    }
+    100% { 
+      transform: translateY(0); 
+      opacity: 1; 
+    }
   }
 
   .animate-humor-enter {
     animation: humor-enter 0.4s ease-out;
   }
 
-  /* Humor bounce */
-  @keyframes humor-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+  /* Gauge settle - weight stabilized */
+  @keyframes gauge-settle {
+    0% { transform: rotate(-90deg) scale(1); }
+    40% { transform: rotate(-90deg) scale(1.02); }
+    70% { transform: rotate(-90deg) scale(0.99); }
+    100% { transform: rotate(-90deg) scale(1); }
   }
 
-  .animate-humor-bounce {
-    animation: humor-bounce 0.5s ease-out;
+  .animate-gauge-settle {
+    animation: gauge-settle 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.3);
   }
 }
