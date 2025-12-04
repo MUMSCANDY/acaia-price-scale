@@ -38,7 +38,7 @@ export const HumorText = ({ tier, price, isStable, className }: HumorTextProps) 
     return (
       <div className={cn("text-center h-14 flex items-center justify-center", className)}>
         <p className="font-label text-2xl font-semibold opacity-50 tracking-wide">
-          Place candy on scale
+          Place your MUMS bucket on the scale
         </p>
       </div>
     );
