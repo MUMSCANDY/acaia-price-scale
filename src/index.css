@@ -1,54 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Baloo+2:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 2025 Gen-Z Design System - Premium Soft Pink */
+/* MUMS FUTUREPLAY Design System */
 
 @layer base {
   :root {
-    /* Premium Pink Palette */
-    --background: 340 65% 82%;
-    --foreground: 0 0% 10%;
+    /* Primary: Bubblegum Pink #F7B4C3 */
+    --background: 347 67% 84%;
+    --foreground: 0 0% 0%;
 
-    --card: 340 55% 86%;
-    --card-foreground: 0 0% 10%;
+    --card: 347 60% 88%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 340 50% 88%;
-    --popover-foreground: 0 0% 10%;
+    --popover: 347 55% 90%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 340 65% 82%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 347 67% 84%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 340 50% 88%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 340 40% 90%;
-    --muted-foreground: 0 0% 25%;
+    --muted: 347 40% 88%;
+    --muted-foreground: 0 0% 30%;
 
-    --accent: 340 55% 75%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 340 45% 92%;
-    --ring: 0 0% 10%;
+    --border: 0 0% 0%;
+    --input: 347 50% 92%;
+    --ring: 0 0% 0%;
 
     --radius: 1.5rem;
 
-    /* Premium Shadows */
-    --shadow-soft: 0 4px 20px hsla(0 0% 0% / 0.06);
-    --shadow-medium: 0 8px 30px hsla(0 0% 0% / 0.1);
-    --shadow-lifted: 0 20px 50px hsla(0 0% 0% / 0.12);
-    --shadow-glow: 0 0 60px hsla(340 65% 70% / 0.3);
+    /* FUTUREPLAY Shadows - Soft 8-12% black diffuse */
+    --shadow-soft: 0px 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0px 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-lifted: 0px 12px 32px rgba(0, 0, 0, 0.12);
     
-    /* Spring Transitions */
-    --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.3, 0.265, 1.3);
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -59,184 +54,72 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer utilities {
-  /* Typography System */
-  .text-numbers {
-    @apply text-foreground;
-    font-family: 'Fredoka', 'Baloo 2', sans-serif;
-    font-weight: 700;
-  }
-  
+  /* FUTUREPLAY Typography */
   .text-display {
-    @apply text-foreground;
-    font-family: 'Baloo 2', 'Fredoka', sans-serif;
-    font-weight: 700;
-  }
-  
-  .text-body {
-    @apply text-foreground;
-    font-family: 'Nunito', 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-  
-  .text-mums {
-    @apply text-foreground;
     font-family: 'Baloo 2', sans-serif;
     font-weight: 800;
   }
-
-  /* Glass Morphism Card */
-  .glass-card {
-    background: hsla(var(--background) / 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1.5px solid hsla(var(--foreground) / 0.1);
-    box-shadow: 
-      0 8px 32px hsla(0 0% 0% / 0.08),
-      inset 0 1px 0 hsla(var(--background) / 0.5);
-  }
-
-  .glass-pill {
-    background: hsla(var(--foreground) / 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid hsla(var(--foreground) / 0.15);
-  }
-
-  /* Hover Effects */
-  .hover-lift {
-    @apply transition-all duration-300;
+  
+  .text-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
   }
   
-  .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px hsla(0 0% 0% / 0.1);
+  .text-micro {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+  }
+
+  /* FUTUREPLAY Card */
+  .futureplay-card {
+    background: hsl(var(--background));
+    border: 3px solid hsl(var(--foreground));
+    border-radius: 2rem;
+    box-shadow: var(--shadow-medium);
+  }
+
+  /* FUTUREPLAY Pill */
+  .futureplay-pill {
+    background: transparent;
+    border: 2px solid hsl(var(--foreground) / 0.2);
+    border-radius: 9999px;
   }
 
   /* === ANIMATIONS === */
 
-  /* Stable pulse - breathing effect */
   @keyframes stable-pulse {
     0%, 100% { 
-      opacity: 1; 
-      transform: scale(1); 
+      opacity: 0.8; 
     }
     50% { 
-      opacity: 0.6; 
-      transform: scale(1.02); 
+      opacity: 0.4; 
     }
   }
 
   .animate-stable-pulse {
-    animation: stable-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: stable-pulse 2s ease-in-out infinite;
   }
 
-  /* Weight pop - spring bounce */
-  @keyframes weight-pop {
+  @keyframes price-pop {
     0% { transform: scale(1); }
-    40% { transform: scale(1.06); }
-    70% { transform: scale(0.98); }
+    50% { transform: scale(1.03); }
     100% { transform: scale(1); }
   }
 
-  .animate-weight-pop {
-    animation: weight-pop 0.4s cubic-bezier(0.68, -0.3, 0.265, 1.3);
-  }
-
-  /* Price pop - elevated spring */
-  @keyframes price-pop {
-    0% { transform: scale(1) translateY(0); }
-    30% { transform: scale(1.04) translateY(-6px); }
-    60% { transform: scale(0.98) translateY(2px); }
-    100% { transform: scale(1) translateY(0); }
-  }
-
   .animate-price-pop {
-    animation: price-pop 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.3);
+    animation: price-pop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Gentle float - ambient motion */
-  @keyframes float-gentle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .animate-float-gentle {
-    animation: float-gentle 3s ease-in-out infinite;
-  }
-
-  /* Bucket bounce - playful */
-  @keyframes bucket-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  .animate-bucket-bounce {
-    animation: bucket-bounce 1s ease-in-out infinite;
-  }
-
-  /* Bucket wiggle - excited */
-  @keyframes bucket-wiggle {
-    0%, 100% { transform: rotate(-3deg); }
-    50% { transform: rotate(3deg); }
-  }
-
-  .animate-bucket-wiggle {
-    animation: bucket-wiggle 0.6s ease-in-out infinite;
-  }
-
-  /* Float hearts - celebration */
-  @keyframes float-hearts {
-    0%, 100% { 
-      transform: translateY(0) rotate(0deg); 
-      opacity: 0.5; 
-    }
-    50% { 
-      transform: translateY(-12px) rotate(10deg); 
-      opacity: 0.8; 
-    }
-  }
-
-  .animate-float-hearts {
-    animation: float-hearts 2.5s ease-in-out infinite;
-  }
-
-  /* Sparkle - star eyes */
-  @keyframes sparkle {
-    0%, 100% { 
-      opacity: 1; 
-      transform: scale(1) rotate(0deg); 
-    }
-    50% { 
-      opacity: 0.7; 
-      transform: scale(1.1) rotate(10deg); 
-    }
-  }
-
-  .animate-sparkle {
-    animation: sparkle 1.2s ease-in-out infinite;
-  }
-
-  /* Bounce slow - decorations */
-  @keyframes bounce-slow {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-  }
-
-  .animate-bounce-slow {
-    animation: bounce-slow 2s ease-in-out infinite;
-  }
-
-  /* Scale in - entrance */
   @keyframes scale-in {
     0% { 
-      transform: scale(0.9); 
+      transform: scale(0.95); 
       opacity: 0; 
     }
     100% { 
@@ -246,34 +129,19 @@
   }
 
   .animate-scale-in {
-    animation: scale-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: scale-in 0.3s ease-out;
   }
 
-  /* Humor enter - text reveal */
   @keyframes humor-enter {
     0% { 
-      transform: translateY(10px); 
       opacity: 0; 
     }
     100% { 
-      transform: translateY(0); 
       opacity: 1; 
     }
   }
 
   .animate-humor-enter {
     animation: humor-enter 0.4s ease-out;
-  }
-
-  /* Gauge settle - weight stabilized */
-  @keyframes gauge-settle {
-    0% { transform: rotate(-90deg) scale(1); }
-    40% { transform: rotate(-90deg) scale(1.02); }
-    70% { transform: rotate(-90deg) scale(0.99); }
-    100% { transform: rotate(-90deg) scale(1); }
-  }
-
-  .animate-gauge-settle {
-    animation: gauge-settle 0.5s cubic-bezier(0.68, -0.3, 0.265, 1.3);
   }
 }

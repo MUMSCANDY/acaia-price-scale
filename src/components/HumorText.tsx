@@ -11,7 +11,6 @@ interface HumorTextProps {
 export const HumorText = ({ tier, price, className }: HumorTextProps) => {
   const [message, setMessage] = useState(() => getRandomMessage(tier));
   const [isAnimating, setIsAnimating] = useState(false);
-  const [shouldBounce, setShouldBounce] = useState(false);
   const prevTierRef = useRef(tier);
   const prevPriceRef = useRef(price);
 
@@ -25,9 +24,7 @@ export const HumorText = ({ tier, price, className }: HumorTextProps) => {
       setTimeout(() => {
         setMessage(getRandomMessage(tier));
         setIsAnimating(false);
-        setShouldBounce(true);
-        setTimeout(() => setShouldBounce(false), 500);
-      }, 250);
+      }, 200);
     }
     
     prevTierRef.current = tier;
@@ -37,23 +34,20 @@ export const HumorText = ({ tier, price, className }: HumorTextProps) => {
   // Don't show message if no weight
   if (price === 0) {
     return (
-      <div className={cn("text-center h-16 flex items-center justify-center", className)}>
-        <p className="text-2xl text-foreground/50 font-display font-bold">
-          Add some candy to get started!
+      <div className={cn("text-center h-12 flex items-center justify-center", className)}>
+        <p className="text-label text-lg opacity-40">
+          Add some candy to get started
         </p>
       </div>
     );
   }
 
   return (
-    <div className={cn("text-center h-16 flex items-center justify-center", className)}>
+    <div className={cn("text-center h-12 flex items-center justify-center", className)}>
       <p 
         className={cn(
-          "text-2xl md:text-3xl font-display font-bold text-foreground max-w-2xl transition-all duration-300",
-          isAnimating 
-            ? "opacity-0 transform translate-y-4" 
-            : "opacity-100 transform translate-y-0",
-          shouldBounce && "animate-humor-bounce"
+          "text-label text-lg opacity-50 tracking-wide transition-opacity duration-200",
+          isAnimating ? "opacity-0" : "opacity-50"
         )}
       >
         {message}
