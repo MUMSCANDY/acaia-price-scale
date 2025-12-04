@@ -124,9 +124,9 @@ export const UnifiedCandyCluster = ({
           ))}
         </div>
         <div className={cn(
-          "text-foreground/40 font-label text-xl uppercase tracking-[0.5em] mt-4",
+          "text-foreground/70 font-label text-xl uppercase tracking-[0.5em] mt-4",
           isStable && weight > 0 && "animate-label-fade"
-        )} style={{ opacity: isStable && weight > 0 ? undefined : 0.4 }}>
+        )} style={{ opacity: isStable && weight > 0 ? undefined : 0.7 }}>
           grams
         </div>
       </div>
@@ -154,7 +154,7 @@ export const UnifiedCandyCluster = ({
             <SlotDigit key={`p-${i}-${char}`} digit={char} isAnimating={priceAnimating} />
           ))}
         </div>
-        <div className="text-foreground/30 font-label text-base tracking-[0.2em] mt-3">
+        <div className="text-foreground/70 font-label text-base tracking-[0.2em] mt-3">
           {currencySymbol}{pricePerHundred.toLocaleString()} per 100 grams
         </div>
       </div>
