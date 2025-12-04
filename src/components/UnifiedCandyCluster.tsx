@@ -37,6 +37,11 @@ export const UnifiedCandyCluster = ({
     prevPriceRef.current = price;
   }, [price]);
 
+  // Format number with thousand separators
+  const formatNumber = (num: number) => {
+    return Math.round(num).toLocaleString();
+  };
+
   return (
     <div className={cn("flex flex-col items-center justify-center w-full", className)}>
       
@@ -46,7 +51,7 @@ export const UnifiedCandyCluster = ({
           className="font-display font-extrabold text-foreground leading-[0.85] tracking-tighter"
           style={{ fontSize: 'clamp(140px, 25vw, 240px)' }}
         >
-          {weight.toFixed(0)}
+          {formatNumber(weight)}
         </div>
         <div className="text-foreground/40 font-label text-xl uppercase tracking-[0.4em] -mt-2">
           grams
@@ -65,10 +70,10 @@ export const UnifiedCandyCluster = ({
           className="font-display font-extrabold text-foreground leading-[0.9] tracking-tight"
           style={{ fontSize: 'clamp(90px, 16vw, 160px)' }}
         >
-          {currencySymbol}{price}
+          {currencySymbol}{formatNumber(price)}
         </div>
         <div className="text-foreground/35 font-label text-base uppercase tracking-[0.25em] mt-1">
-          {currencySymbol}{pricePerHundred} / 100g
+          {currencySymbol}{formatNumber(pricePerHundred)} / 100g
         </div>
       </div>
 
