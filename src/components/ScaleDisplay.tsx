@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
@@ -121,52 +120,46 @@ export const ScaleDisplay = ({
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
-      {/* Subtle ambient background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-foreground/[0.02] rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-foreground/[0.02] rounded-full blur-3xl" />
-      </div>
-
-      {/* Header - Refined */}
+      {/* Header - Minimal stroke icons */}
       <header className="relative z-10 flex items-center justify-between px-8 py-5">
         {/* Left: Status pills */}
         <div className="flex items-center gap-3">
           <div className={cn(
-            "glass-pill flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all duration-300",
-            connectionStatus === "connected" && "border-foreground/30"
+            "futureplay-pill flex items-center gap-2.5 px-5 py-2.5 transition-all duration-300",
+            connectionStatus === "connected" && "border-foreground/40"
           )}>
             {connectionStatus === "connected" ? (
-              <Wifi className="w-4 h-4 opacity-80" />
+              <Wifi className="w-4 h-4" strokeWidth={2} />
             ) : connectionStatus === "connecting" ? (
-              <Wifi className="w-4 h-4 animate-pulse opacity-60" />
+              <Wifi className="w-4 h-4 animate-pulse opacity-50" strokeWidth={2} />
             ) : (
-              <WifiOff className="w-4 h-4 opacity-40" />
+              <WifiOff className="w-4 h-4 opacity-30" strokeWidth={2} />
             )}
-            <span className="text-body text-sm font-semibold opacity-70">
+            <span className="text-label text-sm opacity-60">
               {connectionStatus === "connected" ? "Connected" : connectionStatus === "connecting" ? "Connecting..." : "Offline"}
             </span>
           </div>
 
-          <div className="glass-pill flex items-center gap-2.5 px-5 py-2.5 rounded-full">
-            <Battery className="w-4 h-4 opacity-60" />
-            <span className="text-body text-sm font-semibold opacity-70">{battery}%</span>
+          <div className="futureplay-pill flex items-center gap-2.5 px-5 py-2.5">
+            <Battery className="w-4 h-4 opacity-50" strokeWidth={2} />
+            <span className="text-label text-sm opacity-60">{battery}%</span>
           </div>
         </div>
 
-        {/* Right: Action buttons */}
+        {/* Right: Action buttons - minimal stroke */}
         <div className="flex items-center gap-3">
           <button 
             onClick={isConnected ? onTare : undefined} 
             disabled={!isConnected}
             className={cn(
-              "glass-pill w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+              "futureplay-pill w-12 h-12 flex items-center justify-center transition-all duration-300",
               isConnected 
-                ? "hover:bg-foreground/10 active:scale-95 cursor-pointer" 
+                ? "hover:bg-foreground/5 active:scale-95 cursor-pointer" 
                 : "opacity-30 cursor-not-allowed"
             )}
             title="Tare"
           >
-            <Scale className="w-5 h-5 opacity-70" />
+            <Scale className="w-5 h-5" strokeWidth={2} />
           </button>
 
           <button 
@@ -174,35 +167,35 @@ export const ScaleDisplay = ({
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95",
               !isConnected 
-                ? "bg-foreground text-background hover:bg-foreground/90" 
-                : "glass-pill hover:bg-foreground/10"
+                ? "bg-foreground text-background" 
+                : "futureplay-pill hover:bg-foreground/5"
             )}
             title={isConnected ? "Disconnect" : "Connect"}
           >
-            <Wifi className="w-5 h-5" />
+            <Wifi className="w-5 h-5" strokeWidth={2} />
           </button>
 
           <button 
             onClick={() => setIsHelpDialogOpen(true)}
-            className="glass-pill w-12 h-12 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
+            className="futureplay-pill w-12 h-12 flex items-center justify-center hover:bg-foreground/5 transition-all duration-300"
             title="Help"
           >
-            <HelpCircle className="w-5 h-5 opacity-70" />
+            <HelpCircle className="w-5 h-5 opacity-50" strokeWidth={2} />
           </button>
 
           <button 
             onClick={handleSettingsClick} 
-            className="glass-pill w-12 h-12 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
+            className="futureplay-pill w-12 h-12 flex items-center justify-center hover:bg-foreground/5 transition-all duration-300"
             title="Settings"
           >
-            <Settings className="w-5 h-5 opacity-70" />
+            <Settings className="w-5 h-5 opacity-50" strokeWidth={2} />
           </button>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-8">
-        {/* Unified Candy Cluster */}
+        {/* Unified Triad Cluster */}
         <UnifiedCandyCluster 
           weight={weight}
           price={price}
@@ -215,17 +208,17 @@ export const ScaleDisplay = ({
         />
 
         {/* Stable indicator */}
-        <div className="mt-6 h-10 flex items-center justify-center">
+        <div className="mt-8 h-10 flex items-center justify-center">
           {isWeightStable && weight > 0 && (
-            <div className="glass-pill flex items-center gap-2.5 px-6 py-2.5 rounded-full animate-scale-in">
-              <div className="w-2 h-2 bg-foreground/60 rounded-full animate-pulse" />
-              <span className="text-body text-sm font-bold tracking-wider opacity-60">STABLE</span>
+            <div className="futureplay-pill flex items-center gap-2.5 px-6 py-2.5 animate-scale-in">
+              <div className="w-2 h-2 bg-foreground rounded-full opacity-60" />
+              <span className="text-label text-sm tracking-wider opacity-50">STABLE</span>
             </div>
           )}
         </div>
 
-        {/* Humor Text */}
-        <div className="mt-4">
+        {/* Humor Line - Centered, elegant, small, smart */}
+        <div className="mt-6">
           <HumorText 
             tier={priceTier}
             price={price}
