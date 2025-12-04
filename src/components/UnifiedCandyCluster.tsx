@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { PriceTier } from "@/lib/humorMessages";
 import { useEffect, useState, useRef } from "react";
+import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 
 interface UnifiedCandyClusterProps {
   weight: number;
@@ -85,6 +86,10 @@ export const UnifiedCandyCluster = ({
   const [stablePulse, setStablePulse] = useState(false);
   const prevStableRef = useRef(isStable);
 
+  // Animated counters - smooth counting animation
+  const animatedWeight = useAnimatedCounter(weight, 1200);
+  const animatedPrice = useAnimatedCounter(price, 1200);
+
   // Stable pulse and sparkle trigger
   useEffect(() => {
     if (isStable && !prevStableRef.current && weight > 0) {
@@ -98,8 +103,8 @@ export const UnifiedCandyCluster = ({
     prevStableRef.current = isStable;
   }, [isStable, weight]);
 
-  const weightChars = formatNumberToChars(weight);
-  const priceChars = formatNumberToChars(price);
+  const weightChars = formatNumberToChars(animatedWeight);
+  const priceChars = formatNumberToChars(animatedPrice);
 
   return (
     <div className={cn("flex flex-col items-center justify-center w-full relative", className)}>
