@@ -118,6 +118,8 @@ All colors MUST be HSL.
     box-shadow: 0 0 20px hsla(347 81% 84% / 0.4), var(--shadow-soft);
   }
 
+  /* MUMS Candy Scale Animations */
+  
   @keyframes glow-pulse {
     0%, 100% {
       filter: drop-shadow(0 0 20px hsl(var(--glow-color) / 0.6));
@@ -129,5 +131,140 @@ All colors MUST be HSL.
 
   .animate-glow-pulse {
     animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  /* Price pop animation */
+  @keyframes price-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .animate-price-pop {
+    animation: price-pop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Bucket bounce for hype tier */
+  @keyframes bucket-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-bucket-bounce {
+    animation: bucket-bounce 0.8s ease-in-out infinite;
+  }
+
+  /* Bucket wiggle for legendary tier */
+  @keyframes bucket-wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+
+  .animate-bucket-wiggle {
+    animation: bucket-wiggle 0.5s ease-in-out infinite;
+  }
+
+  /* Sparkle animation */
+  @keyframes sparkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .animate-sparkle {
+    animation: sparkle 1s ease-in-out infinite;
+  }
+
+  /* Floating hearts */
+  @keyframes float-hearts {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    50% { transform: translateY(-10px) rotate(10deg); opacity: 1; }
+  }
+
+  .animate-float-hearts {
+    animation: float-hearts 2s ease-in-out infinite;
+  }
+
+  /* Candy overflow */
+  @keyframes candy-overflow {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-3px); }
+    75% { transform: translateY(2px); }
+  }
+
+  .animate-candy-overflow {
+    animation: candy-overflow 1.5s ease-in-out infinite;
+  }
+
+  /* Gauge settle bounce */
+  @keyframes gauge-settle {
+    0% { transform: rotate(-90deg) scale(1); }
+    30% { transform: rotate(-90deg) scale(1.03); }
+    60% { transform: rotate(-90deg) scale(0.98); }
+    100% { transform: rotate(-90deg) scale(1); }
+  }
+
+  .animate-gauge-settle {
+    animation: gauge-settle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Mascot shake */
+  @keyframes mascot-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+
+  .animate-mascot-shake {
+    animation: mascot-shake 0.5s ease-in-out;
+  }
+
+  /* Mascot bounce */
+  @keyframes mascot-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-mascot-bounce {
+    animation: mascot-bounce 0.5s ease-out;
+  }
+
+  /* Slow bounce for decorations */
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 1.5s ease-in-out infinite;
+  }
+
+  /* Slow spin */
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+  }
+
+  /* Weight number entrance */
+  @keyframes weight-entrance {
+    0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .animate-weight-entrance {
+    animation: weight-entrance 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  /* Stable indicator pulse */
+  @keyframes stable-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.3); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+  }
+
+  .animate-stable-pulse {
+    animation: stable-pulse 2s ease-in-out infinite;
   }
 }
