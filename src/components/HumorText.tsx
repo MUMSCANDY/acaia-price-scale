@@ -12,24 +12,25 @@ export const HumorText = ({ tier, price, className }: HumorTextProps) => {
   const [message, setMessage] = useState(() => getRandomMessage(tier));
   const [isAnimating, setIsAnimating] = useState(false);
   const prevTierRef = useRef(tier);
-  const prevPriceRef = useRef(price);
 
+  // Change message when tier changes
   useEffect(() => {
-    const tierChanged = prevTierRef.current !== tier;
-    const significantPriceJump = Math.abs(price - prevPriceRef.current) > 50;
-    
-    if (tierChanged || (significantPriceJump && price > 0)) {
+    if (prevTierRef.current !== tier) {
       setIsAnimating(true);
       
       setTimeout(() => {
         setMessage(getRandomMessage(tier));
         setIsAnimating(false);
       }, 200);
+      
+      prevTierRef.current = tier;
     }
-    
-    prevTierRef.current = tier;
-    prevPriceRef.current = price;
-  }, [tier, price]);
+  }, [tier]);
+
+  // Also update message on initial mount based on tier
+  useEffect(() => {
+    setMessage(getRandomMessage(tier));
+  }, []);
 
   // Don't show message if no weight
   if (price === 0) {
