@@ -14,26 +14,45 @@ interface UnifiedCandyClusterProps {
   className?: string;
 }
 
-// Slot machine digit component
+// Slot machine digit component with smooth warping
 const SlotDigit = ({ digit, isAnimating }: { digit: string; isAnimating: boolean }) => {
   const [displayDigit, setDisplayDigit] = useState(digit);
-  const [animationClass, setAnimationClass] = useState("");
+  const [phase, setPhase] = useState<'idle' | 'exit' | 'enter'>('idle');
 
   useEffect(() => {
     if (digit !== displayDigit) {
-      setAnimationClass("animate-slot-out");
+      // Start exit animation
+      setPhase('exit');
       
-      const timeout = setTimeout(() => {
+      const exitTimeout = setTimeout(() => {
         setDisplayDigit(digit);
-        setAnimationClass("animate-slot-in");
-      }, 280); // Match the exit animation duration
+        setPhase('enter');
+        
+        // Return to idle after enter animation
+        const enterTimeout = setTimeout(() => {
+          setPhase('idle');
+        }, 600);
+        
+        return () => clearTimeout(enterTimeout);
+      }, 250);
 
-      return () => clearTimeout(timeout);
+      return () => clearTimeout(exitTimeout);
     }
   }, [digit, displayDigit]);
 
   return (
-    <span className={cn("inline-block", animationClass)}>
+    <span 
+      className="inline-block transition-all duration-300 ease-out will-change-transform"
+      style={{
+        transform: phase === 'exit' 
+          ? 'translateY(60%) scaleY(0.6) scaleX(1.1) skewX(-3deg)' 
+          : phase === 'enter'
+          ? 'translateY(-20%) scaleY(1.15) scaleX(0.95) skewX(2deg)'
+          : 'translateY(0) scaleY(1) scaleX(1) skewX(0deg)',
+        opacity: phase === 'exit' ? 0.3 : phase === 'enter' ? 0.9 : 1,
+        filter: phase === 'idle' ? 'blur(0px)' : 'blur(1px)',
+      }}
+    >
       {displayDigit}
     </span>
   );
