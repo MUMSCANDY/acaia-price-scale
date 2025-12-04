@@ -1,135 +1,155 @@
-// Celebratory firework effect for high weights
+// Elegant ceremony celebration effect
 import { useEffect, useState } from "react";
 
-interface Particle {
+interface LightRay {
   id: number;
-  color: string;
+  angle: number;
+  length: number;
+  delay: number;
+  opacity: number;
+}
+
+interface GlowBurst {
+  id: number;
+  x: string;
+  y: string;
   size: number;
-  tx: number; // target X offset
-  ty: number; // target Y offset
   delay: number;
 }
 
-interface Burst {
-  id: number;
-  x: number;
-  y: number;
-  particles: Particle[];
-}
-
-const COLORS = [
-  'rgba(255,100,150,0.9)',
-  'rgba(255,180,200,0.9)',
-  'rgba(255,255,255,0.95)',
-  'rgba(255,220,230,0.9)',
-  'rgba(255,140,180,0.9)',
-  'rgba(255,80,130,0.85)',
-];
-
-const createBurst = (id: number): Burst => {
-  const x = 15 + Math.random() * 70; // 15-85% of screen width
-  const y = 15 + Math.random() * 50; // 15-65% of screen height
-  
-  const particles: Particle[] = [];
-  const particleCount = 14 + Math.floor(Math.random() * 10);
-  
-  for (let i = 0; i < particleCount; i++) {
-    const angle = (360 / particleCount) * i + Math.random() * 15;
-    const speed = 80 + Math.random() * 100;
-    const rad = (angle * Math.PI) / 180;
-    
-    particles.push({
-      id: i,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      size: 5 + Math.random() * 8,
-      tx: Math.cos(rad) * speed,
-      ty: Math.sin(rad) * speed,
-      delay: Math.random() * 80,
-    });
-  }
-  
-  return { id, x, y, particles };
-};
-
 export const FireworkEffect = ({ active }: { active: boolean }) => {
-  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!active) {
-      setBursts([]);
-      return;
+    if (active) {
+      setShow(true);
+      const timeout = setTimeout(() => setShow(false), 3000);
+      return () => clearTimeout(timeout);
+    } else {
+      setShow(false);
     }
-
-    // Create initial bursts
-    const initialBursts = [
-      createBurst(0),
-      createBurst(1),
-      createBurst(2),
-    ];
-    setBursts(initialBursts);
-
-    // Add more bursts over time
-    let burstCount = 3;
-    const interval = setInterval(() => {
-      if (burstCount >= 8) {
-        clearInterval(interval);
-        return;
-      }
-      setBursts(prev => [...prev, createBurst(burstCount)]);
-      burstCount++;
-    }, 350);
-
-    // Clear after animation
-    const timeout = setTimeout(() => {
-      setBursts([]);
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
   }, [active]);
 
-  if (!active || bursts.length === 0) return null;
+  if (!show) return null;
+
+  // Light rays emanating from corners
+  const rays: LightRay[] = Array.from({ length: 8 }, (_, i) => ({
+    id: i,
+    angle: i * 45,
+    length: 150 + Math.random() * 100,
+    delay: i * 80,
+    opacity: 0.4 + Math.random() * 0.3,
+  }));
+
+  // Soft glow bursts positioned at edges
+  const glowBursts: GlowBurst[] = [
+    { id: 0, x: '5%', y: '20%', size: 120, delay: 0 },
+    { id: 1, x: '95%', y: '25%', size: 100, delay: 200 },
+    { id: 2, x: '8%', y: '70%', size: 90, delay: 400 },
+    { id: 3, x: '92%', y: '65%', size: 110, delay: 300 },
+    { id: 4, x: '3%', y: '45%', size: 80, delay: 500 },
+    { id: 5, x: '97%', y: '40%', size: 85, delay: 600 },
+  ];
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {bursts.map((burst) => (
+    <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
+      {/* Soft edge glow bursts */}
+      {glowBursts.map((burst) => (
         <div
           key={burst.id}
-          className="absolute"
+          className="absolute rounded-full ceremony-glow"
           style={{
-            left: `${burst.x}%`,
-            top: `${burst.y}%`,
+            left: burst.x,
+            top: burst.y,
+            width: burst.size,
+            height: burst.size,
+            transform: 'translate(-50%, -50%)',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,200,220,0.4) 40%, transparent 70%)',
+            boxShadow: '0 0 60px rgba(255,200,220,0.5), 0 0 100px rgba(255,150,180,0.3)',
+            animationDelay: `${burst.delay}ms`,
           }}
-        >
-          {burst.particles.map((particle) => (
-            <div
-              key={particle.id}
-              className="absolute rounded-full"
-              style={{
-                width: particle.size,
-                height: particle.size,
-                background: particle.color,
-                boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`,
-                animation: `firework-fly 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`,
-                animationDelay: `${particle.delay}ms`,
-                '--tx': `${particle.tx}px`,
-                '--ty': `${particle.ty}px`,
-              } as React.CSSProperties}
-            />
-          ))}
-          {/* Center flash */}
-          <div 
-            className="absolute w-6 h-6 -ml-3 -mt-3 rounded-full"
-            style={{ 
-              background: 'rgba(255,255,255,0.95)',
-              boxShadow: '0 0 40px rgba(255,200,220,0.9), 0 0 80px rgba(255,150,180,0.6)',
-              animation: 'firework-flash 0.7s ease-out forwards',
+        />
+      ))}
+
+      {/* Top shimmer bar */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-1 ceremony-shimmer"
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+          boxShadow: '0 0 30px rgba(255,200,220,0.6), 0 2px 40px rgba(255,150,180,0.4)',
+        }}
+      />
+
+      {/* Bottom shimmer bar */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-1 ceremony-shimmer"
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+          boxShadow: '0 0 30px rgba(255,200,220,0.6), 0 -2px 40px rgba(255,150,180,0.4)',
+          animationDelay: '300ms',
+        }}
+      />
+
+      {/* Left edge shine */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-1 ceremony-edge-glow"
+        style={{
+          background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',
+          boxShadow: '0 0 40px rgba(255,200,220,0.5), 2px 0 60px rgba(255,150,180,0.3)',
+        }}
+      />
+
+      {/* Right edge shine */}
+      <div 
+        className="absolute right-0 top-0 bottom-0 w-1 ceremony-edge-glow"
+        style={{
+          background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',
+          boxShadow: '0 0 40px rgba(255,200,220,0.5), -2px 0 60px rgba(255,150,180,0.3)',
+          animationDelay: '200ms',
+        }}
+      />
+
+      {/* Corner light rays - top left */}
+      <div className="absolute top-0 left-0 w-48 h-48 overflow-hidden">
+        {rays.slice(0, 3).map((ray) => (
+          <div
+            key={ray.id}
+            className="absolute top-0 left-0 origin-top-left ceremony-ray"
+            style={{
+              width: 2,
+              height: ray.length,
+              background: `linear-gradient(180deg, rgba(255,255,255,${ray.opacity}) 0%, transparent 100%)`,
+              transform: `rotate(${30 + ray.id * 20}deg)`,
+              animationDelay: `${ray.delay}ms`,
             }}
           />
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* Corner light rays - top right */}
+      <div className="absolute top-0 right-0 w-48 h-48 overflow-hidden">
+        {rays.slice(3, 6).map((ray) => (
+          <div
+            key={ray.id}
+            className="absolute top-0 right-0 origin-top-right ceremony-ray"
+            style={{
+              width: 2,
+              height: ray.length,
+              background: `linear-gradient(180deg, rgba(255,255,255,${ray.opacity}) 0%, transparent 100%)`,
+              transform: `rotate(${-30 - (ray.id - 3) * 20}deg)`,
+              animationDelay: `${ray.delay}ms`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Subtle center highlight - very soft, doesn't cover numbers */}
+      <div 
+        className="absolute inset-0 ceremony-overlay"
+        style={{
+          background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 50%)',
+        }}
+      />
     </div>
   );
 };
