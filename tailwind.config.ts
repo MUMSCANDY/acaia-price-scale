@@ -52,9 +52,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Outfit', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'Outfit', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        display: ['Nunito', 'system-ui', 'sans-serif'],
         digital: ['Orbitron', 'monospace'],
+        mums: ['Nunito', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'soft': 'var(--shadow-soft)',

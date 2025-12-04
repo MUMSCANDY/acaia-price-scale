@@ -6,11 +6,10 @@ import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
 import { ConnectionHelpDialog } from "./ConnectionHelpDialog";
 import { getCurrencyByCode } from "@/lib/currencies";
-import { CandyBucket } from "./CandyBucket";
 import { CircularGauge } from "./CircularGauge";
 import { HumorText } from "./HumorText";
-import { MascotBubble } from "./MascotBubble";
-import { getPriceTier, getTierFillPercent } from "@/lib/humorMessages";
+import { MumsMascot } from "./MumsMascot";
+import { getPriceTier } from "@/lib/humorMessages";
 
 interface ScaleDisplayProps {
   weight: number;
@@ -114,7 +113,6 @@ export const ScaleDisplay = ({
 
   const price = calculatePrice();
   const priceTier = getPriceTier(price);
-  const fillPercent = getTierFillPercent(priceTier);
   const currencySymbol = getCurrencyByCode(currency).symbol;
 
   return (
@@ -211,21 +209,11 @@ export const ScaleDisplay = ({
       {/* Main Content */}
       <main className="relative z-10 flex-1 flex items-center justify-center px-8">
         <div className="flex items-center gap-16">
-          {/* Left: Candy Bucket with Mascot - Fixed width */}
-          <div className="flex flex-col items-center gap-4 w-44">
-            {/* Mascot Bubble */}
-            <MascotBubble 
+          {/* Left: MUMS Mascot */}
+          <div className="w-56">
+            <MumsMascot 
               tier={priceTier}
-              isStable={isWeightStable}
-              weight={weight}
-              className="w-24 h-20"
-            />
-            
-            {/* Candy Bucket */}
-            <CandyBucket 
-              tier={priceTier}
-              fillPercent={weight > 0 ? fillPercent : 0}
-              className="w-40 h-44"
+              className="w-full h-auto"
             />
           </div>
 
