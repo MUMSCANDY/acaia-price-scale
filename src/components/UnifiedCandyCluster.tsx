@@ -15,13 +15,26 @@ interface UnifiedCandyClusterProps {
   className?: string;
 }
 
-// Simple digit component - always visible
+// Digit component with subtle scale animation on change
 const SlotDigit = ({ digit, index, isStable }: { digit: string; index: number; isStable: boolean }) => {
+  const [isChanging, setIsChanging] = useState(false);
+  const prevDigitRef = useRef(digit);
+
+  useEffect(() => {
+    if (digit !== prevDigitRef.current) {
+      setIsChanging(true);
+      const timeout = setTimeout(() => setIsChanging(false), 150);
+      prevDigitRef.current = digit;
+      return () => clearTimeout(timeout);
+    }
+  }, [digit]);
+
   return (
     <span 
       className={cn(
-        "inline-block origin-center",
-        isStable ? "digit-stable" : "digit-counting"
+        "inline-block origin-center transition-transform duration-150",
+        isChanging && "digit-pop-subtle",
+        isStable && !isChanging && "digit-stable"
       )}
       style={{ 
         animationDelay: isStable ? `${index * 100}ms` : '0ms',
