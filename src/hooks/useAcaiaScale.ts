@@ -548,7 +548,7 @@ export const useAcaiaScale = (): UseAcaiaScaleReturn => {
       setIsConnected(true);
       setConnectionStatus("connected");
       setWeight(0);
-      setBattery(85);
+      // Battery will be updated when we receive actual data from scale
       autoReconnectEnabledRef.current = true;
       
       // Start periodic diagnostics logging every 10 seconds
