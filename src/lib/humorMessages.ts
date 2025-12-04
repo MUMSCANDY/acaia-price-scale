@@ -1,4 +1,5 @@
-// MUMS Candy Scale - Dynamic Humor Messages by Price Tier
+// MUMS FUTUREPLAY - Pixel-Modern Humor Engine
+// Short, smart, slightly cheeky, Gen-Z premium tone
 
 export type PriceTier = 'tiny' | 'nice' | 'hype' | 'legendary';
 
@@ -11,52 +12,44 @@ export const getPriceTier = (price: number): PriceTier => {
 
 export const humorMessages: Record<PriceTier, string[]> = {
   tiny: [
-    "A little more joy won't hurt.",
-    "Go on… you deserve it.",
-    "Tiny treat today? Your future self says add more.",
-    "This candy bucket has commitment issues.",
-    "Room for one more? Always.",
-    "Your bucket looks lonely.",
-    "Just the tip of the iceberg.",
-    "Starting small? We respect that. But also…",
-    "The bucket whispers: more.",
-    "Baby steps are still steps.",
+    "Just getting started.",
+    "Room for more.",
+    "The bucket awaits.",
+    "A taste of things to come.",
+    "Warm-up round.",
+    "Light but promising.",
+    "The journey begins.",
+    "Appetizer energy.",
   ],
   nice: [
-    "Nice mix. Strong choices.",
-    "Your candy personality is showing.",
-    "This is becoming delicious.",
-    "Solid selection incoming.",
+    "Solid choices.",
+    "This is becoming something.",
     "Now we're talking.",
-    "The bucket approves.",
-    "Balanced. Refined. Sweet.",
-    "You know what you're doing.",
-    "A person of taste, clearly.",
-    "The perfect afternoon pick.",
+    "Main character vibes.",
+    "Good taste confirmed.",
+    "The plot thickens.",
+    "Sweet momentum.",
+    "Getting somewhere.",
   ],
   hype: [
     "Elite candy energy.",
-    "This bucket is flexing.",
-    "You're building a masterpiece.",
-    "Strong game. Very strong.",
-    "Main character energy detected.",
-    "This mix has ambition.",
-    "Legend status: approaching.",
-    "The bucket is impressed.",
-    "We see greatness forming.",
-    "You've unlocked something special.",
+    "This mix goes hard.",
+    "Peak munch behavior.",
+    "Too good to share.",
+    "Masterclass in progress.",
+    "Big scoop energy.",
+    "The flex is real.",
+    "Certified premium.",
   ],
   legendary: [
-    "Full candy royalty.",
-    "This is not a mix. This is an experience.",
-    "Your dentist loves you already.",
-    "Respect. This is art.",
-    "We bow to you.",
-    "Hall of Fame material.",
-    "This bucket has never been happier.",
-    "Absolute legend. Chef's kiss.",
-    "The candy gods smile upon you.",
-    "This mix will be remembered.",
+    "A legendary scoop.",
+    "Hall of fame material.",
+    "Absolutely iconic.",
+    "Pure greatness.",
+    "This is art.",
+    "Maximum achieved.",
+    "The ultimate mix.",
+    "Respect earned.",
   ],
 };
 
@@ -65,7 +58,7 @@ export const getRandomMessage = (tier: PriceTier): string => {
   return messages[Math.floor(Math.random() * messages.length)];
 };
 
-// Mascot expressions based on tier
+// Mascot expressions based on tier (kept for compatibility)
 export type MascotExpression = 'sad' | 'neutral' | 'happy' | 'excited' | 'heartEyes';
 
 export const getTierExpression = (tier: PriceTier): MascotExpression => {

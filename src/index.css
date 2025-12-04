@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* MUMS FUTUREPLAY Design System */
+/* MUMS FUTUREPLAY Pixel-Modern Design System */
 
 @layer base {
   :root {
     /* Primary: Bubblegum Pink #F7B4C3 */
-    --background: 340 50% 86%;
+    --background: 347 52% 84%;
     --foreground: 0 0% 0%;
 
     --card: 347 45% 88%;
@@ -37,13 +37,10 @@
 
     --radius: 1.5rem;
 
-    /* FUTUREPLAY Shadows - Soft 8-12% black diffuse */
+    /* FUTUREPLAY Shadows */
     --shadow-soft: 0px 4px 16px rgba(0, 0, 0, 0.08);
     --shadow-medium: 0px 8px 24px rgba(0, 0, 0, 0.12);
     --shadow-lifted: 0px 12px 32px rgba(0, 0, 0, 0.12);
-    
-    /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -69,7 +66,7 @@
   
   .text-label {
     font-family: 'Poppins', sans-serif;
-    font-weight: 600;
+    font-weight: 500;
   }
   
   .text-micro {
@@ -77,49 +74,126 @@
     font-weight: 400;
   }
 
-  /* FUTUREPLAY Card */
-  .futureplay-card {
-    background: hsl(var(--background));
-    border: 3px solid hsl(var(--foreground));
-    border-radius: 2rem;
-    box-shadow: var(--shadow-medium);
+  /* Pixel Grid Background */
+  .pixel-grid {
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+
+  /* Pixel Underline */
+  .pixel-underline {
+    position: relative;
+  }
+  
+  .pixel-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: currentColor;
+    opacity: 0.15;
+  }
+
+  /* Pixel Dots */
+  .pixel-dots {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+  }
+  
+  .pixel-dot {
+    width: 4px;
+    height: 4px;
+    background: currentColor;
+    opacity: 0.2;
   }
 
   /* FUTUREPLAY Pill */
   .futureplay-pill {
     background: transparent;
-    border: 2px solid hsl(var(--foreground) / 0.2);
+    border: 2px solid hsl(var(--foreground) / 0.15);
     border-radius: 9999px;
   }
 
-  /* === ANIMATIONS === */
+  /* === SLOT MACHINE ANIMATIONS === */
 
+  @keyframes slot-roll-in {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    60% {
+      transform: translateY(8%);
+      opacity: 1;
+    }
+    80% {
+      transform: translateY(-3%);
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slot-roll-out {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  .animate-slot-in {
+    animation: slot-roll-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-slot-out {
+    animation: slot-roll-out 0.3s ease-in forwards;
+  }
+
+  /* Stable Pulse */
   @keyframes stable-pulse {
     0%, 100% { 
-      opacity: 0.8; 
+      transform: scale(1);
     }
     50% { 
-      opacity: 0.4; 
+      transform: scale(1.02);
     }
   }
 
   .animate-stable-pulse {
-    animation: stable-pulse 2s ease-in-out infinite;
+    animation: stable-pulse 0.4s ease-out;
   }
 
+  /* Price Pop */
   @keyframes price-pop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.03); }
-    100% { transform: scale(1); }
+    0% { 
+      transform: translateY(0) scale(1); 
+    }
+    50% { 
+      transform: translateY(-4px) scale(1.02); 
+    }
+    100% { 
+      transform: translateY(0) scale(1); 
+    }
   }
 
   .animate-price-pop {
-    animation: price-pop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: price-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
+  /* Scale In */
   @keyframes scale-in {
     0% { 
-      transform: scale(0.95); 
+      transform: scale(0.9); 
       opacity: 0; 
     }
     100% { 
@@ -132,16 +206,64 @@
     animation: scale-in 0.3s ease-out;
   }
 
-  @keyframes humor-enter {
+  /* Fade In Up */
+  @keyframes fade-in-up {
     0% { 
-      opacity: 0; 
+      opacity: 0;
+      transform: translateY(8px);
     }
     100% { 
-      opacity: 1; 
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
-  .animate-humor-enter {
-    animation: humor-enter 0.4s ease-out;
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out;
+  }
+
+  /* Pixel Sparkle */
+  @keyframes pixel-sparkle {
+    0%, 100% { 
+      opacity: 0;
+      transform: scale(0);
+    }
+    50% { 
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-sparkle {
+    animation: pixel-sparkle 0.8s ease-out;
+  }
+
+  /* Glow effect for price */
+  @keyframes subtle-glow {
+    0%, 100% {
+      text-shadow: none;
+    }
+    50% {
+      text-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .animate-glow {
+    animation: subtle-glow 0.5s ease-out;
+  }
+
+  /* Label fade in */
+  @keyframes label-fade {
+    0% { 
+      opacity: 0;
+    }
+    100% { 
+      opacity: 0.4;
+    }
+  }
+
+  .animate-label-fade {
+    animation: label-fade 0.3s ease-out 0.2s forwards;
+    opacity: 0;
   }
 }
