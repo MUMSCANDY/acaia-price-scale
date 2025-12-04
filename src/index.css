@@ -6,23 +6,23 @@
 
 @layer base {
   :root {
-    /* Gen-Z Bubblegum Pink - softer, dreamier */
-    --background: 340 55% 85%;
+    /* Gen-Z Bubblegum Pink - more saturated */
+    --background: 340 65% 82%;
     --foreground: 0 0% 0%;
 
-    --card: 340 50% 88%;
+    --card: 340 55% 86%;
     --card-foreground: 0 0% 0%;
 
-    --popover: 340 45% 90%;
+    --popover: 340 50% 88%;
     --popover-foreground: 0 0% 0%;
 
-    --primary: 340 55% 85%;
+    --primary: 340 65% 82%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 0%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 340 40% 88%;
+    --muted: 340 45% 86%;
     --muted-foreground: 0 0% 30%;
 
     --accent: 0 0% 100%;
@@ -32,7 +32,7 @@
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 0%;
-    --input: 340 50% 92%;
+    --input: 340 55% 90%;
     --ring: 0 0% 0%;
 
     --radius: 1.5rem;
@@ -74,7 +74,7 @@
     font-weight: 400;
   }
 
-  /* Cloudy Abstract Background */
+  /* Cloudy Abstract Background - More visible pink clouds */
   .cloudy-bg {
     position: relative;
     overflow: hidden;
@@ -85,13 +85,13 @@
     position: absolute;
     inset: -50%;
     background: 
-      radial-gradient(ellipse 80% 60% at 20% 30%, hsl(330 60% 88% / 0.8) 0%, transparent 50%),
-      radial-gradient(ellipse 70% 50% at 80% 20%, hsl(350 55% 90% / 0.7) 0%, transparent 45%),
-      radial-gradient(ellipse 90% 70% at 60% 80%, hsl(340 50% 82% / 0.6) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 80% at 10% 70%, hsl(355 45% 87% / 0.5) 0%, transparent 40%),
-      radial-gradient(ellipse 50% 40% at 90% 60%, hsl(335 55% 86% / 0.6) 0%, transparent 45%);
+      radial-gradient(ellipse 80% 60% at 20% 30%, hsl(330 70% 85% / 0.9) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 80% 20%, hsl(350 65% 88% / 0.8) 0%, transparent 45%),
+      radial-gradient(ellipse 90% 70% at 60% 80%, hsl(340 60% 78% / 0.7) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 80% at 10% 70%, hsl(355 55% 84% / 0.6) 0%, transparent 40%),
+      radial-gradient(ellipse 50% 40% at 90% 60%, hsl(335 65% 82% / 0.7) 0%, transparent 45%);
     pointer-events: none;
-    animation: cloud-drift 30s ease-in-out infinite alternate;
+    animation: cloud-drift 25s ease-in-out infinite alternate;
   }
   
   @keyframes cloud-drift {
@@ -99,10 +99,10 @@
       transform: translate(0, 0) scale(1);
     }
     50% {
-      transform: translate(-3%, 2%) scale(1.02);
+      transform: translate(-4%, 3%) scale(1.03);
     }
     100% {
-      transform: translate(2%, -2%) scale(1);
+      transform: translate(3%, -2%) scale(1);
     }
   }
 
@@ -157,49 +157,54 @@
     border-radius: 9999px;
   }
 
-  /* === SMOOTH PLAYFUL ANIMATIONS === */
+  /* === SMOOTH PLAYFUL NUMBER ANIMATIONS === */
 
   @keyframes number-roll {
     0% {
-      transform: translateY(-50%);
+      transform: translateY(-80%) scale(0.8);
       opacity: 0;
-      filter: blur(4px);
+      filter: blur(8px);
     }
-    40% {
+    30% {
       opacity: 1;
+      filter: blur(2px);
+    }
+    50% {
+      transform: translateY(8%) scale(1.02);
       filter: blur(0px);
     }
     70% {
-      transform: translateY(4%);
+      transform: translateY(-4%) scale(0.99);
     }
     85% {
-      transform: translateY(-2%);
+      transform: translateY(2%) scale(1.005);
     }
     100% {
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
       opacity: 1;
+      filter: blur(0px);
     }
   }
 
   @keyframes number-exit {
     0% {
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
       opacity: 1;
       filter: blur(0px);
     }
     100% {
-      transform: translateY(50%);
+      transform: translateY(80%) scale(0.8);
       opacity: 0;
-      filter: blur(4px);
+      filter: blur(8px);
     }
   }
 
   .animate-slot-in {
-    animation: number-roll 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: number-roll 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .animate-slot-out {
-    animation: number-exit 0.25s ease-out forwards;
+    animation: number-exit 0.2s ease-out forwards;
   }
 
   /* Stable Pulse - Softer */
