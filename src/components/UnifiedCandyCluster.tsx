@@ -120,7 +120,7 @@ export const UnifiedCandyCluster = ({
         stablePulse && "animate-stable-pulse"
       )}>
         <div 
-          className="font-display font-extrabold text-foreground leading-[0.85] tracking-tighter overflow-hidden"
+          className="font-display font-extrabold text-foreground leading-[0.85] tracking-tighter py-4"
           style={{ fontSize: 'clamp(140px, 28vw, 280px)' }}
         >
           {weightChars.map((char, i) => (
@@ -147,7 +147,7 @@ export const UnifiedCandyCluster = ({
       {/* Price - Secondary but still bold */}
       <div className="text-center transition-all duration-300">
         <div 
-          className="font-display font-extrabold text-foreground leading-[0.9] tracking-tight overflow-hidden"
+          className="font-display font-extrabold text-foreground leading-[0.9] tracking-tight py-2"
           style={{ fontSize: 'clamp(80px, 18vw, 180px)' }}
         >
           {currencySymbol}
