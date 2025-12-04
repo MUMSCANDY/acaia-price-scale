@@ -121,90 +121,86 @@ export const ScaleDisplay = ({
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
-      {/* Subtle background decoration */}
+      {/* Subtle ambient background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 right-10 w-[300px] h-[300px] bg-foreground/3 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-foreground/3 rounded-full blur-3xl" />
+        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-foreground/[0.02] rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-foreground/[0.02] rounded-full blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-8 py-4">
-        {/* Left: Connection & Battery */}
+      {/* Header - Refined */}
+      <header className="relative z-10 flex items-center justify-between px-8 py-5">
+        {/* Left: Status pills */}
         <div className="flex items-center gap-3">
           <div className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground/30 transition-all duration-300",
-            connectionStatus === "connected" && "border-foreground"
+            "glass-pill flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all duration-300",
+            connectionStatus === "connected" && "border-foreground/30"
           )}>
             {connectionStatus === "connected" ? (
-              <Wifi className="w-4 h-4" />
+              <Wifi className="w-4 h-4 opacity-80" />
             ) : connectionStatus === "connecting" ? (
-              <Wifi className="w-4 h-4 animate-pulse" />
+              <Wifi className="w-4 h-4 animate-pulse opacity-60" />
             ) : (
-              <WifiOff className="w-4 h-4 opacity-50" />
+              <WifiOff className="w-4 h-4 opacity-40" />
             )}
+            <span className="text-body text-sm font-semibold opacity-70">
+              {connectionStatus === "connected" ? "Connected" : connectionStatus === "connecting" ? "Connecting..." : "Offline"}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground/30">
-            <Battery className="w-4 h-4" />
-            <span className="font-body text-sm font-semibold">{battery}%</span>
+          <div className="glass-pill flex items-center gap-2.5 px-5 py-2.5 rounded-full">
+            <Battery className="w-4 h-4 opacity-60" />
+            <span className="text-body text-sm font-semibold opacity-70">{battery}%</span>
           </div>
         </div>
 
-        {/* Right: Controls */}
+        {/* Right: Action buttons */}
         <div className="flex items-center gap-3">
           <button 
             onClick={isConnected ? onTare : undefined} 
             disabled={!isConnected}
             className={cn(
-              "w-12 h-12 rounded-full border-2 border-foreground/30 flex items-center justify-center transition-all duration-300",
+              "glass-pill w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
               isConnected 
                 ? "hover:bg-foreground/10 active:scale-95 cursor-pointer" 
                 : "opacity-30 cursor-not-allowed"
             )}
             title="Tare"
           >
-            <Scale className="w-5 h-5" />
+            <Scale className="w-5 h-5 opacity-70" />
           </button>
 
-          {!isConnected ? (
-            <button 
-              onClick={onToggleConnection}
-              className="w-12 h-12 rounded-full border-2 border-foreground bg-foreground text-background flex items-center justify-center hover:bg-foreground/90 active:scale-95 transition-all duration-300"
-              title="Connect"
-            >
-              <Wifi className="w-5 h-5" />
-            </button>
-          ) : (
-            <button 
-              onClick={onToggleConnection}
-              className="w-12 h-12 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground/10 active:scale-95 transition-all duration-300"
-              title="Disconnect"
-            >
-              <Wifi className="w-5 h-5" />
-            </button>
-          )}
+          <button 
+            onClick={onToggleConnection}
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95",
+              !isConnected 
+                ? "bg-foreground text-background hover:bg-foreground/90" 
+                : "glass-pill hover:bg-foreground/10"
+            )}
+            title={isConnected ? "Disconnect" : "Connect"}
+          >
+            <Wifi className="w-5 h-5" />
+          </button>
 
           <button 
             onClick={() => setIsHelpDialogOpen(true)}
-            className="w-12 h-12 rounded-full border-2 border-foreground/30 flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
+            className="glass-pill w-12 h-12 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
             title="Help"
           >
-            <HelpCircle className="w-5 h-5" />
+            <HelpCircle className="w-5 h-5 opacity-70" />
           </button>
 
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <button 
             onClick={handleSettingsClick} 
-            className="rounded-full w-12 h-12 border-2 border-foreground/30 hover:bg-foreground/10"
+            className="glass-pill w-12 h-12 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
             title="Settings"
           >
-            <Settings className="w-5 h-5" />
-          </Button>
+            <Settings className="w-5 h-5 opacity-70" />
+          </button>
         </div>
       </header>
 
-      {/* Main Content - Unified Cluster Layout */}
+      {/* Main Content */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-8">
         {/* Unified Candy Cluster */}
         <UnifiedCandyCluster 
@@ -219,16 +215,16 @@ export const ScaleDisplay = ({
         />
 
         {/* Stable indicator */}
-        <div className="mt-4 h-8 flex items-center justify-center">
+        <div className="mt-6 h-10 flex items-center justify-center">
           {isWeightStable && weight > 0 && (
-            <div className="flex items-center gap-2 px-5 py-2 rounded-full border-2 border-foreground animate-scale-in animate-stable-pulse">
-              <div className="w-2 h-2 bg-foreground rounded-full" />
-              <span className="font-display text-sm font-bold tracking-wide">STABLE</span>
+            <div className="glass-pill flex items-center gap-2.5 px-6 py-2.5 rounded-full animate-scale-in">
+              <div className="w-2 h-2 bg-foreground/60 rounded-full animate-pulse" />
+              <span className="text-body text-sm font-bold tracking-wider opacity-60">STABLE</span>
             </div>
           )}
         </div>
 
-        {/* Humor Text - centered below cluster */}
+        {/* Humor Text */}
         <div className="mt-4">
           <HumorText 
             tier={priceTier}
@@ -236,8 +232,6 @@ export const ScaleDisplay = ({
           />
         </div>
       </main>
-
-      {/* No footer - humor text moved inline */}
 
       {/* PIN Dialog */}
       <PinDialog 

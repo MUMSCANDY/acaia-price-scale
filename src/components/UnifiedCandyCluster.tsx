@@ -14,9 +14,6 @@ interface UnifiedCandyClusterProps {
   className?: string;
 }
 
-// Candy shapes for the bucket fill
-const candyShapes = ['circle', 'oval', 'rect', 'lollipop', 'wrapped'];
-
 export const UnifiedCandyCluster = ({
   weight,
   price,
@@ -29,21 +26,21 @@ export const UnifiedCandyCluster = ({
   className
 }: UnifiedCandyClusterProps) => {
   const [displayPercent, setDisplayPercent] = useState(0);
-  const [candies, setCandies] = useState<Array<{ id: number; x: number; y: number; type: string; delay: number }>>([]);
   const [priceAnimating, setPriceAnimating] = useState(false);
   const prevPriceRef = useRef(price);
 
-  // Animate gauge fill
+  // Animate gauge fill with spring physics
   useEffect(() => {
     const targetPercent = Math.min((weight / maxWeight) * 100, 100);
-    const duration = 600;
+    const duration = 800;
     const start = displayPercent;
     const startTime = Date.now();
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      // Spring easing
+      const easeOut = 1 - Math.pow(1 - progress, 4);
       const current = start + (targetPercent - start) * easeOut;
       setDisplayPercent(current);
       if (progress < 1) requestAnimationFrame(animate);
@@ -51,325 +48,282 @@ export const UnifiedCandyCluster = ({
     requestAnimationFrame(animate);
   }, [weight, maxWeight]);
 
-  // Generate candy pieces
-  useEffect(() => {
-    const numCandies = Math.floor((fillPercent / 100) * 15);
-    const newCandies = [];
-    for (let i = 0; i < numCandies; i++) {
-      newCandies.push({
-        id: i,
-        x: 15 + (i % 5) * 14 + Math.random() * 6,
-        y: 70 - (Math.floor(i / 5) * 10) - Math.random() * 4,
-        type: candyShapes[i % candyShapes.length],
-        delay: i * 0.04,
-      });
-    }
-    setCandies(newCandies);
-  }, [fillPercent]);
-
   // Price animation trigger
   useEffect(() => {
     if (price !== prevPriceRef.current && price > 0) {
       setPriceAnimating(true);
-      setTimeout(() => setPriceAnimating(false), 400);
+      setTimeout(() => setPriceAnimating(false), 500);
     }
     prevPriceRef.current = price;
   }, [price]);
 
   // Gauge calculations
-  const radius = 120;
-  const strokeWidth = 12;
+  const radius = 110;
+  const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
   const strokeOffset = circumference - (displayPercent / 100) * circumference;
 
-  // Bucket expression based on tier
-  const getBucketExpression = () => {
+  // Get character expression based on tier
+  const getCharacterFace = () => {
     switch (tier) {
       case 'tiny':
         return (
           <>
-            <ellipse cx="32" cy="52" rx="3" ry="2.5" className="fill-foreground" />
-            <ellipse cx="48" cy="52" rx="3" ry="2.5" className="fill-foreground" />
-            <path d="M 35 60 Q 40 63 45 60" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" className="text-foreground" />
+            {/* Eyes - slightly worried */}
+            <circle cx="35" cy="52" r="4" className="fill-foreground" />
+            <circle cx="55" cy="52" r="4" className="fill-foreground" />
+            <circle cx="36" cy="51" r="1.5" className="fill-background" />
+            <circle cx="56" cy="51" r="1.5" className="fill-background" />
+            {/* Slight frown */}
+            <path d="M 38 64 Q 45 61 52 64" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" className="text-foreground" />
           </>
         );
       case 'nice':
         return (
           <>
-            <path d="M 29 50 Q 32 46 35 50" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" className="text-foreground" />
-            <path d="M 45 50 Q 48 46 51 50" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" className="text-foreground" />
-            <path d="M 32 58 Q 40 66 48 58" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" className="text-foreground" />
-            <ellipse cx="26" cy="56" rx="4" ry="2" className="fill-foreground/15" />
-            <ellipse cx="54" cy="56" rx="4" ry="2" className="fill-foreground/15" />
+            {/* Happy eyes */}
+            <circle cx="35" cy="52" r="4.5" className="fill-foreground" />
+            <circle cx="55" cy="52" r="4.5" className="fill-foreground" />
+            <circle cx="36.5" cy="51" r="1.5" className="fill-background" />
+            <circle cx="56.5" cy="51" r="1.5" className="fill-background" />
+            {/* Blush */}
+            <ellipse cx="28" cy="58" rx="5" ry="3" className="fill-foreground/10" />
+            <ellipse cx="62" cy="58" rx="5" ry="3" className="fill-foreground/10" />
+            {/* Happy smile */}
+            <path d="M 36 63 Q 45 72 54 63" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" className="text-foreground" />
           </>
         );
       case 'hype':
         return (
           <>
+            {/* Excited star eyes */}
             <g className="animate-sparkle">
-              <path d="M 32 49 L 33.5 51 L 36 51 L 34.5 53 L 35.5 55 L 32 53.5 L 28.5 55 L 29.5 53 L 28 51 L 30.5 51 Z" className="fill-foreground" />
-              <path d="M 48 49 L 49.5 51 L 52 51 L 50.5 53 L 51.5 55 L 48 53.5 L 44.5 55 L 45.5 53 L 44 51 L 46.5 51 Z" className="fill-foreground" />
+              <path d="M 35 52 L 36.5 55 L 40 55.5 L 37.5 58 L 38 62 L 35 60 L 32 62 L 32.5 58 L 30 55.5 L 33.5 55 Z" className="fill-foreground" />
+              <path d="M 55 52 L 56.5 55 L 60 55.5 L 57.5 58 L 58 62 L 55 60 L 52 62 L 52.5 58 L 50 55.5 L 53.5 55 Z" className="fill-foreground" />
             </g>
-            <path d="M 30 58 Q 40 70 50 58" stroke="currentColor" strokeWidth="2.5" fill="hsl(var(--background))" strokeLinecap="round" className="text-foreground" />
+            {/* Big open smile */}
+            <path d="M 34 64 Q 45 78 56 64" stroke="currentColor" strokeWidth="3" fill="hsl(var(--background))" strokeLinecap="round" className="text-foreground" />
           </>
         );
       case 'legendary':
         return (
           <>
-            <path d="M 28 48 C 28 45 30 45 32 47 C 34 45 36 45 36 48 C 36 51 32 54 32 54 C 32 54 28 51 28 48" className="fill-foreground animate-pulse" />
-            <path d="M 44 48 C 44 45 46 45 48 47 C 50 45 52 45 52 48 C 52 51 48 54 48 54 C 48 54 44 51 44 48" className="fill-foreground animate-pulse" />
-            <path d="M 28 60 Q 40 74 52 60" stroke="currentColor" strokeWidth="2.5" fill="hsl(var(--background))" strokeLinecap="round" className="text-foreground" />
-            {/* Crown */}
+            {/* Heart eyes */}
+            <g className="animate-pulse">
+              <path d="M 31 50 C 31 46 34 46 35 49 C 36 46 39 46 39 50 C 39 54 35 58 35 58 C 35 58 31 54 31 50" className="fill-foreground" />
+              <path d="M 51 50 C 51 46 54 46 55 49 C 56 46 59 46 59 50 C 59 54 55 58 55 58 C 55 58 51 54 51 50" className="fill-foreground" />
+            </g>
+            {/* Ecstatic smile */}
+            <path d="M 32 64 Q 45 82 58 64" stroke="currentColor" strokeWidth="3" fill="hsl(var(--background))" strokeLinecap="round" className="text-foreground" />
+            {/* Sparkle crown */}
             <g className="animate-bounce-slow">
-              <path d="M 26 30 L 30 36 L 40 32 L 50 36 L 54 30 L 56 40 L 24 40 Z" className="fill-foreground/80" />
+              <circle cx="45" cy="28" r="3" className="fill-foreground/60" />
+              <circle cx="35" cy="32" r="2" className="fill-foreground/40" />
+              <circle cx="55" cy="32" r="2" className="fill-foreground/40" />
             </g>
           </>
         );
     }
   };
 
-  const renderBucketCandy = (candy: { id: number; x: number; y: number; type: string; delay: number }) => {
-    const baseProps = {
-      key: candy.id,
-      className: "fill-foreground/50 animate-candy-pop",
-      style: { animationDelay: `${candy.delay}s` }
-    };
-
-    switch (candy.type) {
-      case 'circle':
-        return <circle {...baseProps} cx={candy.x} cy={candy.y} r={3.5} />;
-      case 'oval':
-        return <ellipse {...baseProps} cx={candy.x} cy={candy.y} rx={4} ry={2.5} />;
-      case 'rect':
-        return <rect {...baseProps} x={candy.x - 2.5} y={candy.y - 2.5} width={5} height={5} rx={1} />;
-      case 'lollipop':
-        return (
-          <g {...baseProps}>
-            <circle cx={candy.x} cy={candy.y - 2} r={3} />
-            <rect x={candy.x - 0.5} y={candy.y + 1} width={1} height={4} />
-          </g>
-        );
-      case 'wrapped':
-        return (
-          <g {...baseProps}>
-            <ellipse cx={candy.x} cy={candy.y} rx={4} ry={2.5} />
-            <path d={`M ${candy.x - 4} ${candy.y} L ${candy.x - 6} ${candy.y - 1.5} M ${candy.x - 4} ${candy.y} L ${candy.x - 6} ${candy.y + 1.5}`} stroke="currentColor" strokeWidth="0.8" className="text-foreground/50" />
-            <path d={`M ${candy.x + 4} ${candy.y} L ${candy.x + 6} ${candy.y - 1.5} M ${candy.x + 4} ${candy.y} L ${candy.x + 6} ${candy.y + 1.5}`} stroke="currentColor" strokeWidth="0.8" className="text-foreground/50" />
-          </g>
-        );
-      default:
-        return <circle {...baseProps} cx={candy.x} cy={candy.y} r={3} />;
-    }
-  };
-
-  const fillHeight = (fillPercent / 100) * 35;
-  const fillY = 75 - fillHeight;
-
   return (
-    <div className={cn("relative flex items-center justify-center", className)}>
-      {/* Unified cluster container */}
-      <div className="relative flex items-center">
-        
-        {/* LEFT: MUMS Ice-cream Tub Style Bucket - positioned to overlap with gauge */}
-        <div className={cn(
-          "relative -mr-8 z-10 transition-transform duration-500",
-          tier === 'nice' && "animate-float-gentle",
-          tier === 'hype' && "animate-bucket-bounce",
-          tier === 'legendary' && "animate-bucket-wiggle"
-        )}>
-          <svg viewBox="0 0 80 90" className="w-48 h-auto">
-            {/* Bucket body - MUMS ice-cream tub style (no handle, rounded tub) */}
-            <defs>
-              <clipPath id="tubClip">
-                <path d="M 10 40 L 12 78 Q 12 82 18 82 L 62 82 Q 68 82 68 78 L 70 40 Q 70 36 40 36 Q 10 36 10 40 Z" />
-              </clipPath>
-            </defs>
-            
-            {/* Fill background */}
-            <rect 
-              x="10" 
-              y={fillY} 
-              width="60" 
-              height={fillHeight + 10}
-              className="fill-foreground/12 transition-all duration-700 ease-out"
-              clipPath="url(#tubClip)"
-            />
-            
-            {/* Animated candies */}
-            <g clipPath="url(#tubClip)">
-              {candies.map(candy => renderBucketCandy(candy))}
-            </g>
-            
-            {/* Tub outline - soft, rounded, no handle */}
-            <path 
-              d="M 10 40 L 12 78 Q 12 82 18 82 L 62 82 Q 68 82 68 78 L 70 40" 
-              stroke="currentColor" 
-              strokeWidth="3" 
-              fill="none" 
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-foreground"
-            />
-            
-            {/* Tub rim - flat top edge with gentle curve */}
-            <path 
-              d="M 10 40 Q 10 35 40 35 Q 70 35 70 40"
-              stroke="currentColor" 
-              strokeWidth="3" 
-              fill="hsl(var(--background))" 
-              strokeLinecap="round"
-              className="text-foreground" 
-            />
-            
-            {/* Face expression */}
-            <g className="transition-all duration-300">
-              {getBucketExpression()}
-            </g>
-            
-            {/* Overflow candies for legendary */}
-            {tier === 'legendary' && (
-              <g className="animate-candy-overflow">
-                <circle cx="28" cy="32" r="4" className="fill-foreground/60" />
-                <ellipse cx="40" cy="30" rx="5" ry="3" className="fill-foreground/55" />
-                <circle cx="52" cy="32" r="3.5" className="fill-foreground/50" />
-              </g>
-            )}
-
-            {/* Sparkles for hype/legendary */}
-            {(tier === 'hype' || tier === 'legendary') && (
-              <g className="animate-float-gentle">
-                <circle cx="75" cy="45" r="2.5" className="fill-foreground/50" />
-                <circle cx="5" cy="50" r="2" className="fill-foreground/40" />
-              </g>
-            )}
-
-            {/* Hearts for legendary */}
-            {tier === 'legendary' && (
-              <>
-                <g className="animate-float-hearts">
-                  <path d="M 72 25 C 72 22 74 22 75 24 C 76 22 78 22 78 25 C 78 28 75 31 75 31 C 75 31 72 28 72 25" className="fill-foreground/50" />
-                </g>
-                <g className="animate-float-hearts" style={{ animationDelay: '0.4s' }}>
-                  <path d="M 2 35 C 2 33 4 33 5 34 C 6 33 8 33 8 35 C 8 37 5 39 5 39 C 5 39 2 37 2 35" className="fill-foreground/40" />
-                </g>
-              </>
-            )}
-          </svg>
-        </div>
-        
-        {/* CENTER: Weight Gauge Ring */}
-        <div className="relative z-20">
-          <svg viewBox="0 0 300 300" className="w-80 h-80">
-            {/* Outer glow for stable state */}
-            {isStable && weight > 0 && (
-              <circle
-                cx="150"
-                cy="150"
-                r={radius + 20}
-                className="fill-none stroke-foreground/10 animate-stable-pulse"
-                strokeWidth="25"
-              />
-            )}
-            
-            {/* Background ring */}
-            <circle
-              cx="150"
-              cy="150"
-              r={radius}
-              fill="none"
-              stroke="hsl(var(--foreground) / 0.1)"
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-            />
-            
-            {/* Progress ring */}
-            <circle
-              cx="150"
-              cy="150"
-              r={radius}
-              fill="none"
-              stroke="hsl(var(--foreground) / 0.7)"
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeOffset}
-              transform="rotate(-90 150 150)"
-              className={cn(
-                "transition-all duration-500 ease-out",
-                isStable && "animate-gauge-settle"
-              )}
-            />
-            
-            {/* Candy-dot tick marks */}
-            {Array.from({ length: 24 }).map((_, i) => {
-              const angle = (i / 24) * 360 - 90;
-              const rad = (angle * Math.PI) / 180;
-              const outerR = radius + 22;
-              const x = 150 + outerR * Math.cos(rad);
-              const y = 150 + outerR * Math.sin(rad);
-              const isActive = (i / 24) * 100 <= displayPercent;
-              return (
-                <circle
-                  key={i}
-                  cx={x}
-                  cy={y}
-                  r={isActive ? 4 : 3}
-                  className={cn(
-                    "transition-all duration-300",
-                    isActive ? "fill-foreground/70" : "fill-foreground/20"
-                  )}
-                />
-              );
-            })}
-            
-            {/* Moving candy droplet indicator */}
-            {displayPercent > 0 && (
-              <g 
-                transform={`rotate(${(displayPercent / 100) * 360 - 90} 150 150)`}
-                className="transition-transform duration-500"
-              >
-                <circle
-                  cx={150 + radius}
-                  cy={150}
-                  r={10}
-                  className="fill-foreground animate-pulse"
-                />
-                <circle
-                  cx={150 + radius}
-                  cy={150}
-                  r={5}
-                  className="fill-background"
-                />
-              </g>
-            )}
-          </svg>
+    <div className={cn("relative flex items-center justify-center gap-8", className)}>
+      {/* LEFT: Premium Character */}
+      <div className={cn(
+        "relative transition-all duration-700 ease-out",
+        tier === 'nice' && "animate-float-gentle",
+        tier === 'hype' && "animate-bucket-bounce",
+        tier === 'legendary' && "animate-bucket-wiggle"
+      )}>
+        <svg viewBox="0 0 90 100" className="w-44 h-auto drop-shadow-lg">
+          {/* Character body - soft blob shape with gradient feel */}
+          <defs>
+            <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="hsl(var(--foreground))" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="hsl(var(--foreground))" stopOpacity="0.15" />
+            </linearGradient>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           
-          {/* Center content - Weight display */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className={cn(
-              "text-numbers text-[90px] leading-none tabular-nums transition-transform duration-300",
-              priceAnimating && "animate-weight-pop"
-            )}>
-              {weight.toFixed(0)}
-            </div>
-            <div className="text-display text-2xl mt-1 opacity-50 font-semibold">grams</div>
+          {/* Soft body shape */}
+          <ellipse 
+            cx="45" 
+            cy="58" 
+            rx="38" 
+            ry="36" 
+            fill="url(#bodyGradient)"
+            className="transition-all duration-500"
+          />
+          
+          {/* Body outline - soft and rounded */}
+          <ellipse 
+            cx="45" 
+            cy="58" 
+            rx="38" 
+            ry="36" 
+            fill="none"
+            stroke="hsl(var(--foreground))"
+            strokeWidth="2.5"
+            className="transition-all duration-300"
+          />
+          
+          {/* Inner highlight for depth */}
+          <ellipse 
+            cx="45" 
+            cy="48" 
+            rx="28" 
+            ry="20" 
+            fill="hsl(var(--background))"
+            fillOpacity="0.3"
+          />
+          
+          {/* Face */}
+          <g filter={tier === 'legendary' ? 'url(#softGlow)' : undefined}>
+            {getCharacterFace()}
+          </g>
+          
+          {/* Floating elements for high tiers */}
+          {(tier === 'hype' || tier === 'legendary') && (
+            <g className="animate-float-gentle">
+              <circle cx="82" cy="40" r="4" className="fill-foreground/20" />
+              <circle cx="8" cy="45" r="3" className="fill-foreground/15" />
+            </g>
+          )}
+          
+          {tier === 'legendary' && (
+            <>
+              <g className="animate-float-hearts">
+                <path d="M 80 25 C 80 22 82 22 83 24 C 84 22 86 22 86 25 C 86 28 83 31 83 31 C 83 31 80 28 80 25" className="fill-foreground/40" />
+              </g>
+              <g className="animate-float-hearts" style={{ animationDelay: '0.5s' }}>
+                <path d="M 4 30 C 4 28 6 28 7 29 C 8 28 10 28 10 30 C 10 32 7 34 7 34 C 7 34 4 32 4 30" className="fill-foreground/30" />
+              </g>
+            </>
+          )}
+        </svg>
+      </div>
+
+      {/* CENTER: Glass-morphism Gauge */}
+      <div className="relative">
+        {/* Outer ambient glow */}
+        <div className={cn(
+          "absolute inset-0 rounded-full transition-all duration-700",
+          isStable && weight > 0 && "animate-stable-pulse"
+        )} style={{
+          background: 'radial-gradient(circle, hsl(var(--foreground) / 0.05) 0%, transparent 70%)',
+          transform: 'scale(1.3)'
+        }} />
+        
+        <svg viewBox="0 0 280 280" className="w-72 h-72">
+          {/* Glass background circle */}
+          <circle
+            cx="140"
+            cy="140"
+            r={radius + 20}
+            fill="hsl(var(--foreground) / 0.03)"
+            className="transition-all duration-500"
+          />
+          
+          {/* Track ring */}
+          <circle
+            cx="140"
+            cy="140"
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--foreground) / 0.08)"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+          
+          {/* Progress ring with gradient effect */}
+          <circle
+            cx="140"
+            cy="140"
+            r={radius}
+            fill="none"
+            stroke="hsl(var(--foreground) / 0.6)"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeOffset}
+            transform="rotate(-90 140 140)"
+            className="transition-all duration-500 ease-out"
+          />
+          
+          {/* Soft glow on progress end */}
+          {displayPercent > 0 && (
+            <circle
+              cx={140 + radius * Math.cos((displayPercent / 100 * 360 - 90) * Math.PI / 180)}
+              cy={140 + radius * Math.sin((displayPercent / 100 * 360 - 90) * Math.PI / 180)}
+              r={12}
+              fill="hsl(var(--foreground) / 0.15)"
+              className="transition-all duration-300"
+            />
+          )}
+          
+          {/* Minimal tick marks - every 25% */}
+          {[0, 25, 50, 75].map((pct, i) => {
+            const angle = (pct / 100) * 360 - 90;
+            const rad = (angle * Math.PI) / 180;
+            const outerR = radius + 18;
+            const x = 140 + outerR * Math.cos(rad);
+            const y = 140 + outerR * Math.sin(rad);
+            return (
+              <circle
+                key={i}
+                cx={x}
+                cy={y}
+                r={2.5}
+                className="fill-foreground/20"
+              />
+            );
+          })}
+        </svg>
+        
+        {/* Center content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className={cn(
+            "text-numbers text-8xl leading-none tabular-nums font-extrabold tracking-tight transition-transform duration-300",
+            priceAnimating && "animate-weight-pop"
+          )}>
+            {weight.toFixed(0)}
+          </div>
+          <div className="text-body text-lg mt-2 opacity-40 font-semibold tracking-widest uppercase">
+            grams
           </div>
         </div>
+      </div>
+
+      {/* RIGHT: Elevated Price Card */}
+      <div className={cn(
+        "relative transition-all duration-500",
+        priceAnimating && "animate-price-pop"
+      )}>
+        {/* Soft shadow layer */}
+        <div className="absolute inset-0 rounded-3xl bg-foreground/5 blur-xl transform translate-y-2" />
         
-        {/* RIGHT: Price Block - positioned to overlap with gauge */}
-        <div className={cn(
-          "relative -ml-8 z-10 transition-all duration-300",
-          priceAnimating && "animate-price-pop"
-        )}>
-          <div className="bg-background border-3 border-foreground rounded-3xl px-8 py-6 shadow-lg min-w-[200px]">
-            <div className="text-center mb-1">
-              <span className="text-body text-xs font-semibold opacity-40 uppercase tracking-wider">Total</span>
-            </div>
-            <div className="text-numbers text-[56px] leading-none tabular-nums text-center">
-              {currencySymbol}{price}
-            </div>
-            <div className="text-center mt-3 pt-3 border-t-2 border-foreground/10">
-              <span className="text-body text-sm opacity-50">
+        {/* Glass card */}
+        <div className="relative glass-card rounded-3xl px-10 py-8 min-w-[220px]">
+          {/* Subtle top highlight */}
+          <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
+          
+          <div className="text-center">
+            <span className="text-body text-xs font-bold opacity-30 uppercase tracking-[0.2em]">Total</span>
+          </div>
+          
+          <div className="text-numbers text-6xl leading-none tabular-nums text-center mt-2 font-extrabold">
+            {currencySymbol}{price}
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-foreground/10">
+            <div className="text-center">
+              <span className="text-body text-sm opacity-40 font-medium">
                 {currencySymbol}{pricePerHundred} per 100g
               </span>
             </div>
