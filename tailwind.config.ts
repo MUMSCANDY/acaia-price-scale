@@ -74,6 +74,14 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "breathe": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.08)", opacity: "0.85" },
+        },
+        "breathe-slow": {
+          "0%, 100%": { transform: "scale(1) translateX(0)", opacity: "1" },
+          "50%": { transform: "scale(1.05) translateX(5px)", opacity: "0.9" },
+        },
         "float-slow": {
           "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
           "50%": { transform: "translateY(-8px) rotate(3deg)" },
@@ -98,6 +106,8 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "breathe": "breathe 8s ease-in-out infinite",
+        "breathe-slow": "breathe-slow 12s ease-in-out infinite",
         "float-slow": "float-slow 6s ease-in-out infinite",
         "float-medium": "float-medium 5s ease-in-out infinite",
         "float-reverse": "float-reverse 7s ease-in-out infinite",
