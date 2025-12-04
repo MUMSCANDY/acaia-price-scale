@@ -119,78 +119,81 @@ export const ScaleDisplay = ({
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col cloudy-bg grain-overlay">
       {/* Background handled by cloudy-bg class */}
       
-      {/* Header - Minimal Pixel-Modern */}
-      <header className="relative z-10 flex items-center justify-between px-8 py-5">
-        {/* Left: Status with pixel dot indicator */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3">
-            {/* Pixel-style connection dot */}
+      {/* Header - Soft, Playful, FUTUREPLAY */}
+      <header className="relative z-10 flex items-center justify-between px-6 py-4">
+        {/* Left: Status pill */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 bg-foreground/5 backdrop-blur-sm rounded-full px-4 py-2.5 border border-foreground/8">
+            {/* Soft connection dot */}
             <div className={cn(
-              "w-2.5 h-2.5 transition-all duration-300",
+              "w-2 h-2 rounded-full transition-all duration-500",
               connectionStatus === "connected" 
-                ? "bg-foreground" 
+                ? "bg-foreground shadow-[0_0_8px_rgba(0,0,0,0.3)]" 
                 : connectionStatus === "connecting"
-                ? "bg-foreground/40 animate-pulse"
-                : "bg-foreground/20"
+                ? "bg-foreground/50 animate-pulse"
+                : "bg-foreground/25"
             )} />
-            <span className="text-label text-sm opacity-50">
-              {connectionStatus === "connected" ? "Connected" : connectionStatus === "connecting" ? "Connecting" : "Offline"}
+            <span className="font-label text-sm text-foreground/60">
+              {connectionStatus === "connected" ? "Connected" : connectionStatus === "connecting" ? "Connecting..." : "Offline"}
             </span>
           </div>
 
-          <div className="futureplay-pill flex items-center gap-2 px-4 py-2">
-            <Battery className="w-3.5 h-3.5 opacity-40" strokeWidth={2} />
-            <span className="text-micro text-sm opacity-40">{battery}%</span>
+          <div className="flex items-center gap-2 bg-foreground/5 backdrop-blur-sm rounded-full px-4 py-2.5 border border-foreground/8">
+            <Battery className="w-4 h-4 text-foreground/50" strokeWidth={1.5} />
+            <span className="font-label text-sm text-foreground/50">{battery}%</span>
           </div>
         </div>
 
-        {/* Right: Action buttons - circular pixel-modern */}
+        {/* Right: Action buttons - soft, bubbly */}
         <div className="flex items-center gap-2">
           <button 
             onClick={isConnected ? onTare : undefined} 
             disabled={!isConnected}
             className={cn(
-              "w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 border-2 border-foreground/10",
+              "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+              "bg-foreground/5 backdrop-blur-sm border border-foreground/8",
+              "hover:scale-105 active:scale-95",
               isConnected 
-                ? "hover:bg-foreground/5 active:scale-95 cursor-pointer opacity-50 hover:opacity-70" 
-                : "opacity-20 cursor-not-allowed"
+                ? "text-foreground/60 hover:text-foreground/80 hover:bg-foreground/10 cursor-pointer" 
+                : "text-foreground/25 cursor-not-allowed"
             )}
             title="Tare"
           >
-            <Scale className="w-4 h-4" strokeWidth={2} />
+            <Scale className="w-5 h-5" strokeWidth={1.5} />
           </button>
 
           <button 
             onClick={onToggleConnection}
             className={cn(
-              "w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95",
+              "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+              "hover:scale-105 active:scale-95",
               !isConnected 
-                ? "bg-foreground text-background" 
-                : "border-2 border-foreground/10 opacity-50 hover:opacity-70 hover:bg-foreground/5"
+                ? "bg-foreground text-background shadow-[0_4px_20px_rgba(0,0,0,0.2)]" 
+                : "bg-foreground/5 backdrop-blur-sm border border-foreground/8 text-foreground/60 hover:text-foreground/80 hover:bg-foreground/10"
             )}
             title={isConnected ? "Disconnect" : "Connect"}
           >
             {connectionStatus === "connected" ? (
-              <Wifi className="w-4 h-4" strokeWidth={2} />
+              <Wifi className="w-5 h-5" strokeWidth={1.5} />
             ) : (
-              <WifiOff className="w-4 h-4" strokeWidth={2} />
+              <WifiOff className="w-5 h-5" strokeWidth={1.5} />
             )}
           </button>
 
           <button 
             onClick={() => setIsHelpDialogOpen(true)}
-            className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-foreground/10 opacity-40 hover:opacity-60 hover:bg-foreground/5 transition-all duration-300"
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-foreground/5 backdrop-blur-sm border border-foreground/8 text-foreground/50 hover:text-foreground/70 hover:bg-foreground/10 hover:scale-105 active:scale-95 transition-all duration-300"
             title="Help"
           >
-            <HelpCircle className="w-4 h-4" strokeWidth={2} />
+            <HelpCircle className="w-5 h-5" strokeWidth={1.5} />
           </button>
 
           <button 
             onClick={handleSettingsClick} 
-            className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-foreground/10 opacity-40 hover:opacity-60 hover:bg-foreground/5 transition-all duration-300"
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-foreground/5 backdrop-blur-sm border border-foreground/8 text-foreground/50 hover:text-foreground/70 hover:bg-foreground/10 hover:scale-105 active:scale-95 transition-all duration-300"
             title="Settings"
           >
-            <Settings className="w-4 h-4" strokeWidth={2} />
+            <Settings className="w-5 h-5" strokeWidth={1.5} />
           </button>
         </div>
       </header>
