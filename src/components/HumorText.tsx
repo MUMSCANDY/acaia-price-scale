@@ -35,7 +35,7 @@ export const HumorText = ({ tier, price, className }: HumorTextProps) => {
   // Don't show message if no weight
   if (price === 0) {
     return (
-      <div className={cn("text-center font-digital", className)}>
+      <div className={cn("text-center font-digital h-20 flex flex-col items-center justify-center", className)}>
         <p className="text-xl text-foreground/50 tracking-wide">
           Add some candy to get started!
         </p>
@@ -44,7 +44,7 @@ export const HumorText = ({ tier, price, className }: HumorTextProps) => {
   }
 
   return (
-    <div className={cn("text-center font-digital", className)}>
+    <div className={cn("text-center font-digital h-20 flex flex-col items-center justify-center", className)}>
       <p 
         className={cn(
           "text-2xl text-foreground tracking-wide transition-all duration-300",
@@ -54,32 +54,32 @@ export const HumorText = ({ tier, price, className }: HumorTextProps) => {
         "{message}"
       </p>
       
-      {/* Decorative elements based on tier */}
-      <div className="flex justify-center gap-2 mt-3">
+      {/* Decorative elements based on tier - fixed height container */}
+      <div className="flex justify-center gap-2 mt-3 h-6">
         {tier === 'tiny' && (
-          <span className="text-lg animate-pulse">💭</span>
+          <span className="text-lg">💭</span>
         )}
         {tier === 'nice' && (
           <>
-            <span className="text-lg animate-bounce-slow">✨</span>
-            <span className="text-lg animate-bounce-slow" style={{ animationDelay: '0.1s' }}>🍬</span>
-            <span className="text-lg animate-bounce-slow" style={{ animationDelay: '0.2s' }}>✨</span>
+            <span className="text-lg">✨</span>
+            <span className="text-lg">🍬</span>
+            <span className="text-lg">✨</span>
           </>
         )}
         {tier === 'hype' && (
           <>
-            <span className="text-lg animate-bounce">🔥</span>
-            <span className="text-lg animate-bounce" style={{ animationDelay: '0.1s' }}>⭐</span>
-            <span className="text-lg animate-bounce" style={{ animationDelay: '0.2s' }}>🔥</span>
+            <span className="text-lg">🔥</span>
+            <span className="text-lg">⭐</span>
+            <span className="text-lg">🔥</span>
           </>
         )}
         {tier === 'legendary' && (
           <>
-            <span className="text-lg animate-spin-slow">👑</span>
-            <span className="text-lg animate-bounce">💎</span>
-            <span className="text-lg animate-bounce" style={{ animationDelay: '0.1s' }}>🎉</span>
-            <span className="text-lg animate-bounce" style={{ animationDelay: '0.2s' }}>💎</span>
-            <span className="text-lg animate-spin-slow" style={{ animationDelay: '0.3s' }}>👑</span>
+            <span className="text-lg">👑</span>
+            <span className="text-lg">💎</span>
+            <span className="text-lg">🎉</span>
+            <span className="text-lg">💎</span>
+            <span className="text-lg">👑</span>
           </>
         )}
       </div>
