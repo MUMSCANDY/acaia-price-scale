@@ -9,9 +9,8 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* MUMS Brand Colors - Soft Pink #F7B4C3 & Black Only */
-    --background: 347 81% 84%; /* #F7B4C3 */
+    --background: 347 67% 84%; /* #F7B4C3 - correct HSL */
     --foreground: 0 0% 0%; /* Black text only */
-
     --card: 347 75% 88%;
     --card-foreground: 0 0% 0%;
 
