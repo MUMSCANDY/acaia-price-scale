@@ -193,6 +193,21 @@
     animation: digit-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
+  /* === IDLE BREATHING ANIMATION === */
+  
+  @keyframes digit-breathe {
+    0%, 100% {
+      transform: scaleY(1) scaleX(1);
+    }
+    50% {
+      transform: scaleY(1.02) scaleX(0.99);
+    }
+  }
+
+  .digit-idle {
+    animation: digit-breathe 3s ease-in-out infinite;
+  }
+
   /* Stable Pulse - Softer */
   @keyframes stable-pulse {
     0%, 100% { 

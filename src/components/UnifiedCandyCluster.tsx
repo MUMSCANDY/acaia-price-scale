@@ -47,10 +47,10 @@ const SlotDigit = ({ digit, index }: { digit: string; index: number }) => {
     <span 
       className={cn(
         "inline-block origin-bottom",
-        isAnimating && "digit-animate"
+        isAnimating ? "digit-animate" : "digit-idle"
       )}
       style={{ 
-        animationDelay: `${index * 50}ms`,
+        animationDelay: isAnimating ? `${index * 50}ms` : `${index * 200}ms`,
       }}
     >
       {displayDigit}
