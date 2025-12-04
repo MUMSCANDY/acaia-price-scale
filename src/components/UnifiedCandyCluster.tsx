@@ -14,43 +14,43 @@ interface UnifiedCandyClusterProps {
   className?: string;
 }
 
-// Slot machine digit component with smooth warping
-const SlotDigit = ({ digit, isAnimating }: { digit: string; isAnimating: boolean }) => {
+// Slot machine digit component with dramatic animation
+const SlotDigit = ({ digit, index }: { digit: string; index: number }) => {
   const [displayDigit, setDisplayDigit] = useState(digit);
-  const [phase, setPhase] = useState<'idle' | 'exit' | 'enter'>('idle');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevDigitRef = useRef(digit);
 
   useEffect(() => {
-    if (digit !== displayDigit) {
-      // Start exit animation
-      setPhase('exit');
+    if (digit !== prevDigitRef.current) {
+      setIsAnimating(true);
       
-      const exitTimeout = setTimeout(() => {
+      // After exit animation, swap digit
+      const swapTimeout = setTimeout(() => {
         setDisplayDigit(digit);
-        setPhase('enter');
-        
-        // Return to idle after enter animation
-        const enterTimeout = setTimeout(() => {
-          setPhase('idle');
-        }, 600);
-        
-        return () => clearTimeout(enterTimeout);
-      }, 250);
-
-      return () => clearTimeout(exitTimeout);
+      }, 200);
+      
+      // Reset animation state
+      const resetTimeout = setTimeout(() => {
+        setIsAnimating(false);
+      }, 700);
+      
+      prevDigitRef.current = digit;
+      
+      return () => {
+        clearTimeout(swapTimeout);
+        clearTimeout(resetTimeout);
+      };
     }
-  }, [digit, displayDigit]);
+  }, [digit]);
 
   return (
     <span 
-      className="inline-block transition-all duration-300 ease-out will-change-transform"
-      style={{
-        transform: phase === 'exit' 
-          ? 'translateY(60%) scaleY(0.6) scaleX(1.1) skewX(-3deg)' 
-          : phase === 'enter'
-          ? 'translateY(-20%) scaleY(1.15) scaleX(0.95) skewX(2deg)'
-          : 'translateY(0) scaleY(1) scaleX(1) skewX(0deg)',
-        opacity: phase === 'exit' ? 0.3 : phase === 'enter' ? 0.9 : 1,
-        filter: phase === 'idle' ? 'blur(0px)' : 'blur(1px)',
+      className={cn(
+        "inline-block origin-bottom",
+        isAnimating && "digit-animate"
+      )}
+      style={{ 
+        animationDelay: `${index * 50}ms`,
       }}
     >
       {displayDigit}
@@ -74,31 +74,9 @@ export const UnifiedCandyCluster = ({
   maxWeight = 1500,
   className
 }: UnifiedCandyClusterProps) => {
-  const [priceAnimating, setPriceAnimating] = useState(false);
-  const [weightAnimating, setWeightAnimating] = useState(false);
   const [showSparkles, setShowSparkles] = useState(false);
   const [stablePulse, setStablePulse] = useState(false);
-  const prevPriceRef = useRef(price);
-  const prevWeightRef = useRef(weight);
   const prevStableRef = useRef(isStable);
-
-  // Weight animation trigger
-  useEffect(() => {
-    if (weight !== prevWeightRef.current) {
-      setWeightAnimating(true);
-      setTimeout(() => setWeightAnimating(false), 500);
-    }
-    prevWeightRef.current = weight;
-  }, [weight]);
-
-  // Price animation trigger
-  useEffect(() => {
-    if (price !== prevPriceRef.current && price > 0) {
-      setPriceAnimating(true);
-      setTimeout(() => setPriceAnimating(false), 400);
-    }
-    prevPriceRef.current = price;
-  }, [price]);
 
   // Stable pulse and sparkle trigger
   useEffect(() => {
@@ -139,7 +117,7 @@ export const UnifiedCandyCluster = ({
           style={{ fontSize: 'clamp(140px, 28vw, 280px)' }}
         >
           {weightChars.map((char, i) => (
-            <SlotDigit key={`w-${i}-${char}`} digit={char} isAnimating={weightAnimating} />
+            <SlotDigit key={`w-${i}-${weightChars.join('')}`} digit={char} index={i} />
           ))}
         </div>
         <div className={cn(
@@ -160,17 +138,14 @@ export const UnifiedCandyCluster = ({
       </div>
 
       {/* Price - Secondary but still bold */}
-      <div className={cn(
-        "text-center transition-all duration-300",
-        priceAnimating && "animate-price-pop animate-glow"
-      )}>
+      <div className="text-center transition-all duration-300">
         <div 
           className="font-display font-extrabold text-foreground leading-[0.9] tracking-tight overflow-hidden"
           style={{ fontSize: 'clamp(80px, 18vw, 180px)' }}
         >
           {currencySymbol}
           {priceChars.map((char, i) => (
-            <SlotDigit key={`p-${i}-${char}`} digit={char} isAnimating={priceAnimating} />
+            <SlotDigit key={`p-${i}-${priceChars.join('')}`} digit={char} index={i} />
           ))}
         </div>
         <div className="text-foreground/85 font-label text-base tracking-[0.2em] mt-3">
