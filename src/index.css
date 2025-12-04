@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    /* Gen-Z Bubblegum Pink - more saturated */
-    --background: 340 65% 82%;
+    /* Gen-Z Bubblegum Pink - VERY saturated */
+    --background: 340 80% 78%;
     --foreground: 0 0% 0%;
 
     --card: 340 55% 86%;
