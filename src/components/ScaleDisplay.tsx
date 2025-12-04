@@ -8,6 +8,7 @@ import { getCurrencyByCode } from "@/lib/currencies";
 import { HumorText } from "./HumorText";
 import { UnifiedCandyCluster } from "./UnifiedCandyCluster";
 import { getPriceTier, getTierFillPercent } from "@/lib/humorMessages";
+import { BackgroundGraphics } from "./BackgroundGraphics";
 
 interface ScaleDisplayProps {
   weight: number;
@@ -128,7 +129,8 @@ export const ScaleDisplay = ({
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col cloudy-bg grain-overlay">
-      {/* Background handled by cloudy-bg class */}
+      {/* Background graphics */}
+      <BackgroundGraphics />
       
       {/* Tap zone to show header - only active when header is hidden */}
       {!isHeaderVisible && (
