@@ -26,7 +26,7 @@ const SlotDigit = ({ digit, isAnimating }: { digit: string; isAnimating: boolean
       const timeout = setTimeout(() => {
         setDisplayDigit(digit);
         setAnimationClass("animate-slot-in");
-      }, 150);
+      }, 280); // Match the exit animation duration
 
       return () => clearTimeout(timeout);
     }
