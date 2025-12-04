@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
@@ -9,6 +9,7 @@ import { HumorText } from "./HumorText";
 import { UnifiedCandyCluster } from "./UnifiedCandyCluster";
 import { getPriceTier, getTierFillPercent } from "@/lib/humorMessages";
 import { BackgroundGraphics } from "./BackgroundGraphics";
+import { FireworkEffect } from "./FireworkEffect";
 
 interface ScaleDisplayProps {
   weight: number;
@@ -41,6 +42,8 @@ export const ScaleDisplay = ({
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
+  const prevWeightOver400 = useRef(false);
 
   // Auto-hide header after 5 seconds
   useEffect(() => {
@@ -66,6 +69,16 @@ export const ScaleDisplay = ({
   }, [isConnected, isDemoMode]);
 
   const weight = isConnected ? externalWeight : (isDemoMode ? DEMO_WEIGHTS[demoIndex] : 0);
+
+  // Firework trigger when crossing 400g threshold
+  useEffect(() => {
+    const isOver400 = weight >= 400;
+    if (isOver400 && !prevWeightOver400.current) {
+      setShowFireworks(true);
+      setTimeout(() => setShowFireworks(false), 2500);
+    }
+    prevWeightOver400.current = isOver400;
+  }, [weight]);
 
   useEffect(() => {
     localStorage.setItem("pricePerHundred", pricePerHundred.toString());
@@ -129,6 +142,9 @@ export const ScaleDisplay = ({
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col cloudy-bg grain-overlay">
+      {/* Firework effect */}
+      <FireworkEffect active={showFireworks} />
+      
       {/* Background graphics */}
       <BackgroundGraphics />
       
