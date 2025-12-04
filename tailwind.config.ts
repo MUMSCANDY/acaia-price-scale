@@ -102,6 +102,23 @@ export default {
           "0%, 100%": { transform: "rotate(-3deg)" },
           "50%": { transform: "rotate(3deg)" },
         },
+        "parallax-zoom-slow": {
+          "0%, 100%": { transform: "scale(1) translate(0, 0)" },
+          "50%": { transform: "scale(1.15) translate(-2%, 2%)" },
+        },
+        "parallax-zoom-mid": {
+          "0%, 100%": { transform: "scale(1) translate(0, 0)" },
+          "50%": { transform: "scale(1.12) translate(3%, -1%)" },
+        },
+        "parallax-zoom-fast": {
+          "0%, 100%": { transform: "scale(1.05) translate(0, 0)" },
+          "50%": { transform: "scale(1.18) translate(-1%, 3%)" },
+        },
+        "drift-subtle": {
+          "0%, 100%": { transform: "translate(0, 0)" },
+          "33%": { transform: "translate(5px, -8px)" },
+          "66%": { transform: "translate(-3px, 5px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -113,6 +130,10 @@ export default {
         "float-reverse": "float-reverse 7s ease-in-out infinite",
         "spin-slow": "spin-slow 20s linear infinite",
         "wiggle": "wiggle 3s ease-in-out infinite",
+        "parallax-zoom-slow": "parallax-zoom-slow 60s ease-in-out infinite",
+        "parallax-zoom-mid": "parallax-zoom-mid 45s ease-in-out infinite",
+        "parallax-zoom-fast": "parallax-zoom-fast 30s ease-in-out infinite",
+        "drift-subtle": "drift-subtle 20s ease-in-out infinite",
       },
     },
   },
