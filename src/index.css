@@ -236,24 +236,20 @@
     transform: scaleY(1) scaleX(1) translateY(0);
   }
 
-  /* === SLOT MACHINE SPIN - Visible during animation === */
+  /* === SLOT MACHINE SPIN - Always visible === */
   
   @keyframes slot-spin {
     0% {
-      transform: translateY(-30%);
-      opacity: 0.7;
-    }
-    50% {
-      opacity: 1;
+      transform: translateY(-6%);
     }
     100% {
       transform: translateY(0);
-      opacity: 1;
     }
   }
 
   .digit-slot-spin {
-    animation: slot-spin 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+    animation: slot-spin 0.12s ease-out;
+    opacity: 1 !important;
   }
 
   /* Stable Pulse - Softer */

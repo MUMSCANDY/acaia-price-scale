@@ -54,12 +54,11 @@ const SlotDigit = ({ digit, index, isStable }: { digit: string; index: number; i
   return (
     <span 
       className={cn(
-        "inline-block origin-center transition-[filter] duration-100",
+        "inline-block origin-center",
         getAnimationClass()
       )}
       style={{ 
-        animationDelay: isSpinning ? `${index * 20}ms` : `${index * 150}ms`,
-        filter: isSpinning ? 'blur(0.5px)' : 'blur(0px)',
+        animationDelay: isStable ? `${index * 150}ms` : '0ms',
       }}
     >
       {displayDigit}
