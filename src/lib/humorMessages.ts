@@ -29,7 +29,6 @@ export const humorMessages: Record<PriceTier, string[]> = {
     "Room for more!",
   ],
   nicePlus: [
-    "Main character vibes!",
     "Good taste confirmed!",
     "This mix is becoming something!",
     "Sweet momentum unlocked!",
