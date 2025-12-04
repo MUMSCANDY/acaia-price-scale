@@ -125,8 +125,9 @@ export const ScaleDisplay = ({
         <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-foreground/3 rounded-full blur-3xl" />
       </div>
 
-      {/* Header - Slim */}
+      {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-8 py-4">
+        {/* Left: Connection & Battery */}
         <div className="flex items-center gap-3">
           {/* Connection Status */}
           <div className={cn(
@@ -149,15 +150,62 @@ export const ScaleDisplay = ({
           </div>
         </div>
 
-        {/* Settings Button */}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={handleSettingsClick} 
-          className="rounded-full w-12 h-12 border-2 border-foreground/30 hover:bg-foreground/10"
-        >
-          <Settings className="w-5 h-5" />
-        </Button>
+        {/* Right: Controls */}
+        <div className="flex items-center gap-3">
+          {/* Tare Button */}
+          <button 
+            onClick={isConnected ? onTare : undefined} 
+            disabled={!isConnected}
+            className={cn(
+              "w-12 h-12 rounded-full border-2 border-foreground/30 flex items-center justify-center transition-all duration-300",
+              isConnected 
+                ? "hover:bg-foreground/10 active:scale-95 cursor-pointer" 
+                : "opacity-30 cursor-not-allowed"
+            )}
+            title="Tare"
+          >
+            <Scale className="w-5 h-5" />
+          </button>
+
+          {/* Connect Button */}
+          {!isConnected ? (
+            <button 
+              onClick={onToggleConnection}
+              className="w-12 h-12 rounded-full border-2 border-foreground bg-foreground text-background flex items-center justify-center hover:bg-foreground/90 active:scale-95 transition-all duration-300"
+              title="Connect"
+            >
+              <Wifi className="w-5 h-5" />
+            </button>
+          ) : (
+            <button 
+              onClick={onToggleConnection}
+              className="w-12 h-12 rounded-full border-2 border-foreground flex items-center justify-center hover:bg-foreground/10 active:scale-95 transition-all duration-300"
+              title="Disconnect"
+            >
+              <Wifi className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* Help Button */}
+          <button 
+            onClick={() => setIsHelpDialogOpen(true)}
+            className="w-12 h-12 rounded-full border-2 border-foreground/30 flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
+            title="Help"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
+
+          {/* Settings Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleSettingsClick} 
+            className="rounded-full w-12 h-12 border-2 border-foreground/30 hover:bg-foreground/10"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -234,45 +282,7 @@ export const ScaleDisplay = ({
         <HumorText 
           tier={priceTier}
           price={price}
-          className="mb-6"
         />
-
-        {/* Controls */}
-        <div className="flex items-center justify-center gap-6">
-          {/* Tare Button */}
-          <button 
-            onClick={isConnected ? onTare : undefined} 
-            disabled={!isConnected}
-            className={cn(
-              "flex items-center gap-3 px-8 py-3 rounded-full border-2 border-foreground transition-all duration-300 font-digital text-base tracking-wider",
-              isConnected 
-                ? "hover:bg-foreground/10 active:scale-95 cursor-pointer" 
-                : "opacity-30 cursor-not-allowed"
-            )}
-          >
-            <Scale className="w-5 h-5" />
-            <span>TARE</span>
-          </button>
-
-          {/* Connect button (only show when disconnected) */}
-          {!isConnected && (
-            <button 
-              onClick={onToggleConnection}
-              className="flex items-center gap-3 px-8 py-3 rounded-full border-2 border-foreground bg-foreground text-background font-digital text-base tracking-wider hover:bg-foreground/90 active:scale-95 transition-all duration-300"
-            >
-              <Wifi className="w-5 h-5" />
-              <span>CONNECT</span>
-            </button>
-          )}
-
-          {/* Help Button */}
-          <button 
-            onClick={() => setIsHelpDialogOpen(true)}
-            className="w-12 h-12 rounded-full border-2 border-foreground/30 flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
-          >
-            <HelpCircle className="w-5 h-5" />
-          </button>
-        </div>
       </footer>
 
       {/* PIN Dialog */}
