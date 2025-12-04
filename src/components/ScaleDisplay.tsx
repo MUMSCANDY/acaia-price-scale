@@ -1,11 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale, Power } from "lucide-react";
+import { Settings, Wifi, WifiOff, Battery, HelpCircle, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsPanel } from "./SettingsPanel";
 import { PinDialog } from "./PinDialog";
 import { ConnectionHelpDialog } from "./ConnectionHelpDialog";
 import { getCurrencyByCode } from "@/lib/currencies";
+import { CandyBucket } from "./CandyBucket";
+import { CircularGauge } from "./CircularGauge";
+import { HumorText } from "./HumorText";
+import { MascotBubble } from "./MascotBubble";
+import { getPriceTier, getTierFillPercent } from "@/lib/humorMessages";
 
 interface ScaleDisplayProps {
   weight: number;
@@ -16,6 +21,7 @@ interface ScaleDisplayProps {
   onToggleConnection: () => void;
   debugLog?: string[];
 }
+
 export const ScaleDisplay = ({
   weight,
   isConnected,
@@ -33,6 +39,9 @@ export const ScaleDisplay = ({
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [isHelpDialogOpen, setIsHelpDialogOpen] = useState(false);
   const [isWeightStable, setIsWeightStable] = useState(false);
+  const [priceAnimating, setPriceAnimating] = useState(false);
+  
+  const prevPriceRef = useRef(0);
 
   // Save price to localStorage when it changes
   useEffect(() => {
@@ -49,7 +58,7 @@ export const ScaleDisplay = ({
     setIsWeightStable(false);
     const timer = setTimeout(() => {
       setIsWeightStable(true);
-    }, 2500); // 2.5 seconds
+    }, 2500);
 
     return () => clearTimeout(timer);
   }, [weight, isConnected]);
@@ -71,158 +80,223 @@ export const ScaleDisplay = ({
       const history = JSON.parse(localStorage.getItem("transactionHistory") || "[]");
       history.push(transaction);
 
-      // Keep only last 1000 transactions
       if (history.length > 1000) {
         history.shift();
       }
       localStorage.setItem("transactionHistory", JSON.stringify(history));
     }
   }, [weight, isConnected]);
+
+  // Price pop animation trigger
+  useEffect(() => {
+    const currentPrice = calculatePrice();
+    if (currentPrice !== prevPriceRef.current && currentPrice > 0) {
+      setPriceAnimating(true);
+      setTimeout(() => setPriceAnimating(false), 400);
+    }
+    prevPriceRef.current = currentPrice;
+  }, [weight, pricePerHundred]);
+
   const handleSettingsClick = () => {
     setIsPinDialogOpen(true);
   };
+
   const handlePinSuccess = () => {
     setIsPinDialogOpen(false);
     setIsSettingsOpen(true);
   };
 
-  // Calculate total price
   const calculatePrice = () => {
     const pricePerGram = pricePerHundred / 100;
     const total = Math.ceil(weight * pricePerGram);
     return total;
   };
-  return <div className="min-h-screen gradient-mesh-bg relative overflow-hidden">
-      {/* Decorative background elements */}
+
+  const price = calculatePrice();
+  const priceTier = getPriceTier(price);
+  const fillPercent = getTierFillPercent(priceTier);
+  const currencySymbol = getCurrencyByCode(currency).symbol;
+
+  return (
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
+      {/* Subtle background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -right-20 w-[500px] h-[500px] bg-foreground/5 rounded-full blur-3xl animate-float" />
-        <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-foreground/5 rounded-full blur-3xl animate-float" style={{
-        animationDelay: '3s'
-      }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-foreground/3 rounded-full blur-3xl animate-glow-pulse" />
+        <div className="absolute top-10 right-10 w-[300px] h-[300px] bg-foreground/3 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-foreground/3 rounded-full blur-3xl" />
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-12 pt-10 animate-slide-up">
-        <h1 className="text-brand text-5xl tracking-tighter">
-          MUMS
-        </h1>
-        
-        <div className="flex items-center gap-4">
+      {/* Header - Slim */}
+      <header className="relative z-10 flex items-center justify-between px-8 py-4">
+        <div className="flex items-center gap-3">
           {/* Connection Status */}
-          <div className={cn("flex items-center gap-3 px-5 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300", connectionStatus === "connected" && "shadow-glow")}>
-            {connectionStatus === "connected" ? <>
-                <Wifi className="w-5 h-5" />
-                <span className="font-bold text-sm">Connected</span>
-              </> : connectionStatus === "connecting" ? <>
-                <Wifi className="w-5 h-5 animate-pulse" />
-                <span className="font-bold text-sm">Connecting...</span>
-              </> : <>
-                <WifiOff className="w-5 h-5" />
-                <span className="font-bold text-sm">Offline</span>
-              </>}
+          <div className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground/30 transition-all duration-300",
+            connectionStatus === "connected" && "border-foreground"
+          )}>
+            {connectionStatus === "connected" ? (
+              <Wifi className="w-4 h-4" />
+            ) : connectionStatus === "connecting" ? (
+              <Wifi className="w-4 h-4 animate-pulse" />
+            ) : (
+              <WifiOff className="w-4 h-4 opacity-50" />
+            )}
           </div>
 
           {/* Battery */}
-          <div className="flex items-center gap-3 px-5 py-3 glass-effect rounded-full border-2 border-foreground">
-            <Battery className="w-5 h-5 text-foreground" />
-            <span className="font-bold text-sm text-foreground">{battery}%</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground/30">
+            <Battery className="w-4 h-4" />
+            <span className="font-digital text-sm">{battery}%</span>
           </div>
-
-          {/* Settings Button */}
-          <Button variant="ghost" size="icon" onClick={handleSettingsClick} className="rounded-full w-14 h-14 glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110">
-            <Settings className="w-7 h-7" />
-          </Button>
         </div>
+
+        {/* Settings Button */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleSettingsClick} 
+          className="rounded-full w-12 h-12 border-2 border-foreground/30 hover:bg-foreground/10"
+        >
+          <Settings className="w-5 h-5" />
+        </Button>
       </header>
 
-      {/* Main Display */}
-      <main className="relative z-10 flex flex-col items-center justify-center flex-1 px-12 py-20">
-        {/* Weight Display */}
-        <div className="mb-12 text-center animate-scale-in relative">
-          <div className={cn(
-            "text-digital text-[200px] leading-none mb-4 drop-shadow-2xl transition-all duration-500",
-            isWeightStable && weight > 0 && "animate-glow-pulse"
-          )}>
-            {weight.toFixed(1)}
-            <span className="text-[140px] ml-6 font-bold">g</span>
+      {/* Main Content */}
+      <main className="relative z-10 flex-1 flex items-center justify-center px-8">
+        <div className="flex items-center gap-16">
+          {/* Left: Candy Bucket with Mascot */}
+          <div className="flex flex-col items-center gap-4">
+            {/* Mascot Bubble */}
+            <MascotBubble 
+              tier={priceTier}
+              isStable={isWeightStable}
+              weight={weight}
+              className="w-24 h-20"
+            />
+            
+            {/* Candy Bucket */}
+            <CandyBucket 
+              tier={priceTier}
+              fillPercent={weight > 0 ? fillPercent : 0}
+              className="w-40 h-44"
+            />
           </div>
-          
-          {/* Stable Indicator */}
-          {isWeightStable && weight > 0 && (
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 glass-effect border-2 border-foreground rounded-full animate-fade-in">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-digital text-sm font-bold tracking-wider">STABLE</span>
-            </div>
-          )}
-        </div>
 
-        {/* Price Display - Receipt Style */}
-        <div className="mb-8 bg-background/40 backdrop-blur-sm rounded-xl border-[3px] border-foreground hover-lift animate-slide-up relative overflow-hidden w-[600px]" style={{
-          backgroundImage: `
-            linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, transparent 100%),
-            repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
-            repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)
-          `
-        }}>
-          <div className="px-8 py-5">
-            {/* Total Section - Centered, Large */}
-            <div className="text-center mb-3" key={`${calculatePrice()}-${currency}`}>
-              <div className="text-sm font-bold text-foreground/70 tracking-widest mb-1">TOTAL</div>
-              <div className="text-digital text-[100px] leading-none text-foreground animate-fade-in">
-                {getCurrencyByCode(currency).symbol}{calculatePrice()}
+          {/* Center: Weight Display with Gauge */}
+          <div className="flex flex-col items-center">
+            <CircularGauge 
+              weight={weight} 
+              isStable={isWeightStable}
+              maxWeight={1500}
+            >
+              <div className="text-center">
+                <div className={cn(
+                  "text-digital text-[120px] leading-none transition-all duration-300",
+                  isWeightStable && weight > 0 && "animate-stable-pulse"
+                )}>
+                  {weight.toFixed(0)}
+                </div>
+                <div className="text-digital text-3xl mt-1 opacity-70">g</div>
+              </div>
+            </CircularGauge>
+
+            {/* Stable indicator */}
+            {isWeightStable && weight > 0 && (
+              <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full border-2 border-foreground animate-scale-in">
+                <div className="w-2 h-2 bg-foreground rounded-full animate-pulse" />
+                <span className="font-digital text-xs tracking-widest">STABLE</span>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Price Display */}
+          <div className="flex flex-col items-center gap-6">
+            {/* Big Price */}
+            <div className="text-center">
+              <div 
+                className={cn(
+                  "text-digital text-[100px] leading-none transition-transform",
+                  priceAnimating && "animate-price-pop"
+                )}
+              >
+                {currencySymbol}{price}
+              </div>
+              <div className="text-digital text-lg mt-2 opacity-50">
+                {currencySymbol}{pricePerHundred} per 100g
               </div>
             </div>
-            
-            {/* Dotted separator */}
-            <div className="border-t border-dotted border-foreground/40 my-3" />
-            
-            {/* Per 100g info */}
-            <div className="text-center font-mono text-base text-foreground/70 mb-3">
-              (Price per 100 g: {getCurrencyByCode(currency).symbol}{pricePerHundred})
-            </div>
-            
-            {/* Footer - Barcode */}
-            <div className="flex justify-center gap-0.5 mb-1">
-              {Array.from({length: 40}).map((_, i) => (
-                <div key={i} className="w-0.5 h-3 bg-foreground/40" />
-              ))}
-            </div>
           </div>
         </div>
+      </main>
 
-        {/* Control Buttons */}
-        <div className="flex gap-5 items-center justify-center animate-slide-up" style={{
-        animationDelay: '0.1s'
-      }}>
-          <button onClick={isConnected ? onTare : undefined} disabled={!isConnected} className={cn("flex items-center gap-3 px-8 py-3 rounded-full glass-effect border-2 border-foreground transition-all duration-300 font-bold text-base", isConnected ? "hover:bg-foreground/10 hover:scale-110 cursor-pointer" : "cursor-not-allowed")}>
+      {/* Footer */}
+      <footer className="relative z-10 px-8 py-6">
+        {/* Humor Text */}
+        <HumorText 
+          tier={priceTier}
+          price={price}
+          className="mb-6"
+        />
+
+        {/* Controls */}
+        <div className="flex items-center justify-center gap-6">
+          {/* Tare Button */}
+          <button 
+            onClick={isConnected ? onTare : undefined} 
+            disabled={!isConnected}
+            className={cn(
+              "flex items-center gap-3 px-8 py-3 rounded-full border-2 border-foreground transition-all duration-300 font-digital text-base tracking-wider",
+              isConnected 
+                ? "hover:bg-foreground/10 active:scale-95 cursor-pointer" 
+                : "opacity-30 cursor-not-allowed"
+            )}
+          >
             <Scale className="w-5 h-5" />
             <span>TARE</span>
           </button>
 
-          <Button size="lg" variant={isConnected ? "outline" : "default"} onClick={onToggleConnection} className="px-8 py-6 text-base font-bold rounded-full">
-            <Power className="w-5 h-5" />
-            {isConnected ? "DISCONNECT" : "CONNECT"}
-          </Button>
-        </div>
-      </main>
+          {/* Connect button (only show when disconnected) */}
+          {!isConnected && (
+            <button 
+              onClick={onToggleConnection}
+              className="flex items-center gap-3 px-8 py-3 rounded-full border-2 border-foreground bg-foreground text-background font-digital text-base tracking-wider hover:bg-foreground/90 active:scale-95 transition-all duration-300"
+            >
+              <Wifi className="w-5 h-5" />
+              <span>CONNECT</span>
+            </button>
+          )}
 
-      {/* Help Button - Fixed to bottom right */}
-      <div className="fixed bottom-4 right-4 z-20 animate-scale-in" style={{
-      animationDelay: '0.2s'
-    }}>
-        <Button size="lg" variant="ghost" onClick={() => setIsHelpDialogOpen(true)} className="w-16 h-16 rounded-full glass-effect border-2 border-foreground hover:bg-foreground/10 hover:scale-110" title="Need Help?">
-          <HelpCircle className="w-8 h-8" />
-        </Button>
-      </div>
+          {/* Help Button */}
+          <button 
+            onClick={() => setIsHelpDialogOpen(true)}
+            className="w-12 h-12 rounded-full border-2 border-foreground/30 flex items-center justify-center hover:bg-foreground/10 transition-all duration-300"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
+        </div>
+      </footer>
 
       {/* PIN Dialog */}
-      <PinDialog isOpen={isPinDialogOpen} onClose={() => setIsPinDialogOpen(false)} onSuccess={handlePinSuccess} />
+      <PinDialog 
+        isOpen={isPinDialogOpen} 
+        onClose={() => setIsPinDialogOpen(false)} 
+        onSuccess={handlePinSuccess} 
+      />
 
       {/* Connection Help Dialog */}
-      <ConnectionHelpDialog open={isHelpDialogOpen} onOpenChange={setIsHelpDialogOpen} />
+      <ConnectionHelpDialog 
+        open={isHelpDialogOpen} 
+        onOpenChange={setIsHelpDialogOpen} 
+      />
 
       {/* Settings Panel */}
-      <SettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} pricePerHundred={pricePerHundred} onPriceChange={setPricePerHundred} currency={currency} onCurrencyChange={setCurrency} />
-    </div>;
+      <SettingsPanel 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        pricePerHundred={pricePerHundred} 
+        onPriceChange={setPricePerHundred} 
+        currency={currency} 
+        onCurrencyChange={setCurrency} 
+      />
+    </div>
+  );
 };
