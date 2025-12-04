@@ -7,22 +7,22 @@
 @layer base {
   :root {
     /* Primary: Bubblegum Pink #F7B4C3 */
-    --background: 350 52% 85%;
+    --background: 340 50% 86%;
     --foreground: 0 0% 0%;
 
-    --card: 347 60% 88%;
+    --card: 347 45% 88%;
     --card-foreground: 0 0% 0%;
 
-    --popover: 347 55% 90%;
+    --popover: 347 40% 90%;
     --popover-foreground: 0 0% 0%;
 
-    --primary: 347 67% 84%;
+    --primary: 347 52% 84%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 0%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 347 40% 88%;
+    --muted: 347 35% 88%;
     --muted-foreground: 0 0% 30%;
 
     --accent: 0 0% 100%;
