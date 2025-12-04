@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    /* Gen-Z Bubblegum Pink - VERY saturated */
-    --background: 340 80% 78%;
+    /* Gen-Z Bubblegum Pink - MORE saturated and vivid */
+    --background: 340 85% 72%;
     --foreground: 0 0% 0%;
 
     --card: 340 55% 86%;
@@ -74,7 +74,7 @@
     font-weight: 400;
   }
 
-  /* Cloudy Abstract Background - More visible pink clouds */
+  /* Cloudy Abstract Background - Soft dreamy pink clouds */
   .cloudy-bg {
     position: relative;
     overflow: hidden;
@@ -83,26 +83,30 @@
   .cloudy-bg::before {
     content: '';
     position: absolute;
-    inset: -50%;
+    inset: -30%;
     background: 
-      radial-gradient(ellipse 80% 60% at 20% 30%, hsl(330 70% 85% / 0.9) 0%, transparent 50%),
-      radial-gradient(ellipse 70% 50% at 80% 20%, hsl(350 65% 88% / 0.8) 0%, transparent 45%),
-      radial-gradient(ellipse 90% 70% at 60% 80%, hsl(340 60% 78% / 0.7) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 80% at 10% 70%, hsl(355 55% 84% / 0.6) 0%, transparent 40%),
-      radial-gradient(ellipse 50% 40% at 90% 60%, hsl(335 65% 82% / 0.7) 0%, transparent 45%);
+      radial-gradient(ellipse 90% 70% at 15% 25%, hsl(350 90% 85% / 0.7) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 60% at 85% 15%, hsl(330 85% 80% / 0.6) 0%, transparent 45%),
+      radial-gradient(ellipse 100% 80% at 50% 85%, hsl(345 80% 82% / 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 90% at 5% 75%, hsl(355 75% 88% / 0.5) 0%, transparent 40%),
+      radial-gradient(ellipse 60% 50% at 95% 55%, hsl(335 85% 78% / 0.6) 0%, transparent 45%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, hsl(340 90% 90% / 0.4) 0%, transparent 60%);
     pointer-events: none;
-    animation: cloud-drift 25s ease-in-out infinite alternate;
+    animation: cloud-drift 30s ease-in-out infinite alternate;
   }
   
   @keyframes cloud-drift {
     0% {
-      transform: translate(0, 0) scale(1);
+      transform: translate(0, 0) scale(1) rotate(0deg);
     }
-    50% {
-      transform: translate(-4%, 3%) scale(1.03);
+    33% {
+      transform: translate(-3%, 2%) scale(1.02) rotate(0.5deg);
+    }
+    66% {
+      transform: translate(2%, -2%) scale(1.01) rotate(-0.5deg);
     }
     100% {
-      transform: translate(3%, -2%) scale(1);
+      transform: translate(-1%, 1%) scale(1.015) rotate(0deg);
     }
   }
 
